@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/plutocms/nuxt-content/compare/v0.2.0...v0.3.0) (2026-10-25)
+
+
+### Features
+
+* add New Page and Edit Page to the admin bar ([#9](https://github.com/plutocms/nuxt-content/issues/9)) ([c5fe6ad](https://github.com/plutocms/nuxt-content/commit/c5fe6ad5ebc4a868aacfe8013647b325fc3898a7))
+
 ## [0.2.0](https://github.com/plutocms/nuxt-content/compare/v0.1.0...v0.2.0) (2026-10-25)
 
 
