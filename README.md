@@ -14,6 +14,8 @@ site in the Pluto admin. The pages are Markdown files in a GitHub repo (the stan
 - A **View page** button in the admin form.
 - `usePlutoContentEditLink(page)`: an "Edit in admin" link for the public page, for signed-in
   staff only.
+- Admin bar actions: **New Page** on every page, and **Edit Page** on a public page that calls
+  `usePlutoContentEditLink`. They show for a user who can write pages (`docs:write`).
 - A CSS offset, so the Nuxt UI header and the sticky sidebar stay under the Pluto admin bar.
 - English and Brazilian Portuguese text.
 

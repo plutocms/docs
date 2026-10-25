@@ -5,7 +5,8 @@
       "delete": "Excluir páginas"
     },
     "actions": {
-      "viewPage": "Ver página"
+      "viewPage": "Ver página",
+      "edit": "Editar {label}"
     },
     "mdc": {
       "insert": "Inserir",
