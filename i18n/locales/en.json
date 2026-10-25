@@ -1,5 +1,5 @@
 {
-  "nuxtContent": {
+  "nuxt-content": {
     "capabilities": {
       "write": "Create and edit pages",
       "delete": "Delete pages"

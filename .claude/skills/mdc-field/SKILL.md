@@ -33,8 +33,8 @@ block with a file name. A nested component uses more colons than its parent wher
 ## Add a snippet
 
 1. Add an entry to `MDC_SNIPPETS`: `id`, a full i18n key in `label`, an icon, `text`, `block`.
-2. Add the key to `i18n/locales/en.json` and `pt-BR.json` under `nuxtContent.snippets`.
+2. Add the key to `i18n/locales/en.json` and `pt-BR.json` under `nuxt-content.snippets`.
 3. Update the id list in `test/mdc-snippets.test.ts`.
 
-The `label` must be a full literal key (`nuxtContent.snippets.note`). The locale test scans
+The `label` must be a full literal key (`nuxt-content.snippets.note`). The locale test scans
 the code for literal keys.

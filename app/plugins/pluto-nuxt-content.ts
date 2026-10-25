@@ -28,8 +28,8 @@ export default defineNuxtPlugin(() => {
     id: 'nuxt-content',
     contentTypes: types.map((type) => ({ id: type.name, type })),
     capabilities: [
-      { id: 'docs-write', key: DOCS_CAPABILITIES.write, label: 'nuxtContent.capabilities.write' },
-      { id: 'docs-delete', key: DOCS_CAPABILITIES.delete, label: 'nuxtContent.capabilities.delete' },
+      { id: 'docs-write', key: DOCS_CAPABILITIES.write, label: 'nuxt-content.capabilities.write' },
+      { id: 'docs-delete', key: DOCS_CAPABILITIES.delete, label: 'nuxt-content.capabilities.delete' },
     ],
     navbarActions: [
       { id: 'bar-actions', component: PlutoNuxtContentBarActions },
@@ -40,7 +40,7 @@ export default defineNuxtPlugin(() => {
     contentActions: types.map((type) => ({
       id: `view-page-${type.name}`,
       contentType: type.name,
-      label: 'nuxtContent.actions.viewPage',
+      label: 'nuxt-content.actions.viewPage',
       icon: 'i-lucide-external-link',
       color: 'neutral',
       variant: 'outline',

@@ -24,7 +24,7 @@ describe('mdc snippets', () => {
   it('has unique ids and i18n keys of this layer', () => {
     expect(new Set(MDC_SNIPPETS.map((snippet) => snippet.id)).size).toBe(MDC_SNIPPETS.length)
     for (const snippet of MDC_SNIPPETS) {
-      expect(snippet.label).toMatch(/^nuxtContent\.snippets\./)
+      expect(snippet.label).toMatch(/^nuxt-content\.snippets\./)
     }
   })
 
