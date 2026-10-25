@@ -37,7 +37,7 @@ for (const code of codes) {
 
 /** The keys of the layer namespace only. */
 function own(messages: FlatMessages): string[] {
-  return Object.keys(messages).filter((key) => key.startsWith('nuxtContent.'))
+  return Object.keys(messages).filter((key) => key.startsWith('nuxt-content.'))
 }
 
 function placeholders(message: string): string[] {
@@ -60,9 +60,9 @@ describe('nuxt-content locale files', () => {
   }
 
   for (const code of codes) {
-    it(`${code} has only the nuxtContent namespace and the doc type keys, and no empty value`, () => {
+    it(`${code} has only the nuxt-content namespace and the doc type keys, and no empty value`, () => {
       for (const key of Object.keys(locales[code]!)) {
-        expect(key.startsWith('nuxtContent.') || key.startsWith('content.doc.'), key).toBe(true)
+        expect(key.startsWith('nuxt-content.') || key.startsWith('content.doc.'), key).toBe(true)
       }
       for (const [key, message] of Object.entries(locales[code]!)) {
         expect(message.trim(), key).not.toBe('')
@@ -83,6 +83,23 @@ function sourceFiles(folder: string): string[] {
   }
   return files
 }
+
+// The core rule of `isMessageKey` (pluto, i18n-core.ts): a lowercase namespace,
+// then one or more dotted parts. A label in the registry (an action, a
+// capability) is translated only when it matches, so a key that does not
+// match shows as raw text.
+function isCoreMessageKey(key: string): boolean {
+  const [namespace, ...parts] = key.split('.')
+  return /^[a-z][a-z0-9-]*$/.test(namespace!) && parts.length > 0 && parts.every((part) => /^[\w-]+$/.test(part))
+}
+
+describe('the layer keys', () => {
+  it('match the core key rule, so tx() translates them', () => {
+    for (const key of Object.keys(locales.en!)) {
+      expect(isCoreMessageKey(key), key).toBe(true)
+    }
+  })
+})
 
 describe('the doc type keys', () => {
   const type = createDocsType({ name: 'doc', source: '' })
@@ -109,7 +126,7 @@ describe('nuxt-content i18n keys in the code', () => {
     const keys = new Set<string>()
     for (const folder of ['app', 'shared', 'modules', 'server']) {
       for (const file of sourceFiles(join(root, folder))) {
-        for (const match of readFileSync(file, 'utf8').matchAll(/(['"`])(nuxtContent\.[\w-]+(?:\.[\w-]+)+)\1/g)) {
+        for (const match of readFileSync(file, 'utf8').matchAll(/(['"`])(nuxt-content\.[\w-]+(?:\.[\w-]+)+)\1/g)) {
           keys.add(match[2]!)
         }
       }

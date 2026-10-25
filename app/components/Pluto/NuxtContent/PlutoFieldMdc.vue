@@ -35,14 +35,14 @@ function menu(insert: Insert) {
     <PlutoMarkdownSource
       :model-value="value"
       :disabled="disabled"
-      :placeholder="field.placeholder ?? t('nuxtContent.mdc.placeholder')"
+      :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
       :aria-label="field.label"
       @update:model-value="emit('update:modelValue', $event)"
     >
       <template #toolbar="{ insert }">
         <UDropdownMenu :items="menu(insert)" :content="{ align: 'start' }" :disabled="disabled">
           <UButton
-            :label="t('nuxtContent.mdc.insert')"
+            :label="t('nuxt-content.mdc.insert')"
             :disabled="disabled"
             color="neutral"
             variant="ghost"

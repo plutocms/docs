@@ -52,7 +52,7 @@ The client plugin registers one `navbarActions` component action, `PlutoNuxtCont
 - **New <label>** for each type of the layer config (`usePlutoContentTexts()(type).newLabel`),
   to `contentNewPath(type)` (`/admin/content/<type>/new`). It shows on every page where the bar
   shows, `/admin/**` too.
-- **Edit <label>** (`nuxtContent.actions.edit`, "Edit {label}") on a public page, to
+- **Edit <label>** (`nuxt-content.actions.edit`, "Edit {label}") on a public page, to
   `contentEditPath(type, id)`. It does not show on `/admin/**`, because the form has "View page".
 
 The layer does not own the collections, so it cannot find the page of a route. The page tells
