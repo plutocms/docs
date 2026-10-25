@@ -68,6 +68,6 @@ shared config.
 
 ## Local development
 
-Pluto 0.19 is not on npm until it is released. Run the commands with
+Pluto 0.19.0 is on npm. To test unpublished Pluto changes, run the commands with
 `PLUTO_PLUTO_PATH=<path to pluto>`. An app that extends this layer from a local folder sets
-`PLUTO_NUXT_CONTENT_PATH` too. The `bun.lock` must be refreshed after the first publish.
+`PLUTO_NUXT_CONTENT_PATH` too.
