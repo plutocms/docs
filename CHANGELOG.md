@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/plutocms/nuxt-content/compare/v0.3.1...v0.3.2) (2026-10-25)
+
+
+### Bug Fixes
+
+* **i18n:** use the nuxt-content namespace, so core translates the labels ([#14](https://github.com/plutocms/nuxt-content/issues/14)) ([4c44e3c](https://github.com/plutocms/nuxt-content/commit/4c44e3ce43d8a7d47e9ce0cd20477c41a676ba39))
+
 ## [0.3.1](https://github.com/plutocms/nuxt-content/compare/v0.3.0...v0.3.1) (2026-10-25)
 
 
