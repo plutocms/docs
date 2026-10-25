@@ -81,7 +81,7 @@ The layer is off, with an error log, when `plutoCms.enabled` is not `true`.
 
 ## Local development
 
-Pluto 0.19 and this layer are not on npm yet. Point the layers at local checkouts:
+To test unpublished changes, point the layers at local checkouts:
 
 ```bash
 PLUTO_PLUTO_PATH=../pluto bun run test
