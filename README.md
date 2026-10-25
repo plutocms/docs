@@ -1,4 +1,4 @@
-# Nuxt Content layer for Pluto CMS
+# Nuxt Content layer for Pluto
 
 This layer lets editors change the Markdown pages of a [Nuxt Content](https://content.nuxt.com)
 site in the Pluto admin. The pages are Markdown files in a GitHub repo (the standalone CMS of
