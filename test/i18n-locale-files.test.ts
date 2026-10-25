@@ -1,10 +1,15 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { createDocsType } from '../shared/utils/docs-type'
 
 // Checks every locale file of this layer against en: same keys, same
 // placeholders. A new language is checked by adding its file. Every literal key
 // in the code must exist in en.
+//
+// A translation also holds the core convention keys of the default `doc` type
+// (`content.doc.*`). en has none: the English text is in the type itself, and an
+// en key would hide a custom `label` option.
 const root = join(__dirname, '..')
 const dir = join(root, 'i18n', 'locales')
 const codes = readdirSync(dir)
@@ -30,6 +35,11 @@ for (const code of codes) {
   locales[code] = flatten(JSON.parse(readFileSync(join(dir, `${code}.json`), 'utf8')))
 }
 
+/** The keys of the layer namespace only. */
+function own(messages: FlatMessages): string[] {
+  return Object.keys(messages).filter((key) => key.startsWith('nuxtContent.'))
+}
+
 function placeholders(message: string): string[] {
   return [...message.matchAll(/\{(\w+)\}/g)].map((match) => match[1]!).toSorted()
 }
@@ -42,7 +52,7 @@ describe('nuxt-content locale files', () => {
 
   for (const code of codes.filter((name) => name !== 'en')) {
     it(`${code} has the keys and the placeholders of en`, () => {
-      expect(Object.keys(locales[code]!).toSorted()).toEqual(Object.keys(locales.en!).toSorted())
+      expect(own(locales[code]!).toSorted()).toEqual(own(locales.en!).toSorted())
       for (const [key, message] of Object.entries(locales.en!)) {
         expect(placeholders(locales[code]![key] ?? ''), key).toEqual(placeholders(message))
       }
@@ -50,9 +60,10 @@ describe('nuxt-content locale files', () => {
   }
 
   for (const code of codes) {
-    it(`${code} has only the nuxtContent namespace and no empty value`, () => {
-      const namespaces = new Set(Object.keys(locales[code]!).map((key) => key.split('.')[0]))
-      expect([...namespaces]).toEqual(['nuxtContent'])
+    it(`${code} has only the nuxtContent namespace and the doc type keys, and no empty value`, () => {
+      for (const key of Object.keys(locales[code]!)) {
+        expect(key.startsWith('nuxtContent.') || key.startsWith('content.doc.'), key).toBe(true)
+      }
       for (const [key, message] of Object.entries(locales[code]!)) {
         expect(message.trim(), key).not.toBe('')
       }
@@ -72,6 +83,26 @@ function sourceFiles(folder: string): string[] {
   }
   return files
 }
+
+describe('the doc type keys', () => {
+  const type = createDocsType({ name: 'doc', source: '' })
+  const fields = new Set(type.fields.map((field) => field.name))
+
+  it('are not in en', () => {
+    expect(Object.keys(locales.en!).filter((key) => key.startsWith('content.'))).toEqual([])
+  })
+
+  for (const code of codes.filter((name) => name !== 'en')) {
+    it(`${code} names only real fields and has both labels`, () => {
+      const keys = Object.keys(locales[code]!).filter((key) => key.startsWith('content.doc.'))
+      expect(keys).toContain('content.doc.label')
+      expect(keys).toContain('content.doc.labelPlural')
+      for (const key of keys.filter((key) => key.startsWith('content.doc.fields.'))) {
+        expect(fields.has(key.split('.')[3]!), key).toBe(true)
+      }
+    })
+  }
+})
 
 describe('nuxt-content i18n keys in the code', () => {
   it('exist in en', () => {

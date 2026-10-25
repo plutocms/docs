@@ -5,8 +5,7 @@
       "delete": "Delete pages"
     },
     "actions": {
-      "viewPage": "View page",
-      "edit": "Edit {label}"
+      "viewPage": "View page"
     },
     "mdc": {
       "insert": "Insert",

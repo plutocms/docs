@@ -5,8 +5,7 @@
       "delete": "Excluir páginas"
     },
     "actions": {
-      "viewPage": "Ver página",
-      "edit": "Editar {label}"
+      "viewPage": "Ver página"
     },
     "mdc": {
       "insert": "Inserir",
@@ -27,6 +26,42 @@
       "kbd": "Tecla",
       "icon": "Ícone",
       "codeFile": "Bloco de código com nome de arquivo"
+    }
+  },
+  "content": {
+    "doc": {
+      "label": "Página",
+      "labelPlural": "Páginas",
+      "fields": {
+        "title": {
+          "label": "Título"
+        },
+        "slug": {
+          "label": "Caminho",
+          "description": "O caminho do arquivo sem .md, por exemplo 2.core/03.content-model. Um caminho novo move o arquivo."
+        },
+        "description": {
+          "label": "Descrição"
+        },
+        "body": {
+          "label": "Conteúdo"
+        },
+        "navigationTitle": {
+          "label": "Título na navegação"
+        },
+        "navigationIcon": {
+          "label": "Ícone na navegação"
+        },
+        "navigationHidden": {
+          "label": "Ocultar da navegação"
+        },
+        "seoTitle": {
+          "label": "Título para SEO"
+        },
+        "seoDescription": {
+          "label": "Descrição para SEO"
+        }
+      }
     }
   }
 }
