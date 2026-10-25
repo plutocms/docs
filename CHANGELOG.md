@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/plutocms/nuxt-content/compare/v0.1.0...v0.2.0) (2026-10-25)
+
+
+### Features
+
+* **deps:** use @plutocms/pluto 0.20 and default to no post type ([#6](https://github.com/plutocms/nuxt-content/issues/6)) ([b4fb0f0](https://github.com/plutocms/nuxt-content/commit/b4fb0f044da3411162047503e9ac8ab23df48001))
+
 ## 0.1.0 (2026-10-25)
 
 
