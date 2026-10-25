@@ -26,9 +26,6 @@ For the full detail of each feature, see [FEATURES.md](./FEATURES.md).
 
 ## Installation
 
-> [!NOTE]
-> Version 0.1.0 is tagged. The npm publish is pending, so the package is not on npm yet.
-
 1. Install the layer (`npm i @plutocms/nuxt-content`, or pnpm or Bun). Your app extends only this layer. It brings `@plutocms/pluto`.
 
 2. Add the layer to `nuxt.config.ts`, and turn the CMS on:
