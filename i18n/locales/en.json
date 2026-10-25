@@ -1,0 +1,31 @@
+{
+  "nuxtContent": {
+    "capabilities": {
+      "write": "Create and edit pages",
+      "delete": "Delete pages"
+    },
+    "actions": {
+      "viewPage": "View page"
+    },
+    "mdc": {
+      "insert": "Insert",
+      "placeholder": "Write the page in Markdown. Use the Insert menu for MDC components."
+    },
+    "snippets": {
+      "note": "Note",
+      "tip": "Tip",
+      "warning": "Warning",
+      "caution": "Caution",
+      "callout": "Callout",
+      "codeGroup": "Code group",
+      "tabs": "Tabs",
+      "steps": "Steps",
+      "cardGroup": "Card group",
+      "accordion": "Accordion",
+      "fieldGroup": "Field group",
+      "kbd": "Keyboard key",
+      "icon": "Icon",
+      "codeFile": "Code block with file name"
+    }
+  }
+}

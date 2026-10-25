@@ -1,0 +1,31 @@
+{
+  "nuxtContent": {
+    "capabilities": {
+      "write": "Criar e editar páginas",
+      "delete": "Excluir páginas"
+    },
+    "actions": {
+      "viewPage": "Ver página"
+    },
+    "mdc": {
+      "insert": "Inserir",
+      "placeholder": "Escreva a página em Markdown. Use o menu Inserir para os componentes MDC."
+    },
+    "snippets": {
+      "note": "Nota",
+      "tip": "Dica",
+      "warning": "Aviso",
+      "caution": "Atenção",
+      "callout": "Destaque",
+      "codeGroup": "Grupo de código",
+      "tabs": "Abas",
+      "steps": "Passos",
+      "cardGroup": "Grupo de cartões",
+      "accordion": "Acordeão",
+      "fieldGroup": "Grupo de campos",
+      "kbd": "Tecla",
+      "icon": "Ícone",
+      "codeFile": "Bloco de código com nome de arquivo"
+    }
+  }
+}
