@@ -36,6 +36,19 @@ and in Nitro.
   key (the field name). The core adapter reads a virtual field back from no column, so a virtual
   field would always show empty.
 
+## Translation
+
+The admin translates a content type with the core convention keys `content.<name>.*` (see the
+i18n skill in pluto). The layer ships them for the default type name `doc` in each language but
+English: `content.doc.label`, `labelPlural`, and the `fields.<field>.label` (and
+`description` for `slug`). In Portuguese, the bar shows "Criar Página" and the sidebar
+"Páginas".
+
+English has no `content.doc` keys: the English text is in the type, and an English key would hide
+a custom `label` option. A site that renames the type, or sets its own `label`, adds its own
+`content.<name>.*` keys in its `i18n/locales/<code>.json`. The test
+`test/i18n-locale-files.test.ts` checks that the keys name real fields of the type.
+
 ## The frontmatter hooks
 
 The core adapter runs `read` after it parses a file, and `write` before it writes. Both are pure

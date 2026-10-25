@@ -26,8 +26,8 @@ const editPath = computed(() => {
   return contentEditPath(page.type, page.id)
 })
 
-// "Edit Page", with the same label as "New Page".
-const editLabel = computed(() => current.value ? t('nuxtContent.actions.edit', { label: texts(current.value.type).label }) : '')
+// "Edit Page", with the core phrase, like "New Page".
+const editLabel = computed(() => current.value ? t('pluto.content.edit', { label: texts(current.value.type).label }) : '')
 </script>
 
 <template>
