@@ -1,9 +1,9 @@
 # Admin bar actions: "New page" and "Edit page"
 
-Status: in progress
+Status: done
 Started: 2026-10-25
 Projects: nuxt-content (0.3.0), plutocms (docs site)
-Branch / PR: none yet
+Branch / PR: #9, release #10 (0.3.0)
 
 ## Context
 
@@ -31,7 +31,7 @@ Branch / PR: none yet
 - [x] i18n: `nuxtContent.actions.edit` ("Edit {label}", like core "New {label}"; en, pt-BR).
 - [x] Docs: page-links skill, FEATURES, README; the docs site page for the layer.
 - [x] Docs site: landing calls `usePlutoContentEditLink` too; check in Chrome.
-- [ ] lint/typecheck/test; PR, release 0.3.0 (`feat`); docs site to ^0.3.0.
+- [x] lint/typecheck/test; PR, release 0.3.0 (`feat`); docs site to ^0.3.0.
 
 ## Log
 
@@ -39,3 +39,4 @@ Branch / PR: none yet
 - 2026-10-25: built. Checked on a test dev server with the local layer: the bar shows "New Page" and
   "Edit Page" on a docs page (`/admin/content/doc/2.core/03.content-model`) and on the landing
   (`/admin/content/doc/index`), and only "New Page" in the admin. lint/typecheck/test pass.
+- 2026-10-25: released 0.3.0 (#9, #10). Docs site on ^0.3.0, pushed, CI green.
