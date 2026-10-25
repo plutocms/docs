@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/plutocms/nuxt-content/compare/v0.3.0...v0.3.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **i18n:** translate the doc type in the admin ([#12](https://github.com/plutocms/nuxt-content/issues/12)) ([2ff7034](https://github.com/plutocms/nuxt-content/commit/2ff70343257ecf912be2e39a94a73a80a9c8aeee))
+
 ## [0.3.0](https://github.com/plutocms/nuxt-content/compare/v0.2.0...v0.3.0) (2026-10-25)
 
 
