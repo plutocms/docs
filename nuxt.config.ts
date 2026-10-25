@@ -23,9 +23,12 @@ export default defineNuxtConfig({
   // this layer's app/ dir. The tokens of this layer are in
   // app/assets/css/pluto-layer.css. See the single-tailwind-build skill in pluto.
 
-  // A docs edit must redeploy the site, so the commit message has no
-  // `[skip ci]` marker by default. An app can set it back to `true`.
+  // The pages are Markdown files, so the fixed blog post type is off. A docs
+  // edit must redeploy the site, so the commit message has no `[skip ci]`
+  // marker by default. An app can change both. The other `plutoCms` options
+  // have defaults in core (see the github-cms skill in pluto).
   plutoCms: {
+    postType: false,
     commit: {
       skipDeploy: false,
     },

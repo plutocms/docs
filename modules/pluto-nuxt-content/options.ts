@@ -23,7 +23,7 @@ export interface PlutoNuxtContentOptions {
 }
 
 export interface PlutoNuxtContentResolveContext {
-  /** True when `plutoCms.enabled` is true. */
+  /** False when the app sets `plutoCms.enabled` to false. */
   cmsEnabled: boolean
 }
 
@@ -36,7 +36,7 @@ export interface PlutoNuxtContentResolveResult {
 export const PLUTO_NUXT_CONTENT_PRESETS = ['docs'] as const
 
 export const CMS_OFF_ERROR
-  = 'The Nuxt Content layer needs the standalone CMS. Set plutoCms.enabled to true, or remove the layer.'
+  = 'The Nuxt Content layer needs the standalone CMS. Remove plutoCms.enabled: false, or remove the layer.'
 
 const NAME_PATTERN = /^[a-z][a-z0-9-]*$/
 const SOURCE_SEGMENT = /^(?:\d+\.)?[a-z0-9]+(?:-[a-z0-9]+)*$/

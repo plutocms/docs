@@ -21,33 +21,30 @@ For the full detail of each feature, see [FEATURES.md](./FEATURES.md).
 
 ## Requirements
 
-- `@plutocms/pluto` 0.19 or newer. The layer depends on it, so it installs with the layer.
+- `@plutocms/pluto` 0.20 or newer. The layer depends on it, so it installs with the layer.
 - Node 22.5 or newer (the layer sets the native SQLite connector of Nuxt Content).
 
 ## Installation
 
 1. Install the layer (`npm i @plutocms/nuxt-content`, or pnpm or Bun). Your app extends only this layer. It brings `@plutocms/pluto`.
 
-2. Add the layer to `nuxt.config.ts`, and turn the CMS on:
+2. Add the layer to `nuxt.config.ts`:
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   extends: [['@plutocms/nuxt-content', { install: true }]],
 
-  plutoCms: {
-    enabled: true,
-    storage: process.env.NODE_ENV === 'production' ? 'github' : 'fs',
-    github: { repo: 'my-org/my-docs', branch: 'main', appSlug: process.env.PLUTO_CMS_APP_SLUG },
-    dir: 'content',
-    postType: false,
-  },
-
   plutoNuxtContent: {
     types: [{ preset: 'docs', name: 'doc', source: '' }],
   },
 })
 ```
+
+   The CMS is on by default. In dev it reads and writes the local `content/` folder. In
+   production it uses GitHub. Pluto finds the repo from `PLUTO_CMS_REPO`, from Vercel, or (in dev)
+   from the `origin` remote. Set `plutoCms.github.repo` only when none of these works. The layer
+   sets `plutoCms.postType: false` and `plutoCms.commit.skipDeploy: false`.
 
 3. Define the collections in `content.config.ts`, as for any Nuxt Content site. The layer
    defines no collection.
@@ -79,7 +76,7 @@ export default defineNuxtConfig({
 | `exclude`     | Ids to hide: an id (`index`), or a folder with a trailing slash (`drafts/`). |
 | `routePrefix` | The route prefix of the pages on the public site. Default: none.            |
 
-The layer is off, with an error log, when `plutoCms.enabled` is not `true`.
+The layer is off, with an error log, when the app sets `plutoCms.enabled: false`.
 
 ## Local development
 
@@ -89,4 +86,18 @@ To test unpublished changes, point the layers at local checkouts:
 PLUTO_PLUTO_PATH=../pluto bun run test
 ```
 
-An app uses `PLUTO_NUXT_CONTENT_PATH` for this layer.
+An app can use the `plutoLayer` helper of `@plutocms/pluto` for this layer. Set
+`PLUTO_LOCAL_ROOT` (for example `PLUTO_LOCAL_ROOT=..` in `.env`) to the folder with your Pluto
+checkouts. The helper then uses the local `nuxt-content` and `pluto` folders.
+
+```ts
+// nuxt.config.ts
+import { plutoLayer } from '@plutocms/pluto/layers'
+
+export default defineNuxtConfig({
+  extends: [plutoLayer('@plutocms/nuxt-content')],
+})
+```
+
+With pnpm, add `@plutocms/pluto` to the dependencies of the app, so the import works. Without
+`PLUTO_LOCAL_ROOT`, the helper returns `['@plutocms/nuxt-content', { install: true }]`.
