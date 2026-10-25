@@ -42,3 +42,24 @@ const adminLink = usePlutoContentEditLink(page)
 ## Tests
 
 `test/content-route.test.ts` checks `contentRoutePath` against the paths of the docs template.
+
+## The admin bar: "New Page" and "Edit Page"
+
+The client plugin registers one `navbarActions` component action, `PlutoNuxtContentBarActions`
+(async). It renders `PlutoNavbarButton` items (each is an `<li>`), only when
+`can(DOCS_CAPABILITIES.write)` is true:
+
+- **New <label>** for each type of the layer config (`usePlutoContentTexts()(type).newLabel`),
+  to `contentNewPath(type)` (`/admin/content/<type>/new`). It shows on every page where the bar
+  shows, `/admin/**` too.
+- **Edit <label>** (`nuxtContent.actions.edit`, "Edit {label}") on a public page, to
+  `contentEditPath(type, id)`. It does not show on `/admin/**`, because the form has "View page".
+
+The layer does not own the collections, so it cannot find the page of a route. The page tells
+it: `usePlutoContentEditLink(page, type)` also sets `usePlutoContentCurrentPage()` (a `useState`,
+`{ type, id, owner }`) in the browser, and clears it in `onScopeDispose`. The next page can mount
+before the old one unmounts, so a page clears the value only when its own `owner` number is still
+there. The server never sets the value. A site that wants "Edit Page" on a page must call
+`usePlutoContentEditLink` there, the landing page too.
+
+`contentEditPath` and `contentNewPath` are in `shared/utils/content-route.ts` and have tests.

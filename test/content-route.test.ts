@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { contentRoutePath } from '../shared/utils/content-route'
+import { contentEditPath, contentNewPath, contentRoutePath } from '../shared/utils/content-route'
 
 describe('contentRoutePath', () => {
   it('maps the landing page to /', () => {
@@ -33,5 +33,22 @@ describe('contentRoutePath', () => {
   it('adds a route prefix', () => {
     expect(contentRoutePath('1.start/2.install', '/docs')).toBe('/docs/start/install')
     expect(contentRoutePath('index', 'docs/')).toBe('/docs')
+  })
+})
+
+describe('contentEditPath', () => {
+  it('keeps the slashes of a nested id', () => {
+    expect(contentEditPath('doc', '2.core/03.content-model')).toBe('/admin/content/doc/2.core/03.content-model')
+  })
+
+  it('encodes each segment', () => {
+    expect(contentEditPath('doc', 'guides/a b?')).toBe('/admin/content/doc/guides/a%20b%3F')
+    expect(contentEditPath('my type', 'index')).toBe('/admin/content/my%20type/index')
+  })
+})
+
+describe('contentNewPath', () => {
+  it('gives the create form of a type', () => {
+    expect(contentNewPath('doc')).toBe('/admin/content/doc/new')
   })
 })

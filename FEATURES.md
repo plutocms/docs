@@ -12,7 +12,8 @@ policies shared by every project here.
   @.claude/skills/docs-preset/SKILL.md.
 - MDC field: the `mdc` field widget with the Insert menu of snippets. See
   @.claude/skills/mdc-field/SKILL.md.
-- Page links: the "View page" action, `contentRoutePath`, and `usePlutoContentEditLink`. See
+- Page links: the "View page" action, the admin bar actions ("New Page", "Edit Page"),
+  `contentRoutePath`, `contentEditPath`, and `usePlutoContentEditLink`. See
   @.claude/skills/page-links/SKILL.md.
 - Admin bar offset: CSS that keeps a Nuxt UI header under the Pluto admin bar. See
   @.claude/skills/admin-bar-offset/SKILL.md.

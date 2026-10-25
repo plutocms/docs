@@ -1,14 +1,17 @@
 import type { PlutoNuxtContentTypeOptions } from '../../modules/pluto-nuxt-content/options'
 import { defineAsyncComponent } from 'vue'
 
-// The field widget loads on demand and stays out of the entry chunk. Core
-// shows a skeleton while the chunk loads.
+// The field widget and the bar actions load on demand and stay out of the entry
+// chunk. Core shows a skeleton while the field chunk loads.
 const PlutoFieldMdc = defineAsyncComponent(
   () => import('../components/Pluto/NuxtContent/PlutoFieldMdc.vue')
 )
+const PlutoNuxtContentBarActions = defineAsyncComponent(
+  () => import('../components/Pluto/NuxtContent/PlutoNuxtContentBarActions.vue')
+)
 
-// Registers the types, the capabilities, the `mdc` field widget and the "View
-// page" action. The module sets the config only when the CMS is on. Without it,
+// Registers the types, the capabilities, the `mdc` field widget, the "View
+// page" action, and the admin bar actions ("New page", "Edit page"). The module sets the config only when the CMS is on. Without it,
 // the layer adds nothing to the admin.
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig().public.plutoNuxtContent as {
@@ -27,6 +30,9 @@ export default defineNuxtPlugin(() => {
     capabilities: [
       { id: 'docs-write', key: DOCS_CAPABILITIES.write, label: 'nuxtContent.capabilities.write' },
       { id: 'docs-delete', key: DOCS_CAPABILITIES.delete, label: 'nuxtContent.capabilities.delete' },
+    ],
+    navbarActions: [
+      { id: 'bar-actions', component: PlutoNuxtContentBarActions },
     ],
     contentFieldWidgets: [
       { id: 'mdc', widget: 'mdc', component: PlutoFieldMdc },
