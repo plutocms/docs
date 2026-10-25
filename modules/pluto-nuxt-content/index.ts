@@ -5,8 +5,9 @@ import { resolvePlutoNuxtContentOptions } from './options'
 export type { PlutoNuxtContentOptions, PlutoNuxtContentTypeOptions } from './options'
 
 /**
- * Registers the content types of the Nuxt Content layer. It is OFF unless the
- * standalone CMS is on (`plutoCms.enabled`). The module only checks the options
+ * Registers the content types of the Nuxt Content layer. It is OFF when the
+ * app turns the standalone CMS off (`plutoCms.enabled: false`). The default
+ * `'auto'` and `true` both count as on. The module only checks the options
  * and copies them to the public runtime config. The client plugin
  * (`app/plugins/pluto-nuxt-content.ts`) and the Nitro plugin
  * (`server/plugins/pluto-nuxt-content.ts`) of the layer build the types from
@@ -17,10 +18,10 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
   defaults: { types: [] },
   setup(options, nuxt) {
     const logger = useLogger('pluto-nuxt-content')
-    const cms = (nuxt.options as { plutoCms?: { enabled?: boolean } }).plutoCms
+    const cms = (nuxt.options as { plutoCms?: { enabled?: boolean | 'auto' } }).plutoCms
 
     const { enabled, types, errors } = resolvePlutoNuxtContentOptions(options, {
-      cmsEnabled: cms?.enabled === true,
+      cmsEnabled: cms?.enabled !== false,
     })
 
     for (const error of errors) {

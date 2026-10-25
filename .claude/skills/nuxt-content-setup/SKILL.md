@@ -1,13 +1,15 @@
 # Nuxt Content setup
 
 The layer edits the pages of a Nuxt Content site in the Pluto admin. The app turns it on with
-`extends` and one config key. This skill describes the module, the options, and the plugins.
+`extends` and one config key (`plutoNuxtContent.types`). This skill describes the module, the options, and the plugins.
 
 ## Files
 
 - `nuxt.config.ts` — extends `process.env.PLUTO_PLUTO_PATH || '@plutocms/pluto'`, adds the
   `@nuxt/content` module, sets `$meta.name: 'nuxt-content'`, the native SQLite connector, and the
-  layer default `plutoCms.commit.skipDeploy: false`. It has no `css` entry.
+  layer defaults `plutoCms.postType: false` and `plutoCms.commit.skipDeploy: false`. It has no `css`
+  entry. The other `plutoCms` options use the core defaults (`enabled: 'auto'`, `storage` by mode,
+  the repo from the env or the git remote). See the `github-cms` skill in pluto.
 - `modules/pluto-nuxt-content/index.ts` — the Nuxt module. Config key `plutoNuxtContent`.
 - `modules/pluto-nuxt-content/options.ts` — pure helpers: `resolvePlutoNuxtContentOptions`,
   `isValidSource`, `normalizeRoutePrefix`. No Nuxt import, so plain Vitest tests them.
@@ -33,10 +35,11 @@ plutoNuxtContent: {
 
 ## The CMS must be on
 
-The module reads `nuxt.options.plutoCms.enabled`. When it is not `true`, the module logs this
-error and stays off:
+The module reads `nuxt.options.plutoCms.enabled`. Core defaults it to `'auto'`, so an app
+sets nothing. When the app sets `plutoCms.enabled: false`, the module logs this error and stays
+off:
 
-> The Nuxt Content layer needs the standalone CMS. Set plutoCms.enabled to true, or remove the
+> The Nuxt Content layer needs the standalone CMS. Remove plutoCms.enabled: false, or remove the
 > layer.
 
 When the module is on, it copies the valid types to `runtimeConfig.public.plutoNuxtContent`.
@@ -68,6 +71,7 @@ shared config.
 
 ## Local development
 
-Pluto 0.19.0 is on npm. To test unpublished Pluto changes, run the commands with
-`PLUTO_PLUTO_PATH=<path to pluto>`. An app that extends this layer from a local folder sets
-`PLUTO_NUXT_CONTENT_PATH` too.
+The layer needs Pluto 0.20 or newer. To test unpublished Pluto changes, run the commands with
+`PLUTO_PLUTO_PATH=<path to pluto>`. An app that extends this layer from a local folder uses the
+`plutoLayer` helper (`@plutocms/pluto/layers`) with `PLUTO_LOCAL_ROOT`. See the `local-layers`
+skill in pluto.
