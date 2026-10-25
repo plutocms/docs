@@ -21,12 +21,17 @@ For the full detail of each feature, see [FEATURES.md](./FEATURES.md).
 
 ## Requirements
 
-- `@plutocms/pluto` 0.19 or newer.
+- `@plutocms/pluto` 0.19 or newer. The layer depends on it, so it installs with the layer.
 - Node 22.5 or newer (the layer sets the native SQLite connector of Nuxt Content).
 
 ## Installation
 
-1. Add the layer to `nuxt.config.ts`, and turn the CMS on:
+> [!NOTE]
+> Version 0.1.0 is tagged. The npm publish is pending, so the package is not on npm yet.
+
+1. Install the layer (`npm i @plutocms/nuxt-content`, or pnpm or Bun). Your app extends only this layer. It brings `@plutocms/pluto`.
+
+2. Add the layer to `nuxt.config.ts`, and turn the CMS on:
 
 ```ts
 // nuxt.config.ts
@@ -47,10 +52,10 @@ export default defineNuxtConfig({
 })
 ```
 
-2. Define the collections in `content.config.ts`, as for any Nuxt Content site. The layer
+3. Define the collections in `content.config.ts`, as for any Nuxt Content site. The layer
    defines no collection.
 
-3. Start the CSS entry of the app with the single Tailwind build:
+4. Start the CSS entry of the app with the single Tailwind build:
 
 ```css
 @import 'tailwindcss';
@@ -58,10 +63,10 @@ export default defineNuxtConfig({
 @import '#build/pluto.css';
 ```
 
-4. Use `PlutoRoot` in `app.vue` instead of `UApp`. Render the admin routes (`/admin/**`) with
+5. Use `PlutoRoot` in `app.vue` instead of `UApp`. Render the admin routes (`/admin/**`) with
    only `<NuxtPage />`, and the public routes with your own header, main and footer.
 
-5. Set the secrets of the GitHub App. See the GitHub CMS docs of `@plutocms/pluto`.
+6. Set the secrets of the GitHub App. See the GitHub CMS docs of `@plutocms/pluto`.
 
 ## Options
 
