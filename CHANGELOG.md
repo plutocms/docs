@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/plutocms/nuxt-content/compare/v0.3.2...v0.4.0) (2026-10-26)
+
+
+### Features
+
+* add the visual block editor and a hybrid Markdown mode ([#16](https://github.com/plutocms/nuxt-content/issues/16)) ([22c8c5e](https://github.com/plutocms/nuxt-content/commit/22c8c5e7f7f745ced4ef01d85160b08aa5749d7a))
+
 ## [0.3.2](https://github.com/plutocms/nuxt-content/compare/v0.3.1...v0.3.2) (2026-10-25)
 
 
