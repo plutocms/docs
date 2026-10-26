@@ -23,6 +23,11 @@ const { t } = usePlutoI18n()
 useHead({
   title: () => t('nuxt-content.preview.title'),
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+  // The preview is for choosing blocks, not for reading: no text selection, no link or image
+  // drag, and the default cursor everywhere (not the hand of a link or a button).
+  style: [{
+    textContent: '*, *::before, *::after { cursor: default !important; user-select: none !important; -webkit-user-select: none !important; -webkit-user-drag: none !important; }',
+  }],
 })
 
 // Each block renders with `tag` false, so no wrapper element sits between the blocks (the prose
@@ -274,6 +279,13 @@ function onClick(event: MouseEvent) {
   selectBlock(blockIdAt(event.target))
 }
 
+// A middle click or a Ctrl/Cmd+click (`auxclick`) does not open a link in a new tab, a drag does
+// not take a link or an image, and the text does not select.
+function stopEvent(event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+}
+
 function onPointerMove(event: PointerEvent) {
   const id = blockIdAt(event.target)
   if (id !== hoverId.value) {
@@ -295,9 +307,10 @@ function onPointerLeave() {
 // selects the block around the selected inner block.
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter' || event.key === ' ') {
+    // Enter on a focused link must not follow it. The preview has nothing to type into.
+    event.preventDefault()
     const id = blockIdAt(event.target)
     if (id) {
-      event.preventDefault()
       selectBlock(id)
     }
   } else if (event.key === 'Escape' && selectedId.value) {
@@ -324,6 +337,9 @@ onMounted(() => {
   document.addEventListener('pointermove', onPointerMove, { passive: true })
   document.addEventListener('pointerleave', onPointerLeave)
   document.addEventListener('keydown', onKeydown, true)
+  document.addEventListener('auxclick', stopEvent, true)
+  document.addEventListener('dragstart', stopEvent, true)
+  document.addEventListener('selectstart', stopEvent, true)
   observer = new ResizeObserver(refreshOverlay)
   observer.observe(document.body)
   // Images, fonts and lazy components change the layout after the render.
@@ -340,6 +356,9 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointermove', onPointerMove)
   document.removeEventListener('pointerleave', onPointerLeave)
   document.removeEventListener('keydown', onKeydown, true)
+  document.removeEventListener('auxclick', stopEvent, true)
+  document.removeEventListener('dragstart', stopEvent, true)
+  document.removeEventListener('selectstart', stopEvent, true)
   observer?.disconnect()
   mutations?.disconnect()
   cancelAnimationFrame(frame)
