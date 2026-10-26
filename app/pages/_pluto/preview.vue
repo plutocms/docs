@@ -286,25 +286,30 @@ function boxStyle(rect: DOMRect | null, kind: 'selected' | 'hover'): CSSProperti
   if (!rect) {
     return { display: 'none' }
   }
+  // The box has the size of the block, and the ring is an inset box shadow. So a full-width block
+  // (a hero, a page section) gives no horizontal scroll (a border on a larger box did), and the
+  // four sides of the ring stay on screen.
+  const color = 'var(--ui-primary, #6366f1)'
   return {
     position: 'absolute',
-    left: `${rect.left - 3}px`,
-    top: `${rect.top - 3}px`,
-    width: `${rect.width + 6}px`,
-    height: `${rect.height + 6}px`,
+    left: `${rect.left}px`,
+    top: `${rect.top}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
     pointerEvents: 'none',
     zIndex: '2147483000',
-    borderRadius: '6px',
-    boxSizing: 'border-box',
-    border: kind === 'selected' ? '2px solid var(--ui-primary, #6366f1)' : '1px dashed var(--ui-primary, #6366f1)',
-    background: kind === 'selected' ? 'color-mix(in oklab, var(--ui-primary, #6366f1) 8%, transparent)' : 'transparent',
+    borderRadius: '4px',
+    boxShadow: kind === 'selected'
+      ? `inset 0 0 0 2px ${color}`
+      : `inset 0 0 0 1px color-mix(in oklab, ${color} 70%, transparent)`,
+    background: kind === 'selected' ? `color-mix(in oklab, ${color} 8%, transparent)` : 'transparent',
   }
 }
 
 const chipStyle: CSSProperties = {
   position: 'absolute',
   top: '-22px',
-  left: '-2px',
+  left: '0',
   padding: '1px 8px',
   borderRadius: '6px 6px 0 0',
   fontSize: '11px',
