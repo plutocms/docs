@@ -17,3 +17,6 @@ policies shared by every project here.
   @.claude/skills/page-links/SKILL.md.
 - Admin bar offset: CSS that keeps a Nuxt UI header under the Pluto admin bar. See
   @.claude/skills/admin-bar-offset/SKILL.md.
+- Block model: the pure model of the visual block editor (parse, serialize, edit, history,
+  presets, registry, preview protocol). The text of an unedited block stays byte for byte. See
+  @.claude/skills/block-model/SKILL.md.

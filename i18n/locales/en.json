@@ -26,6 +26,161 @@
       "kbd": "Keyboard key",
       "icon": "Icon",
       "codeFile": "Code block with file name"
+    },
+    "blocks": {
+      "kinds": {
+        "text": "Text",
+        "code": "Code",
+        "raw": "Markdown"
+      },
+      "groups": {
+        "text": "Text",
+        "callouts": "Callouts",
+        "layout": "Layout",
+        "code": "Code",
+        "landing": "Landing page",
+        "site": "Site"
+      },
+      "props": {
+        "icon": "Icon",
+        "to": "Link",
+        "target": "Open the link in",
+        "title": "Title",
+        "color": "Color",
+        "level": "Heading level",
+        "accordionType": "Open items",
+        "label": "Label",
+        "description": "Description",
+        "sync": "Sync key",
+        "name": "Name",
+        "openText": "Text to open",
+        "closeText": "Text to close",
+        "fieldType": "Type",
+        "required": "Required",
+        "value": "Value",
+        "headline": "Headline",
+        "orientation": "Layout direction",
+        "reverse": "Reverse the order",
+        "variant": "Style",
+        "size": "Size",
+        "spotlight": "Spotlight effect"
+      },
+      "slots": {
+        "default": "Content",
+        "headline": "Headline",
+        "title": "Title",
+        "description": "Text",
+        "links": "Buttons",
+        "features": "Features"
+      },
+      "note": {
+        "label": "Note",
+        "description": "A blue box for extra information."
+      },
+      "tip": {
+        "label": "Tip",
+        "description": "A green box with a useful tip."
+      },
+      "warning": {
+        "label": "Warning",
+        "description": "An orange box for something to be careful about."
+      },
+      "caution": {
+        "label": "Caution",
+        "description": "A red box for a risk or a breaking change."
+      },
+      "callout": {
+        "label": "Callout",
+        "description": "A box with an icon and a color that you choose."
+      },
+      "card": {
+        "label": "Card",
+        "description": "A box with a title, an icon and a link."
+      },
+      "card-group": {
+        "label": "Card group",
+        "description": "Cards side by side in a grid."
+      },
+      "steps": {
+        "label": "Steps",
+        "description": "A numbered list of steps with headings."
+      },
+      "accordion": {
+        "label": "Accordion",
+        "description": "Questions that open and close."
+      },
+      "accordion-item": {
+        "label": "Accordion item",
+        "description": "One question and its answer."
+      },
+      "tabs": {
+        "label": "Tabs",
+        "description": "Content in tabs, one tab at a time."
+      },
+      "tabs-item": {
+        "label": "Tab",
+        "description": "One tab of a group of tabs."
+      },
+      "collapsible": {
+        "label": "Collapsible",
+        "description": "Text that the reader opens with a click."
+      },
+      "field-group": {
+        "label": "Field group",
+        "description": "A list of fields, for an API or a setting."
+      },
+      "field": {
+        "label": "Field",
+        "description": "One field with a name, a type and a text."
+      },
+      "code-group": {
+        "label": "Code group",
+        "description": "Code blocks in tabs, for example one per package manager."
+      },
+      "code-collapse": {
+        "label": "Code that collapses",
+        "description": "A long code block that the reader opens."
+      },
+      "badge": {
+        "label": "Badge",
+        "description": "A small label inside a text."
+      },
+      "kbd": {
+        "label": "Keyboard key",
+        "description": "A keyboard key inside a text."
+      },
+      "icon": {
+        "label": "Icon",
+        "description": "An icon inside a text."
+      },
+      "u-page-hero": {
+        "label": "Hero",
+        "description": "The big title at the top of a landing page."
+      },
+      "u-page-section": {
+        "label": "Page section",
+        "description": "A section with a title, a text and features."
+      },
+      "u-page-feature": {
+        "label": "Feature",
+        "description": "An icon, a title and a short text."
+      },
+      "u-page-card": {
+        "label": "Page card",
+        "description": "A card for a landing page, with a title and a text."
+      },
+      "u-page-grid": {
+        "label": "Card grid",
+        "description": "A grid that holds page cards."
+      },
+      "u-page-c-t-a": {
+        "label": "Call to action",
+        "description": "A box that asks the reader to do something."
+      },
+      "u-button": {
+        "label": "Button",
+        "description": "A button that links to a page."
+      }
     }
   }
 }

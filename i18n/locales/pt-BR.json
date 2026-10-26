@@ -26,6 +26,161 @@
       "kbd": "Tecla",
       "icon": "Ícone",
       "codeFile": "Bloco de código com nome de arquivo"
+    },
+    "blocks": {
+      "kinds": {
+        "text": "Texto",
+        "code": "Código",
+        "raw": "Markdown"
+      },
+      "groups": {
+        "text": "Texto",
+        "callouts": "Destaques",
+        "layout": "Layout",
+        "code": "Código",
+        "landing": "Página inicial",
+        "site": "Site"
+      },
+      "props": {
+        "icon": "Ícone",
+        "to": "Link",
+        "target": "Abrir o link em",
+        "title": "Título",
+        "color": "Cor",
+        "level": "Nível do título",
+        "accordionType": "Itens abertos",
+        "label": "Rótulo",
+        "description": "Descrição",
+        "sync": "Chave de sincronia",
+        "name": "Nome",
+        "openText": "Texto para abrir",
+        "closeText": "Texto para fechar",
+        "fieldType": "Tipo",
+        "required": "Obrigatório",
+        "value": "Valor",
+        "headline": "Sobretítulo",
+        "orientation": "Direção do layout",
+        "reverse": "Inverter a ordem",
+        "variant": "Estilo",
+        "size": "Tamanho",
+        "spotlight": "Efeito de destaque"
+      },
+      "slots": {
+        "default": "Conteúdo",
+        "headline": "Sobretítulo",
+        "title": "Título",
+        "description": "Texto",
+        "links": "Botões",
+        "features": "Recursos"
+      },
+      "note": {
+        "label": "Nota",
+        "description": "Uma caixa azul para informação extra."
+      },
+      "tip": {
+        "label": "Dica",
+        "description": "Uma caixa verde com uma dica útil."
+      },
+      "warning": {
+        "label": "Aviso",
+        "description": "Uma caixa laranja para algo que pede cuidado."
+      },
+      "caution": {
+        "label": "Atenção",
+        "description": "Uma caixa vermelha para um risco ou uma mudança que quebra."
+      },
+      "callout": {
+        "label": "Destaque",
+        "description": "Uma caixa com ícone e cor à sua escolha."
+      },
+      "card": {
+        "label": "Cartão",
+        "description": "Uma caixa com título, ícone e link."
+      },
+      "card-group": {
+        "label": "Grupo de cartões",
+        "description": "Cartões lado a lado em uma grade."
+      },
+      "steps": {
+        "label": "Passos",
+        "description": "Uma lista numerada de passos com títulos."
+      },
+      "accordion": {
+        "label": "Acordeão",
+        "description": "Perguntas que abrem e fecham."
+      },
+      "accordion-item": {
+        "label": "Item do acordeão",
+        "description": "Uma pergunta e a resposta."
+      },
+      "tabs": {
+        "label": "Abas",
+        "description": "Conteúdo em abas, uma aba por vez."
+      },
+      "tabs-item": {
+        "label": "Aba",
+        "description": "Uma aba de um grupo de abas."
+      },
+      "collapsible": {
+        "label": "Conteúdo recolhível",
+        "description": "Texto que o leitor abre com um clique."
+      },
+      "field-group": {
+        "label": "Grupo de campos",
+        "description": "Uma lista de campos, para uma API ou uma configuração."
+      },
+      "field": {
+        "label": "Campo",
+        "description": "Um campo com nome, tipo e texto."
+      },
+      "code-group": {
+        "label": "Grupo de código",
+        "description": "Blocos de código em abas, por exemplo um por gerenciador de pacotes."
+      },
+      "code-collapse": {
+        "label": "Código recolhível",
+        "description": "Um bloco de código longo que o leitor abre."
+      },
+      "badge": {
+        "label": "Selo",
+        "description": "Um rótulo pequeno dentro de um texto."
+      },
+      "kbd": {
+        "label": "Tecla",
+        "description": "Uma tecla do teclado dentro de um texto."
+      },
+      "icon": {
+        "label": "Ícone",
+        "description": "Um ícone dentro de um texto."
+      },
+      "u-page-hero": {
+        "label": "Destaque de abertura",
+        "description": "O título grande no topo de uma página inicial."
+      },
+      "u-page-section": {
+        "label": "Seção da página",
+        "description": "Uma seção com título, texto e recursos."
+      },
+      "u-page-feature": {
+        "label": "Recurso",
+        "description": "Um ícone, um título e um texto curto."
+      },
+      "u-page-card": {
+        "label": "Cartão da página",
+        "description": "Um cartão para a página inicial, com título e texto."
+      },
+      "u-page-grid": {
+        "label": "Grade de cartões",
+        "description": "Uma grade que reúne cartões da página."
+      },
+      "u-page-c-t-a": {
+        "label": "Chamada para ação",
+        "description": "Uma caixa que pede uma ação ao leitor."
+      },
+      "u-button": {
+        "label": "Botão",
+        "description": "Um botão que leva a uma página."
+      }
     }
   },
   "content": {
