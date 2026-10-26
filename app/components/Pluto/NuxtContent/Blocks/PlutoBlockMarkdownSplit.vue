@@ -4,10 +4,12 @@
 // screen). The handle between them resizes them, and a cookie keeps the size.
 // The preview is the frame of the visual editor, so it renders with the site
 // parser. A click on a block in the preview selects the first line of that
-// block in the Markdown and scrolls to it. The Markdown is the only editor
+// block in the Markdown and scrolls to it. The Markdown editor is
+// PlutoMdcCodeEditor (CodeMirror). The Markdown is the only editor
 // here: the block model only feeds the preview and never writes.
 import type { SplitterItem } from '@nuxt/ui'
 import { findBlock } from '../../../../../shared/utils/blocks/tree'
+import PlutoMdcCodeEditor from '../PlutoMdcCodeEditor.vue'
 import PlutoMdcInsertMenu from '../PlutoMdcInsertMenu.vue'
 import PlutoBlockModeSwitch from './PlutoBlockModeSwitch.vue'
 import PlutoBlockPreviewFrame from './PlutoBlockPreviewFrame.vue'
@@ -41,7 +43,7 @@ const frontmatter = computed<Record<string, unknown>>(() => {
   return Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'body'))
 })
 
-const pane = useTemplateRef<HTMLElement>('pane')
+const code = useTemplateRef<InstanceType<typeof PlutoMdcCodeEditor>>('code')
 
 // --- The split ---------------------------------------------------------------------
 
@@ -71,65 +73,6 @@ function onDragging(_index: number, value: boolean) {
   }
 }
 
-const MIRRORED = [
-  'boxSizing',
-  'width',
-  'paddingTop',
-  'paddingRight',
-  'paddingBottom',
-  'paddingLeft',
-  'borderTopWidth',
-  'borderRightWidth',
-  'borderBottomWidth',
-  'borderLeftWidth',
-  'fontFamily',
-  'fontSize',
-  'fontWeight',
-  'fontStyle',
-  'letterSpacing',
-  'lineHeight',
-  'tabSize',
-  'textIndent',
-  'wordSpacing',
-  'wordBreak',
-] as const
-
-/**
- * The top of the caret at `offset`, in px from the top of the textarea. A
- * hidden copy of the textarea with the text before the offset gives it, so
- * long lines that wrap count too.
- */
-function caretTop(textarea: HTMLTextAreaElement, offset: number): number {
-  const style = getComputedStyle(textarea)
-  const mirror = document.createElement('div')
-  for (const property of MIRRORED) {
-    mirror.style[property] = style[property]
-  }
-  Object.assign(mirror.style, { position: 'absolute', visibility: 'hidden', top: '0', left: '-9999px', whiteSpace: 'pre-wrap', overflowWrap: 'break-word' })
-  mirror.textContent = textarea.value.slice(0, offset)
-  const marker = document.createElement('span')
-  marker.textContent = '​'
-  mirror.append(marker)
-  document.body.append(mirror)
-  const top = marker.offsetTop
-  mirror.remove()
-  return top
-}
-
-/** Selects the first line of the range in the Markdown, and scrolls it to the upper third of the pane. */
-function reveal(start: number, end: number) {
-  const container = pane.value
-  const textarea = container?.querySelector('textarea')
-  if (!container || !textarea) {
-    return
-  }
-  const lineEnd = textarea.value.indexOf('\n', start)
-  textarea.focus({ preventScroll: true })
-  textarea.setSelectionRange(start, lineEnd === -1 ? end : Math.min(lineEnd, end))
-  const offset = textarea.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop
-  container.scrollTo({ top: Math.max(0, offset + caretTop(textarea, start) - container.clientHeight / 3), behavior: 'smooth' })
-}
-
 // A click on a block in the preview: go to that block in the Markdown.
 watch(() => editor.selection.value, (selection) => {
   if (selection?.source !== 'preview') {
@@ -137,7 +80,7 @@ watch(() => editor.selection.value, (selection) => {
   }
   const original = findBlock(editor.doc.value, selection.id)?.block.original
   if (original) {
-    reveal(original.start, original.end)
+    code.value?.reveal(original.start, original.end)
   }
 })
 </script>
@@ -156,21 +99,23 @@ watch(() => editor.selection.value, (selection) => {
     @dragging="onDragging"
   >
     <template #source>
-      <div ref="pane" class="size-full overflow-y-auto p-4">
-        <PlutoMarkdownSource
+      <div class="size-full p-4">
+        <PlutoMdcCodeEditor
+          ref="code"
           :model-value="modelValue"
           :disabled="disabled"
           :placeholder="placeholder"
           :aria-label="label"
+          fill
           @update:model-value="emit('update:modelValue', $event)"
         >
           <template #toolbar="{ insert }">
             <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
-            <div class="ms-auto">
-              <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
-            </div>
           </template>
-        </PlutoMarkdownSource>
+          <template #toolbar-end>
+            <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
+          </template>
+        </PlutoMdcCodeEditor>
       </div>
     </template>
 

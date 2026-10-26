@@ -6,7 +6,20 @@
     },
     "mdc": {
       "insert": "Insert",
-      "placeholder": "Write the page in Markdown. Use the Insert menu for MDC components."
+      "placeholder": "Write the page in Markdown. Use the Insert menu for MDC components.",
+      "formatting": "Formatting",
+      "format": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "strike": "Strikethrough",
+        "code": "Code",
+        "link": "Link",
+        "heading": "Heading",
+        "bullet": "Bulleted list",
+        "number": "Numbered list",
+        "quote": "Quote",
+        "codeblock": "Code block"
+      }
     },
     "snippets": {
       "note": "Note",

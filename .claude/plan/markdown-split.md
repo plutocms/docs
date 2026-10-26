@@ -1,6 +1,6 @@
 # Markdown mode: side by side with the preview
 
-Status: in progress (part 1 done, part 2 waits for the user)
+Status: done (part 2 not committed)
 Started: 2026-10-26
 Projects: nuxt-content (branch `feat/block-model`)
 Branch / PR: `feat/block-model` (draft PR #16)
@@ -25,7 +25,15 @@ Branch / PR: `feat/block-model` (draft PR #16)
 - [x] `PlutoFieldMdc`: the split in a canvas form, the plain Markdown elsewhere.
 - [x] Skill `mdc-field`; checked in Chrome.
 - [x] Resizable split (`USplitter`, cookie `pluto-mdc-split`, 25 to 75 percent; vertical below `lg`).
-- [ ] Part 2: after the user decides (CodeMirror or not).
+- [x] Part 2 (user, 2026-10-26: go for CodeMirror 6): `PlutoMdcCodeEditor` in this layer, used by the
+      split and the plain field. Hybrid look: proportional font, bold/italic/strike/headings/links
+      styled live with dimmed markers, monospace code, tints for `::component`, `#slot` and YAML
+      props. Toolbar of quick options with shortcuts (pure commands in
+      `shared/utils/markdown-format.ts`, tested), list continuation, search, history, exact go to
+      line. Deps: `@codemirror/{state,view,commands,language,lang-markdown,search}`, `@lezer/highlight`.
+- [x] Fix: a selected linked card (`UPageCard` with `to`) had no visible ring: Nuxt UI puts the
+      attributes on a link of 0 px width. The preview now measures the children of an element with
+      no area.
 
 ## Log
 
@@ -34,3 +42,7 @@ Branch / PR: `feat/block-model` (draft PR #16)
 - 2026-10-26: the split is resizable (drag 200 px: 379 to 577 px, cookie 73). Same round, in the
   visual editor: the button Label field edits the slot text (prop `slot` option), the outline has
   chevrons to collapse a component, and a block selected in the preview scrolls its row into view.
+- 2026-10-26: part 2 built. `PlutoMdcCodeEditor` (CodeMirror 6, 111 KB gzip with
+  `new LanguageSupport(markdownLanguage)`; `markdown()` would add 70 KB of HTML/CSS/JS languages).
+  In Chrome: the toolbar, styled headings and bold, MDC line colors, click to go to line, Ctrl+B and
+  Ctrl+Z (the text comes back exact, no unsaved state), Enter continues a list. 217 tests pass.

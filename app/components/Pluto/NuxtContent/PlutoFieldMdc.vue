@@ -6,8 +6,8 @@
 //   the left and the controls of the selected block at the right. It needs the
 //   'canvas' form layout (the docs type uses it) and loads on demand, so
 //   Tiptap and the remark parser stay out of the other admin pages.
-// - Markdown: `PlutoMarkdownSource` (raw Markdown, the author sees all the MDC)
-//   with an Insert menu of snippets. In a canvas form the live preview shows at
+// - Markdown: `PlutoMdcCodeEditor` (CodeMirror: the author sees all the MDC,
+//   with the format shown as they type, quick formats and an Insert menu). In a canvas form the live preview shows at
 //   its side, and a click on a block in the preview goes to that block in the
 //   Markdown (PlutoBlockMarkdownSplit, loaded on demand too).
 //
@@ -32,6 +32,12 @@ const emit = defineEmits<{
 const loadingComponent = () => h('div', { class: 'flex h-full flex-col gap-3 p-6' }, [h(resolveComponent('USkeleton'), { class: 'h-8 w-1/3' }), h(resolveComponent('USkeleton'), { class: 'h-64 w-full' })])
 const PlutoBlockEditor = defineAsyncComponent({
   loader: () => import('./Blocks/PlutoBlockEditor.vue'),
+  loadingComponent,
+  delay: 120,
+})
+// The Markdown editor (CodeMirror) loads on demand too, so the Visual mode does not load it.
+const PlutoMdcCodeEditor = defineAsyncComponent({
+  loader: () => import('./PlutoMdcCodeEditor.vue'),
   loadingComponent,
   delay: 120,
 })
@@ -82,7 +88,7 @@ function setMode(next: Mode) {
 
   <!-- A form without the canvas layout: the Markdown only, with no preview and no Visual mode. -->
   <UFormField v-else :label="field.label" :description="field.description" :required="field.required">
-    <PlutoMarkdownSource
+    <PlutoMdcCodeEditor
       :model-value="value"
       :disabled="disabled"
       :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
@@ -92,6 +98,6 @@ function setMode(next: Mode) {
       <template #toolbar="{ insert }">
         <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
       </template>
-    </PlutoMarkdownSource>
+    </PlutoMdcCodeEditor>
   </UFormField>
 </template>

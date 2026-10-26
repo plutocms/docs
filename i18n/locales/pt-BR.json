@@ -6,7 +6,20 @@
     },
     "mdc": {
       "insert": "Inserir",
-      "placeholder": "Escreva a página em Markdown. Use o menu Inserir para os componentes MDC."
+      "placeholder": "Escreva a página em Markdown. Use o menu Inserir para os componentes MDC.",
+      "formatting": "Formatação",
+      "format": {
+        "bold": "Negrito",
+        "italic": "Itálico",
+        "strike": "Tachado",
+        "code": "Código",
+        "link": "Link",
+        "heading": "Título",
+        "bullet": "Lista com marcadores",
+        "number": "Lista numerada",
+        "quote": "Citação",
+        "codeblock": "Bloco de código"
+      }
     },
     "snippets": {
       "note": "Nota",

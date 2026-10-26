@@ -200,6 +200,37 @@ function shownId(id: string | null): string | null {
   return current
 }
 
+/** The box around two boxes. */
+function union(a: DOMRect | null, b: DOMRect | null): DOMRect | null {
+  if (!a || !b) {
+    return a ?? b
+  }
+  const left = Math.min(a.left, b.left)
+  const top = Math.min(a.top, b.top)
+  return new DOMRect(left, top, Math.max(a.right, b.right) - left, Math.max(a.bottom, b.bottom) - top)
+}
+
+/**
+ * The box of an element. An element with no area of its own gives the box of
+ * its children: a linked card of Nuxt UI (`UPageCard` with `to`) puts the
+ * attributes on an inline link of 0 px width, and a child of that link covers
+ * the whole card.
+ */
+function elementBox(element: Element, depth = 0): DOMRect | null {
+  const rect = element.getBoundingClientRect()
+  if (rect.width > 0 && rect.height > 0) {
+    return rect
+  }
+  if (depth > 3) {
+    return null
+  }
+  let box: DOMRect | null = null
+  for (const child of element.children) {
+    box = union(box, elementBox(child, depth + 1))
+  }
+  return box
+}
+
 /** The box around all elements of a block, in page coordinates. */
 function boxOf(id: string | null): DOMRect | null {
   const shown = shownId(id)
@@ -208,13 +239,7 @@ function boxOf(id: string | null): DOMRect | null {
   }
   let box: DOMRect | null = null
   for (const element of elementsOf(shown)) {
-    const rect = element.getBoundingClientRect()
-    if (rect.width === 0 && rect.height === 0) {
-      continue
-    }
-    box = box
-      ? new DOMRect(Math.min(box.left, rect.left), Math.min(box.top, rect.top), Math.max(box.right, rect.right) - Math.min(box.left, rect.left), Math.max(box.bottom, rect.bottom) - Math.min(box.top, rect.top))
-      : rect
+    box = union(box, elementBox(element))
   }
   return box ? new DOMRect(box.left + window.scrollX, box.top + window.scrollY, box.width, box.height) : null
 }
