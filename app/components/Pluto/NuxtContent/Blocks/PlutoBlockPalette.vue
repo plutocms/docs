@@ -10,7 +10,7 @@ import { findBlock } from '../../../../../shared/utils/blocks/tree'
 
 const editor = usePlutoBlockEditor()
 const { t, tx } = usePlutoI18n()
-const appConfig = useAppConfig()
+const blocksConfig = usePlutoBlocksConfig()
 
 const open = computed({
   get: () => editor.palette.value.open,
@@ -36,7 +36,7 @@ function findBlockById(id: string) {
 }
 
 const groups = computed<CommandPaletteGroup[]>(() =>
-  buildPalette(appConfig.plutoBlocks, accepts.value).map(({ group, entries }) => ({
+  buildPalette(blocksConfig(), accepts.value).map(({ group, entries }) => ({
     id: group,
     label: tx(groupLabelKey(group)),
     items: entries.map((entry): CommandPaletteItem => ({
