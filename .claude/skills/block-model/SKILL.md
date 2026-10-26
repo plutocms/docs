@@ -2,7 +2,7 @@
 
 The block model cuts the Markdown (MDC) body of a page into blocks, edits the blocks, and writes
 the text back. It is the base of the visual block editor. The code is pure: it has no Nuxt import.
-It lives in `shared/utils/blocks/`. The UI is not built yet.
+It lives in `shared/utils/blocks/`. The UI is the [block editor](../block-editor/SKILL.md).
 
 ## The rule
 
@@ -22,6 +22,7 @@ that block. A test guards this with the 48 pages of the docs site.
 - `presets.ts`: the Nuxt UI prose and page components, with i18n keys.
 - `registry.ts`: `resolveBlockDefinition`, `listPaletteBlocks`, `definePlutoBlock`.
 - `preview-protocol.ts`: the `postMessage` types and validators for the preview frame.
+- `editor.ts`: helpers for the UI (labels, slot editors, preview blocks, palette).
 - `tree.ts`: `flatChildren`, `walkBlocks`, `findBlock`, `pathOf`, `newBlockId`.
 
 ## The kinds of block

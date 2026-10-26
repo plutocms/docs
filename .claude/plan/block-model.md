@@ -26,7 +26,7 @@ Branch / PR: feat/block-model
 - [x] `preview-protocol.ts` and tests.
 - [x] Lint, typecheck and tests pass.
 - [x] Skill `block-model` and `FEATURES.md` line.
-- [ ] The UI, the preview page and the `mdc` widget (needs pluto 0.21.0). See the workspace plan.
+- [x] The UI, the preview page and the `mdc` widget. See `block-editor-ui.md`.
 
 ## Log
 

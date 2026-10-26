@@ -30,7 +30,7 @@ plutoNuxtContent: {
 - `name` uses lowercase letters, numbers and dashes, and starts with a letter. It is unique.
 - `source` is `''` (the content dir itself) or a nested folder path (`1.docs/api`).
 - `exclude` is a list of ids or folders (`index`, `drafts/`).
-- `routePrefix` is the route prefix of the pages on the public site, for the "View page" action.
+- `routePrefix` is the route prefix of the pages on the public site, for the View link of the form.
 - A type with a problem is dropped, and the module logs one error for it.
 
 ## The CMS must be on
@@ -56,7 +56,8 @@ shared config.
   up the type for each request.
 - The client plugin calls `definePlutoExtension` (extension id `nuxt-content`) with the
   `contentTypes`, the `capabilities` (`docs:write`, `docs:delete`), the `mdc` field widget
-  (`defineAsyncComponent`), and one "View page" `contentActions` entry per type.
+  (`defineAsyncComponent`), and the admin bar actions. The module also adds the route rules of the
+  preview page `/_pluto/preview` (see the block editor skill).
 
 ## The app side
 

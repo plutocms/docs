@@ -2,7 +2,7 @@
 
 Two links connect the public page and the admin form of the same Markdown file.
 
-## From the admin to the page: "View page"
+## From the admin to the page: "View"
 
 - `contentRoutePath(id, prefix = '')` (`shared/utils/content-route.ts`, auto-imported) gives the
   Nuxt Content route of a content id. It strips the number prefixes from each segment and a final
@@ -11,9 +11,9 @@ Two links connect the public page and the admin form of the same Markdown file.
   - `1.getting-started/1.index` gives `/getting-started`.
   - `index` gives `/`.
   - With `routePrefix: '/docs'`, `1.start/2.install` gives `/docs/start/install`.
-- The client plugin registers one `contentActions` entry per type: `View page`, outline button,
-  `show: ctx.editing`. A new page has no public route, so the button shows in edit mode only.
-  `onSelect` opens the route in a new tab with `navigateTo(path, { external: true, open: { target: '_blank' } })`.
+- The docs type sets `previewUrl(item)` to `contentRoutePath(item.id, routePrefix)`. The form toolbar
+  of core shows it as the **View** link (a new tab, edit mode only). A new page has no id, so it has
+  no link. The layer registers no `View page` action any more.
 - The route prefix comes from the `routePrefix` option of the type.
 
 ## From the page to the admin: "Edit in admin"
@@ -53,7 +53,7 @@ The client plugin registers one `navbarActions` component action, `PlutoNuxtCont
   to `contentNewPath(type)` (`/admin/content/<type>/new`). It shows on every page where the bar
   shows, `/admin/**` too.
 - **Edit <label>** (`nuxt-content.actions.edit`, "Edit {label}") on a public page, to
-  `contentEditPath(type, id)`. It does not show on `/admin/**`, because the form has "View page".
+  `contentEditPath(type, id)`. It does not show on `/admin/**`, because the form has the View link.
 
 The layer does not own the collections, so it cannot find the page of a route. The page tells
 it: `usePlutoContentEditLink(page, type)` also sets `usePlutoContentCurrentPage()` (a `useState`,

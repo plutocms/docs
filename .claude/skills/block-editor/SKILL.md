@@ -1,0 +1,115 @@
+# Block editor
+
+The block editor is the Visual mode of the `mdc` field. It edits the body of a docs page as
+blocks, with a live preview of the page. The author never sees MDC, YAML or raw keys, except in
+the Advanced section and in "Edit as Markdown". It uses the pure
+[block model](../block-model/SKILL.md). Read that skill first.
+
+## The layout
+
+The docs type uses the core `canvas` form layout (see the `admin-view-chrome` skill in pluto).
+
+- Left panel: the block list (`PlutoBlockOutline`), with Undo, Redo, Add, and the Visual and
+  Markdown switch.
+- Center (the canvas): the live preview (`PlutoBlockPreviewFrame`, an iframe).
+- Right panel, tab **Block**: the controls of the selected block (`PlutoBlockInspector`). Tab
+  **Page**: the other fields (title, description, path, navigation, SEO). Core makes the tab.
+- Below `lg` (64rem), both panels are slideovers. A choice in the block list closes that slideover
+  and opens the Block panel.
+
+## Files
+
+- `app/components/Pluto/NuxtContent/PlutoFieldMdc.vue`: the widget. It picks Visual or Markdown.
+  Visual loads on demand (`defineAsyncComponent`), so Tiptap and the remark parser stay out of the
+  other admin pages.
+- `app/components/Pluto/NuxtContent/Blocks/`:
+  - `PlutoBlockEditor.vue`: the root. It makes the state, provides it, and fills the canvas and
+    the two panels with `PlutoContentCanvasPanel`. It also handles Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z.
+  - `PlutoBlockOutline.vue`, `PlutoBlockOutlineList.vue`: the list. Each list is one SortableJS
+    group, so a block moves inside its own list only. Keys: Up and Down move the focus,
+    Alt+Up and Alt+Down move the block, Delete removes it (Undo brings it back).
+  - `PlutoBlockPalette.vue`: "Add a block". A `UCommandPalette` in a modal.
+  - `PlutoBlockInspector.vue`: Content (one control for each slot), Settings, Advanced, actions.
+  - `PlutoBlockPropControl.vue`: one setting. The control follows the prop type.
+  - `PlutoBlockTextEditor.vue`: core `UEditor` with the shared `usePlutoMarkdownToolbar`. The
+    Tiptap history is off. It writes only after the author acts (see "Byte for byte").
+  - `PlutoBlockRawEditor.vue`: a Markdown box (`PlutoMarkdownSource`).
+  - `PlutoBlockModeSwitch.vue`: Visual or Markdown.
+  - `PlutoBlockPreviewFrame.vue`: the iframe and the messages to it.
+  - `PlutoPreviewBlock.vue`: one block in the preview page, in an error boundary.
+- `app/pages/_pluto/preview.vue`: the preview page.
+- `app/components/PlutoContentPreview.vue`: the frame around the blocks. A site can override it.
+- `app/composables/pluto-block-editor.ts`: `createPlutoBlockEditor` (the state),
+  `usePlutoBlockEditor`, `usePlutoBlockLabels`, `topLevelId`.
+- `shared/utils/blocks/editor.ts`: pure helpers (`describeBlock`, `resolveSlotMode`,
+  `slotMarkdown`, `toPreviewBlocks`, `buildPalette`).
+
+## The state
+
+`createPlutoBlockEditor({ source, emit, overrides })` keeps the doc in an undo history. Each action
+(insert, remove, duplicate, move, set prop, set slot, update text or code, replace with Markdown)
+builds a new doc, writes the text with `serializeBlocks`, and calls `emit`. It never calls `emit`
+on open. When the text changes from outside, it reads the doc again and clears the history.
+Typing in one block, or in one setting, joins in one undo step (600 ms).
+
+## Byte for byte
+
+Open and save with no edit changes nothing, so the GitHub CMS makes no commit.
+
+- The state never emits at the start. `test/block-editor-state.test.ts` checks the 48 pages.
+- Tiptap writes the Markdown in its own form when it loads a text. `PlutoBlockTextEditor` ignores
+  an update until the author does something in the editor (a key, a click, a paste, a drop), and
+  ignores the echo of an outside change (Undo).
+- One edit changes only the lines of that block (see the block model skill).
+
+## The preview
+
+A same-origin iframe of `/_pluto/preview`. The page parses each changed block with the site parser
+(`parseMarkdown` of `@nuxtjs/mdc`) and renders it with `ContentRenderer`, so the page looks as it
+does on the site. It fetches nothing.
+
+- The module adds the route rules: `ssr: false`, `prerender: false`, `x-robots-tag: noindex`. An
+  app rule for the same path wins.
+- The page sets `layout: false` and `plutoAdminBar: false` (no admin bar in the frame).
+- A site that wraps all pages in a header and a footer must skip them on the preview path. Use the
+  core `isPlutoPreviewPath(route.path)`, as the docs `app.vue` does with `AppShell`.
+- Messages (`shared/utils/blocks/preview-protocol.ts`): `render` (after 150 ms of quiet), `select`
+  and `scroll-to` to the frame, and `ready`, `select`, `hover`, `error` from it. Both sides check
+  the origin, the source window, the version and the shape.
+- Each top-level block gets `data-pluto-block="<id>"` on its elements. The frame draws the outline
+  (selected and hover) around the union of those elements, with inline styles. A click selects the
+  block, and the page does not follow links. A click inside a container selects the container.
+- A block that throws shows a small card ("This block could not show in the preview"). A block with
+  `preview: false` in `plutoBlocks` shows the same card with a note.
+- The page is the generic `PlutoContentPreview` (`UContainer`, `UPageHeader` with the title and the
+  description, `UPageBody`). To show the real layout of the site, put
+  `app/components/PlutoContentPreview.vue` in the app. It gets `frontmatter` and renders the default
+  slot where the blocks go. The slot must hold the blocks directly, because the prose styles read
+  the first and last child.
+
+## The site config
+
+A site names its own components in `app.config.ts`, key `plutoBlocks` (see the block model skill).
+The palette shows them, the list shows their label and icon, and the Block panel shows their
+settings and slots. Slot content kinds: `rich` (text editor), `inline` (one line), `blocks` (a
+list with "Add"). A `rich` or `inline` slot becomes a Markdown box when its content has syntax that
+the text editor would lose, and a block list when it holds a component or code.
+
+## Not in this version
+
+- Typing in the preview. A click selects, and the panels edit.
+- Selecting a nested block in the preview (a click selects the top-level container).
+- A table grid (a table is a Markdown block), automatic props from component meta, an image
+  control, a device width switch.
+- A phone layout with the block list as the main view (the panels are slideovers).
+- The overflow menu item for Visual and Markdown (the switch is at the bottom of the block list,
+  and above the Markdown box).
+- At 1024 to 1200 px, the two panels and the admin sidebar leave a narrow preview. Hide a panel
+  with the toggles in the toolbar.
+
+## Tests
+
+- `test/block-editor-state.test.ts`: no emit on open for the 48 pages, each action, Undo and Redo.
+- `test/blocks-editor-helpers.test.ts`: labels, excerpts, slot editors, preview blocks, palette.
+- `test/docs-type.test.ts`: the canvas layout and the View link.
+- The locale test checks the keys of the UI.

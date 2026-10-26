@@ -1,7 +1,18 @@
 # MDC field
 
-The `mdc` field widget edits the body of a docs page as raw Markdown, with an **Insert** menu of
-MDC snippets. MDC is the Markdown syntax with components (`::note`, `:icon{name=""}`).
+The `mdc` field widget edits the body of a docs page in two modes: **Visual** (the block editor,
+see the [block editor](../block-editor/SKILL.md) skill) and **Markdown** (raw Markdown, with an
+**Insert** menu of MDC snippets). MDC is the Markdown syntax with components (`::note`,
+`:icon{name=""}`).
+
+## The two modes
+
+- The first mode is the `editor` option of the field: `visual` (or `auto`) or `source`. The docs type
+  sets `visual`. The cookie `pluto-mdc-editor-mode` keeps the last choice of the author.
+- Visual needs the `canvas` form layout, because its panels live in the form. In any other layout
+  (or outside a form) the widget shows only Markdown, with no switch.
+- The Visual and Markdown switch is at the bottom of the block list, and above the Markdown box.
+- The block editor loads on demand. A skeleton shows while it loads.
 
 ## Files
 
@@ -20,8 +31,8 @@ MDC snippets. MDC is the Markdown syntax with components (`::note`, `:icon{name=
 - It fills the `#toolbar="{ insert, focus }"` slot of `PlutoMarkdownSource` with one
   `UDropdownMenu`. A menu item calls `insert(snippet.text, { block })`. A block snippet gets a blank
   line before and after it. An inline snippet (`:kbd`, `:icon`) does not.
-- There is no Visual mode. MDC would be lost in the Tiptap editor. The `body` field also sets
-  `editor: 'source'`.
+- The Visual mode never rewrites the whole page with Tiptap. It cuts the page in blocks and keeps
+  the text of each block that the author did not edit.
 
 ## The snippets
 

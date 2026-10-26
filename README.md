@@ -9,9 +9,9 @@ site in the Pluto admin. The pages are Markdown files in a GitHub repo (the stan
 - A `docs` page type. It maps the frontmatter of a Nuxt Content page to form fields.
 - Nested, numbered folders: `content/1.getting-started/2.installation.md` is one item. The item
   list shows the pages in tree order.
-- A source editor for MDC (the Markdown syntax with components), with an **Insert** menu of
-  snippets (note, tip, code group, tabs, steps, cards, and more).
-- A **View page** button in the admin form.
+- A **visual block editor** for the body of a page (see below), and a Markdown mode with an
+  **Insert** menu of snippets (note, tip, code group, tabs, steps, cards, and more).
+- A **View** link in the admin form.
 - `usePlutoContentEditLink(page)`: an "Edit in admin" link for the public page, for signed-in
   staff only.
 - Admin bar actions: **New Page** on every page, and **Edit Page** on a public page that calls
@@ -23,7 +23,7 @@ For the full detail of each feature, see [FEATURES.md](./FEATURES.md).
 
 ## Requirements
 
-- `@plutocms/pluto` 0.20 or newer. The layer depends on it, so it installs with the layer.
+- `@plutocms/pluto` 0.21 or newer. The layer depends on it, so it installs with the layer.
 - Node 22.5 or newer (the layer sets the native SQLite connector of Nuxt Content).
 
 ## Installation
@@ -79,6 +79,62 @@ export default defineNuxtConfig({
 | `routePrefix` | The route prefix of the pages on the public site. Default: none.            |
 
 The layer is off, with an error log, when the app sets `plutoCms.enabled: false`.
+
+## The visual editor
+
+The `docs` type edits the body of a page with a visual editor, for people who do not write
+Markdown. The block list is at the left. The live preview of the page is in the middle. The
+controls of the selected block are at the right. Click a block in the preview or in the list, change
+it, and add a block from the palette. The author can switch to the Markdown editor at any time.
+
+A page that you open and save with no change stays the same, byte for byte. A change in one block
+changes only the lines of that block.
+
+### What your site needs
+
+1. **Skip your header and footer on the preview route.** The editor shows `/_pluto/preview` in an
+   iframe. The page needs to show only the content. In `app.vue`, use the helper of core:
+
+   ```vue
+   <PlutoRoot>
+     <NuxtPage v-if="isAdmin || isPlutoPreviewPath(route.path)" />
+     <AppShell v-else><NuxtPage /></AppShell>
+   </PlutoRoot>
+   ```
+
+2. **Optional: show the real layout.** The default preview is a generic page (a header with the
+   title and the description, and the body). To use your own layout, add
+   `app/components/PlutoContentPreview.vue`. It gets the `frontmatter` prop and renders the default
+   slot where the blocks go.
+3. **Optional: name your own components.** The editor knows the Nuxt UI prose and page components.
+   A component of your site shows with a generated name. Give it a name, an icon, settings and slots
+   in `app.config.ts`:
+
+   ```ts
+   export default defineAppConfig({
+     plutoBlocks: {
+       'pluto-hero': {
+         label: 'Hero',
+         icon: 'i-lucide-sparkles',
+         group: 'landing',
+         description: 'The big title at the top of the home page.',
+         props: { center: { type: 'boolean', label: 'Center the text' } },
+         slots: {
+           title: { label: 'Title', content: 'inline' },
+           default: { label: 'Text', content: 'rich' },
+         },
+         insert: '::pluto-hero\n#title\nYour title\n::',
+       },
+       'pluto-palette': { preview: false }, // a card in place of the component
+       'u-page-c-t-a': false, // not in the palette
+     },
+   })
+   ```
+
+   A label or a description can be a plain text or an i18n key.
+
+The module adds the route rules of the preview page (`ssr: false`, no prerender, `noindex`). The
+page fetches nothing and runs in the iframe of the admin only.
 
 ## Local development
 
