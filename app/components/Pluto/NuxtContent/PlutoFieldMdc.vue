@@ -7,14 +7,16 @@
 //   'canvas' form layout (the docs type uses it) and loads on demand, so
 //   Tiptap and the remark parser stay out of the other admin pages.
 // - Markdown: `PlutoMarkdownSource` (raw Markdown, the author sees all the MDC)
-//   with an Insert menu of snippets.
+//   with an Insert menu of snippets. In a canvas form the live preview shows at
+//   its side, and a click on a block in the preview goes to that block in the
+//   Markdown (PlutoBlockMarkdownSplit, loaded on demand too).
 //
 // The first mode is the `editor` option of the field (`visual` or `source`). A
 // cookie keeps the last choice of the author. The model value is the Markdown
 // text, as it is. The widget contract: props `field`, `modelValue`, `disabled`,
 // and the `update:modelValue` event. The layer registers it as the widget `mdc`.
 import { defineAsyncComponent } from 'vue'
-import PlutoBlockModeSwitch from './Blocks/PlutoBlockModeSwitch.vue'
+import PlutoMdcInsertMenu from './PlutoMdcInsertMenu.vue'
 
 const props = defineProps<{
   field: PlutoTextField
@@ -26,10 +28,16 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-// The block editor loads on demand. The skeleton shows while it loads.
+// The block editor and the Markdown split load on demand. The skeleton shows while they load.
+const loadingComponent = () => h('div', { class: 'flex h-full flex-col gap-3 p-6' }, [h(resolveComponent('USkeleton'), { class: 'h-8 w-1/3' }), h(resolveComponent('USkeleton'), { class: 'h-64 w-full' })])
 const PlutoBlockEditor = defineAsyncComponent({
   loader: () => import('./Blocks/PlutoBlockEditor.vue'),
-  loadingComponent: () => h('div', { class: 'flex h-full flex-col gap-3 p-6' }, [h(resolveComponent('USkeleton'), { class: 'h-8 w-1/3' }), h(resolveComponent('USkeleton'), { class: 'h-64 w-full' })]),
+  loadingComponent,
+  delay: 120,
+})
+const PlutoBlockMarkdownSplit = defineAsyncComponent({
+  loader: () => import('./Blocks/PlutoBlockMarkdownSplit.vue'),
+  loadingComponent,
   delay: 120,
 })
 
@@ -49,17 +57,6 @@ function setMode(next: Mode) {
   mode.value = next
   saved.value = next
 }
-
-type Insert = (text: string, options?: { block?: boolean }) => void
-
-// One dropdown item per snippet. The `insert` function comes from the toolbar slot.
-function menu(insert: Insert) {
-  return MDC_SNIPPETS.map((snippet) => ({
-    label: t(snippet.label),
-    icon: snippet.icon,
-    onSelect: () => insert(snippet.text, { block: snippet.block }),
-  }))
-}
 </script>
 
 <template>
@@ -72,33 +69,29 @@ function menu(insert: Insert) {
     @update:mode="setMode"
   />
 
-  <div v-else :class="form?.canvas.value ? 'h-full overflow-y-auto p-4 sm:p-6' : undefined">
-    <UFormField :label="field.label" :description="field.description" :required="field.required" :class="form?.canvas.value ? 'mx-auto max-w-5xl' : undefined">
-      <div v-if="canVisual" class="mb-2 flex justify-end">
-        <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="setMode" />
-      </div>
+  <PlutoBlockMarkdownSplit
+    v-else-if="canVisual"
+    :model-value="value"
+    :disabled="disabled"
+    :mode="mode"
+    :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
+    :label="field.label"
+    @update:model-value="emit('update:modelValue', $event)"
+    @update:mode="setMode"
+  />
 
-      <PlutoMarkdownSource
-        :model-value="value"
-        :disabled="disabled"
-        :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
-        :aria-label="field.label"
-        @update:model-value="emit('update:modelValue', $event)"
-      >
-        <template #toolbar="{ insert }">
-          <UDropdownMenu :items="menu(insert)" :content="{ align: 'start' }" :disabled="disabled">
-            <UButton
-              :label="t('nuxt-content.mdc.insert')"
-              :disabled="disabled"
-              color="neutral"
-              variant="ghost"
-              size="xs"
-              icon="i-lucide-plus"
-              trailing-icon="i-lucide-chevron-down"
-            />
-          </UDropdownMenu>
-        </template>
-      </PlutoMarkdownSource>
-    </UFormField>
-  </div>
+  <!-- A form without the canvas layout: the Markdown only, with no preview and no Visual mode. -->
+  <UFormField v-else :label="field.label" :description="field.description" :required="field.required">
+    <PlutoMarkdownSource
+      :model-value="value"
+      :disabled="disabled"
+      :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
+      :aria-label="field.label"
+      @update:model-value="emit('update:modelValue', $event)"
+    >
+      <template #toolbar="{ insert }">
+        <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
+      </template>
+    </PlutoMarkdownSource>
+  </UFormField>
 </template>

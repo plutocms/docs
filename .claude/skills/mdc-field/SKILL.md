@@ -11,12 +11,23 @@ see the [block editor](../block-editor/SKILL.md) skill) and **Markdown** (raw Ma
   sets `visual`. The cookie `pluto-mdc-editor-mode` keeps the last choice of the author.
 - Visual needs the `canvas` form layout, because its panels live in the form. In any other layout
   (or outside a form) the widget shows only Markdown, with no switch.
-- The Visual and Markdown switch is at the bottom of the block list, and above the Markdown box.
+- The Visual and Markdown switch is at the bottom of the block list, and at the end of the
+  Markdown toolbar.
 - The block editor loads on demand. A skeleton shows while it loads.
+- Markdown in a canvas form (`PlutoBlockMarkdownSplit`, loaded on demand): the Markdown at the left
+  and the live preview at the right (stacked below `lg`). The preview is the frame of the visual
+  editor. A block model of the text (`createPlutoBlockEditor`, which never writes) feeds it, and
+  the frame renders again after each change. A click on a block in the preview selects the first
+  line of that block in the textarea (`block.original.start`) and scrolls the Markdown pane so that
+  line is in the upper third. A hidden copy of the textarea measures the line, so wrapped lines
+  count too.
 
 ## Files
 
 - `app/components/Pluto/NuxtContent/PlutoFieldMdc.vue` — the widget.
+- `app/components/Pluto/NuxtContent/PlutoMdcInsertMenu.vue` — the Insert menu.
+- `app/components/Pluto/NuxtContent/Blocks/PlutoBlockMarkdownSplit.vue` — Markdown and preview side
+  by side.
 - `shared/utils/mdc-snippets.ts` — `MDC_SNIPPETS`, the snippets as pure data.
 - `app/plugins/pluto-nuxt-content.ts` — registers the widget as `{ id: 'mdc', widget: 'mdc' }`
   with `defineAsyncComponent`.
