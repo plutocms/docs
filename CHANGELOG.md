@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/plutocms/nuxt-content/compare/v0.4.0...v0.4.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* **editor:** type the editor for the sites that type-check the layer ([#18](https://github.com/plutocms/nuxt-content/issues/18)) ([c7b08bb](https://github.com/plutocms/nuxt-content/commit/c7b08bbb92e7417487303d599ba42820c0d07059))
+
 ## [0.4.0](https://github.com/plutocms/nuxt-content/compare/v0.3.2...v0.4.0) (2026-10-26)
 
 
