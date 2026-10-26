@@ -26,15 +26,35 @@ function info(block: PlutoBlock) {
   return { ...described, label: tx(described.label) }
 }
 
+/** One slot of a component, with its children, in the outline. */
+interface PlutoBlockChildList {
+  /** The slot name, for example `default`. */
+  slot: string
+  blocks: PlutoBlock[]
+  /** The label of the slot. */
+  title: string
+  /** The label of the "Add" button of the slot. */
+  add: string
+}
+
 /** The slots of a component that show their children in the outline. */
-function childLists(block: PlutoBlock): Array<{ slot: string, blocks: PlutoBlock[], title: string, add: string }> {
+function childLists(block: PlutoBlock): PlutoBlockChildList[] {
   if (block.kind !== 'component') {
     return []
   }
   const definition = editor.definitionOf(block)
   return Object.entries(block.slots)
-    .filter(([slot]) => resolveSlotMode(block, slot, definition?.slots?.[slot]?.content) === 'blocks')
-    .map(([slot, blocks]) => ({ slot, blocks, title: slotLabel(definition, slot), add: addLabel(definition, slot) }))
+    .filter(
+      ([slot]) =>
+        resolveSlotMode(block, slot, definition?.slots?.[slot]?.content) ===
+        'blocks'
+    )
+    .map(([slot, blocks]) => ({
+      slot,
+      blocks,
+      title: slotLabel(definition, slot),
+      add: addLabel(definition, slot),
+    }))
     .filter((entry) => entry.blocks.length > 0)
 }
 
@@ -42,20 +62,50 @@ function menu(block: PlutoBlock, index: number) {
   const siblings = editor.siblings(block.id)
   return [
     [
-      { label: t('nuxt-content.editor.moveUp'), icon: 'i-lucide-arrow-up', disabled: index === 0, onSelect: () => editor.move(block.id, -1) },
-      { label: t('nuxt-content.editor.moveDown'), icon: 'i-lucide-arrow-down', disabled: index >= siblings.length - 1, onSelect: () => editor.move(block.id, 1) },
-      { label: t('nuxt-content.editor.addBelow'), icon: 'i-lucide-plus', onSelect: () => editor.openPalette({ parentId: props.parentId, slot: props.slotName, index: index + 1 }) },
-      { label: t('nuxt-content.editor.duplicate'), icon: 'i-lucide-copy', onSelect: () => editor.duplicate(block.id) },
+      {
+        label: t('nuxt-content.editor.moveUp'),
+        icon: 'i-lucide-arrow-up',
+        disabled: index === 0,
+        onSelect: () => editor.move(block.id, -1),
+      },
+      {
+        label: t('nuxt-content.editor.moveDown'),
+        icon: 'i-lucide-arrow-down',
+        disabled: index >= siblings.length - 1,
+        onSelect: () => editor.move(block.id, 1),
+      },
+      {
+        label: t('nuxt-content.editor.addBelow'),
+        icon: 'i-lucide-plus',
+        onSelect: () =>
+          editor.openPalette({
+            parentId: props.parentId,
+            slot: props.slotName,
+            index: index + 1,
+          }),
+      },
+      {
+        label: t('nuxt-content.editor.duplicate'),
+        icon: 'i-lucide-copy',
+        onSelect: () => editor.duplicate(block.id),
+      },
     ],
     [
-      { label: t('nuxt-content.editor.delete'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: () => editor.remove(block.id) },
+      {
+        label: t('nuxt-content.editor.delete'),
+        icon: 'i-lucide-trash-2',
+        color: 'error' as const,
+        onSelect: () => editor.remove(block.id),
+      },
     ],
   ]
 }
 
 function focusRow(from: HTMLElement, delta: number) {
   const root = from.closest<HTMLElement>('[data-block-outline]')
-  const rows = [...(root?.querySelectorAll<HTMLElement>('[data-block-row]') ?? [])]
+  const rows = [
+    ...(root?.querySelectorAll<HTMLElement>('[data-block-row]') ?? []),
+  ]
   rows[rows.indexOf(from) + delta]?.focus()
 }
 
@@ -65,7 +115,13 @@ function onKeydown(event: KeyboardEvent, block: PlutoBlock) {
     event.preventDefault()
     editor.move(block.id, event.key === 'ArrowUp' ? -1 : 1)
     // The row renders in its new place. Keep the focus on it.
-    nextTick(() => document.querySelector<HTMLElement>(`[data-block-row="${CSS.escape(block.id)}"]`)?.focus())
+    nextTick(() =>
+      document
+        .querySelector<HTMLElement>(
+          `[data-block-row="${CSS.escape(block.id)}"]`
+        )
+        ?.focus()
+    )
     return
   }
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -77,7 +133,11 @@ function onKeydown(event: KeyboardEvent, block: PlutoBlock) {
     // The row is gone. The focus goes to the block that the editor selects next, so Undo keeps working.
     nextTick(() => {
       const next = editor.selectedId.value
-      document.querySelector<HTMLElement>(next ? `[data-block-row="${CSS.escape(next)}"]` : '[data-block-row]')?.focus()
+      document
+        .querySelector<HTMLElement>(
+          next ? `[data-block-row="${CSS.escape(next)}"]` : '[data-block-row]'
+        )
+        ?.focus()
     })
   }
 }
@@ -101,7 +161,11 @@ onMounted(async () => {
     group: `blocks:${props.parentId ?? 'root'}:${props.slotName ?? 'default'}`,
     onEnd(event) {
       const { oldIndex, newIndex, item, from } = event
-      if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
+      if (
+        oldIndex === undefined ||
+        newIndex === undefined ||
+        oldIndex === newIndex
+      ) {
         return
       }
       // SortableJS moved the DOM node. Put it back and let Vue render the new order.
@@ -109,7 +173,11 @@ onMounted(async () => {
       from.insertBefore(item, from.children[oldIndex] ?? null)
       const block = props.blocks[oldIndex]
       if (block) {
-        editor.moveTo(block.id, { parentId: props.parentId, slot: props.slotName, index: newIndex })
+        editor.moveTo(block.id, {
+          parentId: props.parentId,
+          slot: props.slotName,
+          index: newIndex,
+        })
       }
     },
   })
@@ -122,7 +190,13 @@ onBeforeUnmount(() => sortable?.destroy())
   <ul ref="list" :data-level="level" class="flex flex-col gap-0.5">
     <li v-for="(block, index) in blocks" :key="block.id">
       <div
-        :class="editor.selectedId.value === block.id ? 'bg-primary/10 ring-1 ring-inset ring-primary/40' : editor.hoverId.value === block.id ? 'bg-elevated' : 'hover:bg-elevated/60'"
+        :class="
+          editor.selectedId.value === block.id
+            ? 'bg-primary/10 ring-1 ring-inset ring-primary/40'
+            : editor.hoverId.value === block.id
+              ? 'bg-elevated'
+              : 'hover:bg-elevated/60'
+        "
         class="group flex items-center gap-0.5 rounded-md pe-0.5 ps-0.5 transition-colors"
       >
         <span
@@ -135,7 +209,9 @@ onBeforeUnmount(() => sortable?.destroy())
 
         <button
           :data-block-row="block.id"
-          :aria-current="editor.selectedId.value === block.id ? 'true' : undefined"
+          :aria-current="
+            editor.selectedId.value === block.id ? 'true' : undefined
+          "
           type="button"
           aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete"
           class="flex min-h-8 min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 text-start text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
@@ -144,8 +220,10 @@ onBeforeUnmount(() => sortable?.destroy())
         >
           <UIcon :name="info(block).icon" class="size-4 shrink-0 text-muted" />
           <span class="min-w-0 flex-1 truncate">
-            <span class="font-medium text-highlighted">{{ info(block).label }}</span>
-            <span v-if="info(block).excerpt" class="text-muted">: {{ info(block).excerpt }}</span>
+            <span class="text-highlighted">{{ info(block).label }}</span>
+            <span v-if="info(block).excerpt" class="text-muted">
+              : {{ info(block).excerpt }}
+            </span>
           </span>
           <span
             v-if="editor.editedIds.value.has(block.id)"
@@ -158,7 +236,9 @@ onBeforeUnmount(() => sortable?.destroy())
 
         <UDropdownMenu :items="menu(block, index)" :content="{ align: 'end' }">
           <UButton
-            :aria-label="t('nuxt-content.editor.blockActions', { name: info(block).label })"
+            :aria-label="
+              t('nuxt-content.editor.blockActions', { name: info(block).label })
+            "
             icon="i-lucide-ellipsis"
             color="neutral"
             variant="ghost"
@@ -168,12 +248,27 @@ onBeforeUnmount(() => sortable?.destroy())
         </UDropdownMenu>
       </div>
 
-      <div v-if="childLists(block).length" class="ms-5 border-s border-default ps-1.5">
-        <div v-for="child in childLists(block)" :key="child.slot" class="pt-0.5">
-          <p v-if="childLists(block).length > 1" class="px-1 pt-1 text-xs font-medium text-muted">
+      <div
+        v-if="childLists(block).length"
+        class="ms-5 border-s border-default ps-1.5"
+      >
+        <div
+          v-for="child in childLists(block)"
+          :key="child.slot"
+          class="pt-0.5"
+        >
+          <p
+            v-if="childLists(block).length > 1"
+            class="px-1 pt-1 text-xs font-medium text-muted"
+          >
             {{ child.title }}
           </p>
-          <PlutoBlockOutlineList :blocks="child.blocks" :parent-id="block.id" :slot-name="child.slot" :level="level + 1" />
+          <PlutoBlockOutlineList
+            :blocks="child.blocks"
+            :parent-id="block.id"
+            :slot-name="child.slot"
+            :level="level + 1"
+          />
           <UButton
             :label="child.add"
             icon="i-lucide-plus"
@@ -181,7 +276,13 @@ onBeforeUnmount(() => sortable?.destroy())
             variant="link"
             size="xs"
             class="ms-6"
-            @click="editor.openPalette({ parentId: block.id, slot: child.slot, index: child.blocks.length })"
+            @click="
+              editor.openPalette({
+                parentId: block.id,
+                slot: child.slot,
+                index: child.blocks.length,
+              })
+            "
           />
         </div>
       </div>
