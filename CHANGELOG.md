@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/plutocms/nuxt-content/compare/v0.4.1...v0.5.0) (2026-10-26)
+
+
+### Features
+
+* **deps:** use @plutocms/pluto 0.24 ([#20](https://github.com/plutocms/nuxt-content/issues/20)) ([acb7195](https://github.com/plutocms/nuxt-content/commit/acb71955bdf7f2fb18d545e6281aaef50cc9fc23))
+
 ## [0.4.1](https://github.com/plutocms/nuxt-content/compare/v0.4.0...v0.4.1) (2026-10-26)
 
 

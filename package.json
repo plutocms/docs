@@ -1,7 +1,7 @@
 {
   "name": "@plutocms/nuxt-content",
   "type": "module",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Nuxt Content layer for Pluto: edit the Markdown pages of a Nuxt Content site in the Pluto admin",
   "author": "Victor Ribeiro",
   "license": "MIT",
