@@ -1,0 +1,361 @@
+<script setup lang="ts">
+// The right panel (the Block tab): the controls of the selected block. A Text
+// block has a rich text box. A Code block has a language, a file name and a
+// code box. A component has its content (one control for each slot) and its
+// settings. Unknown settings are in the Advanced section. Nothing here shows
+// raw keys or YAML, except in Advanced and in "Edit as Markdown".
+import type { PlutoBlock, PlutoComponentBlock } from '../../../../../shared/utils/blocks/types'
+import { resolveSlotMode, slotMarkdown } from '../../../../../shared/utils/blocks/editor'
+import { blockMarkdown } from '../../../../../shared/utils/blocks/operations'
+import { humanizeName } from '../../../../../shared/utils/blocks/registry'
+import PlutoBlockPropControl from './PlutoBlockPropControl.vue'
+import PlutoBlockRawEditor from './PlutoBlockRawEditor.vue'
+import PlutoBlockTextEditor from './PlutoBlockTextEditor.vue'
+
+defineProps<{
+  disabled?: boolean
+}>()
+
+const editor = usePlutoBlockEditor()
+const { t, tx } = usePlutoI18n()
+
+const block = computed(() => editor.selected.value?.block)
+const info = computed(() => (block.value ? editor.describe(block.value) : undefined))
+const definition = computed(() => (block.value ? editor.definitionOf(block.value) : undefined))
+const parent = computed(() => editor.selected.value?.parent)
+
+// "Edit as Markdown" shows the Markdown of the block in a box. It resets with the selection.
+const rawOpen = ref(false)
+watch(() => block.value?.id, () => {
+  rawOpen.value = false
+})
+
+const description = computed(() => {
+  const text = definition.value?.description
+  return text ? tx(text) : undefined
+})
+
+const LANGUAGES = ['bash', 'css', 'diff', 'html', 'js', 'json', 'md', 'sh', 'sql', 'ts', 'tsx', 'vue', 'yaml']
+
+// --- Component settings ---------------------------------------------------------
+
+const settings = computed(() => {
+  const props = definition.value?.props ?? {}
+  return Object.entries(props).filter(([, prop]) => !prop.advanced)
+})
+
+const advanced = computed(() => {
+  const props = definition.value?.props ?? {}
+  return Object.entries(props).filter(([, prop]) => prop.advanced)
+})
+
+const slots = computed(() => {
+  const current = block.value
+  if (current?.kind !== 'component') {
+    return []
+  }
+  return Object.entries(definition.value?.slots ?? {}).map(([name, slot]) => ({
+    name,
+    label: slot.label ? tx(slot.label) : humanizeName(name),
+    mode: resolveSlotMode(current, name, slot.content === 'rich' || slot.content === 'inline' || slot.content === 'blocks' ? slot.content : undefined),
+    children: current.slots[name] ?? [],
+    accepts: slot.accepts,
+  }))
+})
+
+function component(): PlutoComponentBlock {
+  return block.value as PlutoComponentBlock
+}
+
+function childInfo(child: PlutoBlock) {
+  const described = editor.describe(child)
+  return { ...described, label: tx(described.label) }
+}
+
+function addTo(name: string) {
+  editor.openPalette({ parentId: component().id, slot: name, index: (component().slots[name] ?? []).length })
+}
+
+function rawMarkdown(): string {
+  return block.value ? blockMarkdown(block.value) : ''
+}
+
+function applyRaw(markdown: string) {
+  if (!block.value) {
+    return
+  }
+  if (block.value.kind === 'raw' || block.value.kind === 'text') {
+    editor.updateText(block.value.id, markdown)
+  } else {
+    editor.replaceMarkdown(block.value.id, markdown)
+    rawOpen.value = false
+  }
+}
+</script>
+
+<template>
+  <div :aria-label="t('nuxt-content.editor.blockPanel')" class="flex flex-col gap-5 p-4" role="region" data-pluto-block-ui>
+    <UEmpty
+      v-if="!block || !info"
+      :title="t('nuxt-content.editor.nothingSelectedTitle')"
+      :description="t('nuxt-content.editor.nothingSelected')"
+      :actions="[{ label: t('nuxt-content.editor.addBlock'), icon: 'i-lucide-plus', color: 'primary', variant: 'soft', onClick: () => editor.openPalette() }]"
+      icon="i-lucide-mouse-pointer-click"
+      variant="naked"
+    />
+
+    <template v-else>
+      <header class="flex items-start gap-3">
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <UIcon :name="info.icon" class="size-5" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <h3 class="truncate text-base font-semibold text-highlighted">
+            {{ tx(info.label) }}
+          </h3>
+          <p v-if="description" class="text-sm text-muted">
+            {{ description }}
+          </p>
+        </div>
+      </header>
+
+      <UButton
+        v-if="parent"
+        :label="t('nuxt-content.editor.selectParent', { name: tx(editor.describe(parent).label) })"
+        icon="i-lucide-corner-left-up"
+        color="neutral"
+        variant="link"
+        size="xs"
+        class="-mt-3 self-start p-0"
+        @click="editor.select(parent.id)"
+      />
+
+      <!-- Edit as Markdown -->
+      <section v-if="rawOpen" class="flex flex-col gap-2">
+        <p class="text-sm text-muted">
+          {{ t('nuxt-content.editor.rawNote') }}
+        </p>
+        <PlutoBlockRawEditor
+          :model-value="rawMarkdown()"
+          :disabled="disabled"
+          :label="t('nuxt-content.editor.rawLabel')"
+          :live="block.kind === 'text' || block.kind === 'raw'"
+          :rows="block.kind === 'component' ? 10 : 8"
+          @update:model-value="applyRaw"
+        />
+      </section>
+
+      <!-- Text -->
+      <template v-else-if="block.kind === 'text'">
+        <PlutoBlockTextEditor
+          :key="block.id"
+          :model-value="block.markdown"
+          :disabled="disabled"
+          :label="t('nuxt-content.editor.textLabel')"
+          @update:model-value="editor.updateText(block.id, $event)"
+        />
+      </template>
+
+      <!-- Code -->
+      <template v-else-if="block.kind === 'code'">
+        <div class="grid grid-cols-2 gap-3">
+          <UFormField :label="t('nuxt-content.editor.language')" :help="t('nuxt-content.editor.languageHelp')">
+            <UInput
+              :model-value="block.lang"
+              :disabled="disabled"
+              list="pluto-block-languages"
+              placeholder="ts"
+              autocomplete="off"
+              spellcheck="false"
+              class="w-full"
+              @update:model-value="editor.updateCode(block.id, { lang: String($event ?? '') })"
+            />
+            <datalist id="pluto-block-languages">
+              <option v-for="language in LANGUAGES" :key="language" :value="language" />
+            </datalist>
+          </UFormField>
+          <UFormField :label="t('nuxt-content.editor.fileName')" :help="t('nuxt-content.editor.fileNameHelp')">
+            <UInput
+              :model-value="block.filename ?? ''"
+              :disabled="disabled"
+              placeholder="app.ts"
+              autocomplete="off"
+              spellcheck="false"
+              class="w-full"
+              @update:model-value="editor.updateCode(block.id, { filename: String($event ?? '') || undefined })"
+            />
+          </UFormField>
+        </div>
+        <UFormField :label="t('nuxt-content.editor.code')">
+          <UTextarea
+            :model-value="block.code"
+            :disabled="disabled"
+            :rows="10"
+            :maxrows="28"
+            :ui="{ base: 'font-mono text-sm leading-6' }"
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+            class="w-full"
+            autoresize
+            @update:model-value="editor.updateCode(block.id, { code: String($event ?? '') })"
+          />
+        </UFormField>
+      </template>
+
+      <!-- Markdown (raw) -->
+      <template v-else-if="block.kind === 'raw'">
+        <UAlert
+          :description="block.reason === 'table' ? t('nuxt-content.editor.tableNote') : t('nuxt-content.editor.rawBlockNote')"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-info"
+        />
+        <PlutoBlockRawEditor
+          :model-value="block.markdown"
+          :disabled="disabled"
+          :label="t('nuxt-content.editor.rawLabel')"
+          :rows="12"
+          live
+          @update:model-value="editor.updateText(block.id, $event)"
+        />
+      </template>
+
+      <!-- Component -->
+      <template v-else>
+        <section v-if="slots.length" class="flex flex-col gap-4">
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-muted">
+            {{ t('nuxt-content.editor.content') }}
+          </h4>
+
+          <UFormField v-for="slot in slots" :key="slot.name" :label="slots.length > 1 || slot.mode === 'blocks' ? slot.label : undefined">
+            <PlutoBlockTextEditor
+              v-if="slot.mode === 'rich'"
+              :model-value="slotMarkdown(component(), slot.name)"
+              :disabled="disabled"
+              :label="slot.label"
+              compact
+              @update:model-value="editor.setSlot(block.id, slot.name, $event)"
+            />
+
+            <UInput
+              v-else-if="slot.mode === 'inline'"
+              :model-value="slotMarkdown(component(), slot.name)"
+              :disabled="disabled"
+              :aria-label="slot.label"
+              class="w-full"
+              @update:model-value="editor.setSlot(block.id, slot.name, String($event ?? ''))"
+            />
+
+            <PlutoBlockRawEditor
+              v-else-if="slot.mode === 'markdown'"
+              :model-value="slotMarkdown(component(), slot.name)"
+              :disabled="disabled"
+              :label="slot.label"
+              :rows="5"
+              live
+              @update:model-value="editor.setSlot(block.id, slot.name, $event)"
+            />
+
+            <div v-else class="flex flex-col gap-1">
+              <ul v-if="slot.children.length" class="flex flex-col gap-1">
+                <li v-for="child in slot.children" :key="child.id">
+                  <button
+                    type="button"
+                    class="flex w-full items-center gap-2 rounded-md border border-default px-2 py-1.5 text-start text-sm hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
+                    @click="editor.select(child.id)"
+                  >
+                    <UIcon :name="childInfo(child).icon" class="size-4 shrink-0 text-muted" />
+                    <span class="min-w-0 flex-1 truncate">
+                      <span class="font-medium text-highlighted">{{ childInfo(child).label }}</span>
+                      <span v-if="childInfo(child).excerpt" class="text-muted">: {{ childInfo(child).excerpt }}</span>
+                    </span>
+                    <UIcon name="i-lucide-chevron-right" class="size-4 shrink-0 text-dimmed" />
+                  </button>
+                </li>
+              </ul>
+              <p v-else class="text-sm text-muted">
+                {{ t('nuxt-content.editor.slotEmpty') }}
+              </p>
+              <UButton
+                :label="t('nuxt-content.editor.addTo', { name: slot.label })"
+                :disabled="disabled"
+                icon="i-lucide-plus"
+                color="neutral"
+                variant="outline"
+                size="xs"
+                class="self-start"
+                @click="addTo(slot.name)"
+              />
+            </div>
+          </UFormField>
+        </section>
+
+        <section v-if="settings.length" class="flex flex-col gap-4">
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-muted">
+            {{ t('nuxt-content.editor.settings') }}
+          </h4>
+          <PlutoBlockPropControl
+            v-for="[name, prop] in settings"
+            :key="name"
+            :name="name"
+            :definition="prop"
+            :model-value="component().props[name]"
+            :disabled="disabled"
+            @update:model-value="editor.setProp(block.id, name, $event)"
+          />
+        </section>
+
+        <details v-if="advanced.length" class="group rounded-lg border border-default">
+          <summary class="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-sm font-medium text-highlighted focus-visible:outline-2 focus-visible:outline-primary">
+            <UIcon name="i-lucide-chevron-right" class="size-4 text-muted transition-transform group-open:rotate-90" />
+            {{ t('nuxt-content.editor.advanced') }}
+          </summary>
+          <div class="flex flex-col gap-4 border-t border-default p-3">
+            <PlutoBlockPropControl
+              v-for="[name, prop] in advanced"
+              :key="name"
+              :name="name"
+              :definition="prop"
+              :model-value="component().props[name]"
+              :disabled="disabled"
+              @update:model-value="editor.setProp(block.id, name, $event)"
+            />
+          </div>
+        </details>
+      </template>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-2 border-t border-default pt-4">
+        <UButton
+          :label="t('nuxt-content.editor.duplicate')"
+          :disabled="disabled"
+          icon="i-lucide-copy"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          @click="editor.duplicate(block.id)"
+        />
+        <UButton
+          :label="rawOpen ? t('nuxt-content.editor.backToControls') : t('nuxt-content.editor.editAsMarkdown')"
+          :icon="rawOpen ? 'i-lucide-sliders-horizontal' : 'i-lucide-file-code'"
+          :disabled="disabled || block.kind === 'raw'"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          @click="rawOpen = !rawOpen"
+        />
+        <UButton
+          :label="t('nuxt-content.editor.delete')"
+          :disabled="disabled"
+          icon="i-lucide-trash-2"
+          color="error"
+          variant="soft"
+          size="sm"
+          class="ms-auto"
+          @click="editor.remove(block.id)"
+        />
+      </div>
+    </template>
+  </div>
+</template>

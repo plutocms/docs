@@ -1,0 +1,160 @@
+<script setup lang="ts">
+import { toPreviewBlocks } from '../../../../../shared/utils/blocks/editor'
+// The live preview of the page: an iframe of `/_pluto/preview` on the same
+// origin. This component sends the blocks to the frame (after 150 ms of
+// quiet), and tells the editor when a block is clicked or hovered in the frame.
+// Both sides check the origin and the shape of every message.
+import { isTrustedPreviewOrigin, parsePreviewMessage, PREVIEW_PATH, previewMessage } from '../../../../../shared/utils/blocks/preview-protocol'
+
+const props = defineProps<{
+  frontmatter: Record<string, unknown>
+}>()
+
+const editor = usePlutoBlockEditor()
+const { t, tx } = usePlutoI18n()
+const router = useRouter()
+const appConfig = useAppConfig()
+
+const DEBOUNCE_MS = 150
+const LOAD_TIMEOUT_MS = 12000
+
+const frame = useTemplateRef<HTMLIFrameElement>('frame')
+const ready = ref(false)
+const timedOut = ref(false)
+const frameKey = ref(0)
+const frameError = ref<string | null>(null)
+
+const src = computed(() => router.resolve(PREVIEW_PATH).href)
+const topId = computed(() => topLevelId(editor.doc.value, editor.selectedId.value))
+const blocks = computed(() => toPreviewBlocks(editor.doc.value.blocks, appConfig.plutoBlocks))
+
+function send(message: ReturnType<typeof previewMessage>) {
+  frame.value?.contentWindow?.postMessage(message, window.location.origin)
+}
+
+/** The blocks with a readable label: the label of a component is an i18n key or a plain text. */
+function messageBlocks() {
+  return blocks.value.map((block) => {
+    const source = editor.doc.value.blocks.find((candidate) => candidate.id === block.id)
+    return { ...block, label: block.label ? tx(block.label) : source ? tx(editor.describe(source).label) : '' }
+  })
+}
+
+function sendRender() {
+  send(previewMessage('render', { frontmatter: props.frontmatter, blocks: messageBlocks(), selectedId: topId.value }))
+}
+
+let timer: ReturnType<typeof setTimeout> | undefined
+function scheduleRender() {
+  clearTimeout(timer)
+  timer = setTimeout(() => {
+    if (ready.value) {
+      sendRender()
+    }
+  }, DEBOUNCE_MS)
+}
+
+watch([blocks, () => props.frontmatter], scheduleRender, { deep: false })
+
+// The selection comes from the outline or the panel: draw it and scroll to it.
+watch(topId, (id) => {
+  if (!ready.value) {
+    return
+  }
+  send(previewMessage('select', { id }))
+  if (id && editor.selection.value?.source === 'ui') {
+    send(previewMessage('scroll-to', { id }))
+  }
+})
+
+function onMessage(event: MessageEvent) {
+  if (event.source !== frame.value?.contentWindow || !isTrustedPreviewOrigin(event.origin, window.location.origin)) {
+    return
+  }
+  const message = parsePreviewMessage(event.data, 'from-frame')
+  if (!message) {
+    return
+  }
+  switch (message.type) {
+    case 'ready':
+      ready.value = true
+      timedOut.value = false
+      frameError.value = null
+      // The first render goes at once.
+      sendRender()
+      break
+    case 'select':
+      editor.select(message.id, 'preview')
+      break
+    case 'hover':
+      editor.hoverId.value = message.id
+      break
+    case 'error':
+      frameError.value = message.message
+      break
+  }
+}
+
+let loadTimer: ReturnType<typeof setTimeout> | undefined
+function watchLoad() {
+  clearTimeout(loadTimer)
+  ready.value = false
+  timedOut.value = false
+  loadTimer = setTimeout(() => {
+    if (!ready.value) {
+      timedOut.value = true
+    }
+  }, LOAD_TIMEOUT_MS)
+}
+
+function reload() {
+  frameKey.value++
+  watchLoad()
+}
+
+onMounted(() => {
+  window.addEventListener('message', onMessage)
+  watchLoad()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('message', onMessage)
+  clearTimeout(timer)
+  clearTimeout(loadTimer)
+})
+
+defineExpose({ reload })
+</script>
+
+<template>
+  <div class="relative size-full min-h-0 bg-muted">
+    <iframe
+      ref="frame"
+      :key="frameKey"
+      :src="src"
+      :title="t('nuxt-content.editor.previewTitle')"
+      class="size-full border-0 bg-default"
+      loading="eager"
+    />
+
+    <div
+      v-if="!ready && !timedOut"
+      class="pointer-events-none absolute inset-0 flex items-center justify-center bg-default/70"
+      role="status"
+    >
+      <div class="flex items-center gap-2 text-sm text-muted">
+        <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
+        {{ t('nuxt-content.editor.previewLoading') }}
+      </div>
+    </div>
+
+    <div v-if="timedOut" class="absolute inset-0 flex items-center justify-center bg-default p-6">
+      <UEmpty
+        :title="t('nuxt-content.editor.previewFailedTitle')"
+        :description="t('nuxt-content.editor.previewFailed')"
+        :actions="[{ label: t('nuxt-content.editor.previewRetry'), icon: 'i-lucide-refresh-cw', color: 'neutral', variant: 'outline', onClick: reload }]"
+        icon="i-lucide-triangle-alert"
+      />
+    </div>
+  </div>
+</template>

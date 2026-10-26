@@ -27,9 +27,9 @@ describe('createDocsType', () => {
     ])
   })
 
-  it('makes title the required main field', () => {
+  it('makes title the required field of the Page tab', () => {
     const title = type.fields.find((field) => field.name === 'title')
-    expect(title).toMatchObject({ type: 'text', required: true, region: 'main' })
+    expect(title).toMatchObject({ type: 'text', required: true, region: 'side' })
     expect(type.titleField).toBe('title')
   })
 
@@ -39,11 +39,11 @@ describe('createDocsType', () => {
     expect(names).not.toContain('path')
   })
 
-  it('makes the body a source-mode MDC field', () => {
+  it('makes the body a visual MDC field', () => {
     expect(type.fields.find((field) => field.name === 'body')).toMatchObject({
       type: 'richtext',
       widget: 'mdc',
-      editor: 'source',
+      editor: 'visual',
     })
   })
 
@@ -60,8 +60,15 @@ describe('createDocsType', () => {
     expect(type.defaultSort).toEqual({ field: 'id', direction: 'asc' })
   })
 
-  it('uses the focus layout at full width', () => {
-    expect(type.form).toEqual({ layout: 'focus', width: 'full' })
+  it('uses the canvas layout with the body on the canvas', () => {
+    expect(type.form).toEqual({ layout: 'canvas', canvasField: 'body' })
+  })
+
+  it('builds the View link from the page id and the route prefix', () => {
+    expect(type.previewUrl?.({ id: '1.getting-started/2.installation' } as never)).toBe('/getting-started/installation')
+    expect(type.previewUrl?.({ id: 'index' } as never)).toBe('/')
+    expect(type.previewUrl?.({} as never)).toBeUndefined()
+    expect(createDocsType({ name: 'doc', source: '', routePrefix: '/docs' }).previewUrl?.({ id: 'a/b' } as never)).toBe('/docs/a/b')
   })
 
   it('declares the docs capabilities', () => {

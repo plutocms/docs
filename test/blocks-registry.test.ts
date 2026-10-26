@@ -2,6 +2,7 @@ import type { PlutoBlocksConfig, PlutoComponentBlock } from '../shared/utils/blo
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { buildPalette } from '../shared/utils/blocks/editor'
 import { parseBlocks } from '../shared/utils/blocks/parse'
 import { BLOCK_GROUPS, BLOCK_KIND_LABELS, BLOCK_PRESETS, groupLabelKey } from '../shared/utils/blocks/presets'
 import { definePlutoBlock, humanizeName, insertTextFor, listPaletteBlocks, resolveBlockDefinition } from '../shared/utils/blocks/registry'
@@ -95,7 +96,14 @@ describe('block presets', () => {
   })
 
   it('have no unused text in the locale files', () => {
-    const used = new Set<string>([...Object.values(BLOCK_KIND_LABELS), ...BLOCK_GROUPS.map((group) => groupLabelKey(group))])
+    const used = new Set<string>([...Object.values(BLOCK_KIND_LABELS), ...BLOCK_GROUPS.map((group) => groupLabelKey(group)), 'nuxt-content.blocks.kinds.table'])
+    // The palette entries of the built-in blocks (text, table, code) have their own texts.
+    for (const { entries } of buildPalette()) {
+      for (const entry of entries.filter((item) => item.kind !== 'component')) {
+        used.add(entry.label)
+        used.add(entry.description)
+      }
+    }
     for (const definition of Object.values(BLOCK_PRESETS)) {
       for (const key of keysOf(definition)) {
         used.add(key)

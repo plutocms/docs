@@ -1,5 +1,6 @@
 import type { PlutoNuxtContentOptions } from './options'
 import { defineNuxtModule, useLogger } from '@nuxt/kit'
+import { PREVIEW_PATH } from '../../shared/utils/blocks/preview-protocol'
 import { resolvePlutoNuxtContentOptions } from './options'
 
 export type { PlutoNuxtContentOptions, PlutoNuxtContentTypeOptions } from './options'
@@ -33,6 +34,13 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
 
     // The plugins read this key. It is absent when the layer is off.
     nuxt.options.runtimeConfig.public.plutoNuxtContent = { types }
+
+    // The preview page of the visual editor is a client-only page that no search engine should list.
+    // It is not prerendered, and the response says noindex. An app rule for the same path wins.
+    nuxt.options.routeRules = {
+      [PREVIEW_PATH]: { ssr: false, prerender: false, headers: { 'x-robots-tag': 'noindex, nofollow' } },
+      ...nuxt.options.routeRules,
+    }
 
     if (!nuxt.options._prepare) {
       logger.info(`Nuxt Content layer on. Types: ${types.map((type) => type.name).join(', ') || 'none'}.`)

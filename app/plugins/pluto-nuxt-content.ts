@@ -10,8 +10,7 @@ const PlutoNuxtContentBarActions = defineAsyncComponent(
   () => import('../components/Pluto/NuxtContent/PlutoNuxtContentBarActions.vue')
 )
 
-// Registers the types, the capabilities, the `mdc` field widget, the "View
-// page" action, and the admin bar actions ("New page", "Edit page"). The module sets the config only when the CMS is on. Without it,
+// Registers the types, the capabilities, the `mdc` field widget, and the admin bar actions ("New page", "Edit page"). The module sets the config only when the CMS is on. Without it,
 // the layer adds nothing to the admin.
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig().public.plutoNuxtContent as {
@@ -22,7 +21,6 @@ export default defineNuxtPlugin(() => {
   }
 
   const types = config.types.map((entry) => createDocsType(entry))
-  const prefixes = new Map(config.types.map((entry) => [entry.name, entry.routePrefix ?? '']))
 
   definePlutoExtension({
     id: 'nuxt-content',
@@ -37,19 +35,5 @@ export default defineNuxtPlugin(() => {
     contentFieldWidgets: [
       { id: 'mdc', widget: 'mdc', component: PlutoFieldMdc },
     ],
-    contentActions: types.map((type) => ({
-      id: `view-page-${type.name}`,
-      contentType: type.name,
-      label: 'nuxt-content.actions.viewPage',
-      icon: 'i-lucide-external-link',
-      color: 'neutral',
-      variant: 'outline',
-      // A new page has no public route yet.
-      show: (ctx) => ctx.editing,
-      onSelect: async (ctx) => {
-        const path = contentRoutePath(String(ctx.item.id), prefixes.get(type.name) ?? '')
-        await navigateTo(path, { external: true, open: { target: '_blank' } })
-      },
-    })),
   })
 })

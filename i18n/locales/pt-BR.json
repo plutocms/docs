@@ -4,9 +4,6 @@
       "write": "Criar e editar páginas",
       "delete": "Excluir páginas"
     },
-    "actions": {
-      "viewPage": "Ver página"
-    },
     "mdc": {
       "insert": "Inserir",
       "placeholder": "Escreva a página em Markdown. Use o menu Inserir para os componentes MDC."
@@ -31,7 +28,11 @@
       "kinds": {
         "text": "Texto",
         "code": "Código",
-        "raw": "Markdown"
+        "raw": "Markdown",
+        "table": "Tabela",
+        "textDescription": "Um título e um texto.",
+        "tableDescription": "Linhas e colunas de texto.",
+        "codeDescription": "Um bloco de código com cores."
       },
       "groups": {
         "text": "Texto",
@@ -181,6 +182,69 @@
         "label": "Botão",
         "description": "Um botão que leva a uma página."
       }
+    },
+    "preview": {
+      "title": "Prévia da página",
+      "parseError": "Não foi possível ler este bloco para a prévia.",
+      "blockError": "Este bloco não pôde aparecer na prévia.",
+      "notShown": "Este bloco não aparece na prévia. Ele continua funcionando na página."
+    },
+    "editor": {
+      "previewTitle": "Prévia da página",
+      "previewLoading": "Carregando a prévia…",
+      "previewFailedTitle": "A prévia não carregou",
+      "previewFailed": "A prévia da página não respondeu. Você ainda pode editar os blocos. Veja se o site tem a página de prévia e tente de novo.",
+      "previewRetry": "Tentar de novo",
+      "addBlock": "Adicionar um bloco",
+      "addBlockDescription": "Escolha um bloco para adicionar à página.",
+      "searchBlocks": "Buscar blocos…",
+      "noBlocks": "Nenhum bloco encontrado.",
+      "mode": "Editor",
+      "visual": "Visual",
+      "markdown": "Markdown",
+      "blocks": "Blocos",
+      "blockTab": "Bloco",
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "add": "Adicionar",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "addBelow": "Adicionar um bloco abaixo",
+      "duplicate": "Duplicar",
+      "delete": "Excluir",
+      "edited": "Alterado",
+      "blockActions": "Ações de {name}",
+      "addTo": "Adicionar em {name}",
+      "emptyTitle": "Esta página ainda não tem blocos",
+      "emptyDescription": "Adicione um texto, uma nota ou um cartão para começar.",
+      "blockPanel": "Configurações do bloco",
+      "nothingSelectedTitle": "Nenhum bloco selecionado",
+      "nothingSelected": "Clique em um bloco na prévia ou na lista para alterá-lo.",
+      "selectParent": "Voltar para {name}",
+      "rawNote": "Este é o Markdown do bloco. Uma alteração aqui substitui o bloco.",
+      "rawLabel": "Markdown do bloco",
+      "textLabel": "Texto do bloco",
+      "textPlaceholder": "Escreva aqui…",
+      "language": "Linguagem",
+      "languageHelp": "Para as cores, por exemplo ts.",
+      "fileName": "Nome do arquivo",
+      "fileNameHelp": "Aparece acima do código.",
+      "code": "Código",
+      "tableNote": "Uma tabela é um bloco de Markdown. Edite as células na caixa. Um editor visual de tabela está nos planos.",
+      "rawBlockNote": "Este bloco tem Markdown que o editor visual não altera. Você pode editá-lo como Markdown.",
+      "content": "Conteúdo",
+      "settings": "Configurações",
+      "advanced": "Avançado",
+      "slotEmpty": "Nada aqui ainda.",
+      "editAsMarkdown": "Editar como Markdown",
+      "backToControls": "Voltar para os controles",
+      "applyMarkdown": "Aplicar",
+      "default": "Padrão",
+      "iconHelp": "O nome de um ícone, por exemplo i-lucide-rocket.",
+      "linkPlaceholder": "/pagina ou https://…",
+      "parseErrorTitle": "O editor visual não consegue abrir esta página",
+      "parseError": "O Markdown tem uma parte que o editor visual não consegue ler. Use o editor de Markdown para corrigir.",
+      "switchToMarkdown": "Abrir o editor de Markdown"
     }
   },
   "content": {
