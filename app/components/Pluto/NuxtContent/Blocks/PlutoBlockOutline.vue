@@ -21,7 +21,7 @@ const { t } = usePlutoI18n()
 
 <template>
   <div :aria-label="t('nuxt-content.editor.blocks')" class="flex min-h-0 flex-1 flex-col" role="region" data-block-outline data-pluto-block-ui>
-    <div class="flex shrink-0 items-center gap-1 border-b border-default px-3 py-2">
+    <div class="flex h-12 shrink-0 items-center gap-1 border-b border-default px-3">
       <h2 class="min-w-0 truncate text-sm font-semibold text-highlighted max-lg:hidden">
         {{ t('nuxt-content.editor.blocks') }}
       </h2>
@@ -58,6 +58,8 @@ const { t } = usePlutoI18n()
           size="xs"
           @click="editor.openPalette()"
         />
+        <!-- Hides this panel (desktop). The core toolbar shows the toggle to open it again. -->
+        <PlutoViewLeftCollapse />
       </div>
     </div>
 
