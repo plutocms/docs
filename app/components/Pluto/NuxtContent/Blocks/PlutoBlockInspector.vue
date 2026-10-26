@@ -7,7 +7,6 @@
 import type { PlutoBlock, PlutoComponentBlock } from '../../../../../shared/utils/blocks/types'
 import { resolveSlotMode, slotMarkdown } from '../../../../../shared/utils/blocks/editor'
 import { blockMarkdown } from '../../../../../shared/utils/blocks/operations'
-import { humanizeName } from '../../../../../shared/utils/blocks/registry'
 import PlutoBlockPropControl from './PlutoBlockPropControl.vue'
 import PlutoBlockRawEditor from './PlutoBlockRawEditor.vue'
 import PlutoBlockTextEditor from './PlutoBlockTextEditor.vue'
@@ -18,6 +17,7 @@ defineProps<{
 
 const editor = usePlutoBlockEditor()
 const { t, tx } = usePlutoI18n()
+const { slotLabel, addLabel } = usePlutoBlockLabels()
 
 const block = computed(() => editor.selected.value?.block)
 const info = computed(() => (block.value ? editor.describe(block.value) : undefined))
@@ -56,7 +56,8 @@ const slots = computed(() => {
   }
   return Object.entries(definition.value?.slots ?? {}).map(([name, slot]) => ({
     name,
-    label: slot.label ? tx(slot.label) : humanizeName(name),
+    label: slotLabel(definition.value, name),
+    add: addLabel(definition.value, name),
     mode: resolveSlotMode(current, name, slot.content === 'rich' || slot.content === 'inline' || slot.content === 'blocks' ? slot.content : undefined),
     children: current.slots[name] ?? [],
     accepts: slot.accepts,
@@ -228,7 +229,7 @@ function applyRaw(markdown: string) {
             {{ t('nuxt-content.editor.content') }}
           </h4>
 
-          <UFormField v-for="slot in slots" :key="slot.name" :label="slots.length > 1 || slot.mode === 'blocks' ? slot.label : undefined">
+          <UFormField v-for="slot in slots" :key="slot.name" :label="slots.length > 1 ? slot.label : undefined">
             <PlutoBlockTextEditor
               v-if="slot.mode === 'rich'"
               :model-value="slotMarkdown(component(), slot.name)"
@@ -278,7 +279,7 @@ function applyRaw(markdown: string) {
                 {{ t('nuxt-content.editor.slotEmpty') }}
               </p>
               <UButton
-                :label="t('nuxt-content.editor.addTo', { name: slot.label })"
+                :label="slot.add"
                 :disabled="disabled"
                 icon="i-lucide-plus"
                 color="neutral"

@@ -16,6 +16,7 @@ const props = defineProps<{
 
 const editor = usePlutoBlockEditor()
 const { t, tx } = usePlutoI18n()
+const { slotLabel, addLabel } = usePlutoBlockLabels()
 
 const list = useTemplateRef<HTMLElement>('list')
 const level = computed(() => props.level ?? 1)
@@ -26,19 +27,15 @@ function info(block: PlutoBlock) {
 }
 
 /** The slots of a component that show their children in the outline. */
-function childLists(block: PlutoBlock): Array<{ slot: string, blocks: PlutoBlock[], label?: string }> {
+function childLists(block: PlutoBlock): Array<{ slot: string, blocks: PlutoBlock[], title: string, add: string }> {
   if (block.kind !== 'component') {
     return []
   }
   const definition = editor.definitionOf(block)
   return Object.entries(block.slots)
     .filter(([slot]) => resolveSlotMode(block, slot, definition?.slots?.[slot]?.content) === 'blocks')
-    .map(([slot, blocks]) => ({ slot, blocks, label: definition?.slots?.[slot]?.label }))
+    .map(([slot, blocks]) => ({ slot, blocks, title: slotLabel(definition, slot), add: addLabel(definition, slot) }))
     .filter((entry) => entry.blocks.length > 0)
-}
-
-function slotTitle(label: string | undefined, slot: string): string {
-  return label ? tx(label) : slot
 }
 
 function menu(block: PlutoBlock, index: number) {
@@ -77,6 +74,11 @@ function onKeydown(event: KeyboardEvent, block: PlutoBlock) {
   } else if (event.key === 'Delete') {
     event.preventDefault()
     editor.remove(block.id)
+    // The row is gone. The focus goes to the block that the editor selects next, so Undo keeps working.
+    nextTick(() => {
+      const next = editor.selectedId.value
+      document.querySelector<HTMLElement>(next ? `[data-block-row="${CSS.escape(next)}"]` : '[data-block-row]')?.focus()
+    })
   }
 }
 
@@ -92,6 +94,9 @@ onMounted(async () => {
     draggable: 'li',
     animation: 150,
     ghostClass: 'opacity-40',
+    // Mouse events instead of the browser drag and drop: the same on every browser and on touch.
+    forceFallback: true,
+    fallbackOnBody: true,
     // A list is its own group, so a block cannot leave it.
     group: `blocks:${props.parentId ?? 'root'}:${props.slotName ?? 'default'}`,
     onEnd(event) {
@@ -166,11 +171,11 @@ onBeforeUnmount(() => sortable?.destroy())
       <div v-if="childLists(block).length" class="ms-5 border-s border-default ps-1.5">
         <div v-for="child in childLists(block)" :key="child.slot" class="pt-0.5">
           <p v-if="childLists(block).length > 1" class="px-1 pt-1 text-xs font-medium text-muted">
-            {{ slotTitle(child.label, child.slot) }}
+            {{ child.title }}
           </p>
           <PlutoBlockOutlineList :blocks="child.blocks" :parent-id="block.id" :slot-name="child.slot" :level="level + 1" />
           <UButton
-            :label="t('nuxt-content.editor.addTo', { name: slotTitle(child.label, child.slot) })"
+            :label="child.add"
             icon="i-lucide-plus"
             color="neutral"
             variant="link"

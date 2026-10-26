@@ -19,7 +19,7 @@ import {
   updateText
 } from '../../shared/utils/blocks/operations'
 import { parseBlocks } from '../../shared/utils/blocks/parse'
-import { resolveBlockDefinition } from '../../shared/utils/blocks/registry'
+import { humanizeName, resolveBlockDefinition } from '../../shared/utils/blocks/registry'
 import { serializeBlocks } from '../../shared/utils/blocks/serialize'
 import { findBlock, flatChildren, pathOf } from '../../shared/utils/blocks/tree'
 
@@ -290,4 +290,32 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
 /** The id of the top-level block that holds a block. The preview selects at this level. */
 export function topLevelId(doc: PlutoBlockDoc, id: string | null): string | null {
   return id ? (pathOf(doc, id)[0] ?? null) : null
+}
+
+/** The texts of the slots of a component: the title of a slot, and the label of its "Add" button. */
+export function usePlutoBlockLabels() {
+  const { t, tx } = usePlutoI18n()
+  const appConfig = useAppConfig()
+
+  function slotLabel(definition: PlutoBlockDefinition | undefined, slot: string): string {
+    const label = definition?.slots?.[slot]?.label
+    if (label) {
+      return tx(label)
+    }
+    return slot === 'default' ? t('nuxt-content.blocks.slots.default') : humanizeName(slot)
+  }
+
+  /** "Add Card" when the slot takes one kind of block, "Add a block" for the main slot, else "Add to Buttons". */
+  function addLabel(definition: PlutoBlockDefinition | undefined, slot: string): string {
+    const accepts = definition?.slots?.[slot]?.accepts
+    if (accepts?.length === 1) {
+      return t('nuxt-content.editor.addItem', { name: tx(resolveBlockDefinition(accepts[0]!, { overrides: appConfig.plutoBlocks }).label) })
+    }
+    if (slot === 'default') {
+      return t('nuxt-content.editor.addBlock')
+    }
+    return t('nuxt-content.editor.addTo', { name: slotLabel(definition, slot) })
+  }
+
+  return { slotLabel, addLabel }
 }

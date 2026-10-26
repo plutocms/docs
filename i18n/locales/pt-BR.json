@@ -244,7 +244,8 @@
       "linkPlaceholder": "/pagina ou https://…",
       "parseErrorTitle": "O editor visual não consegue abrir esta página",
       "parseError": "O Markdown tem uma parte que o editor visual não consegue ler. Use o editor de Markdown para corrigir.",
-      "switchToMarkdown": "Abrir o editor de Markdown"
+      "switchToMarkdown": "Abrir o editor de Markdown",
+      "addItem": "Adicionar {name}"
     }
   },
   "content": {

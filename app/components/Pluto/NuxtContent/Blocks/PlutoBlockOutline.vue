@@ -22,41 +22,43 @@ const { t } = usePlutoI18n()
 <template>
   <div :aria-label="t('nuxt-content.editor.blocks')" class="flex min-h-0 flex-1 flex-col" role="region" data-block-outline data-pluto-block-ui>
     <div class="flex shrink-0 items-center gap-1 border-b border-default px-3 py-2">
-      <h2 class="min-w-0 flex-1 truncate text-sm font-semibold text-highlighted">
+      <h2 class="min-w-0 truncate text-sm font-semibold text-highlighted max-lg:hidden">
         {{ t('nuxt-content.editor.blocks') }}
       </h2>
-      <UTooltip :text="t('nuxt-content.editor.undo')" :kbds="['meta', 'Z']">
+      <div class="ms-auto flex items-center gap-1">
+        <UTooltip :text="t('nuxt-content.editor.undo')" :kbds="['meta', 'Z']">
+          <UButton
+            :disabled="disabled || !editor.canUndo.value"
+            :aria-label="t('nuxt-content.editor.undo')"
+            icon="i-lucide-undo-2"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            @click="editor.undo()"
+          />
+        </UTooltip>
+        <UTooltip :text="t('nuxt-content.editor.redo')" :kbds="['meta', 'shift', 'Z']">
+          <UButton
+            :disabled="disabled || !editor.canRedo.value"
+            :aria-label="t('nuxt-content.editor.redo')"
+            icon="i-lucide-redo-2"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            @click="editor.redo()"
+          />
+        </UTooltip>
         <UButton
-          :disabled="disabled || !editor.canUndo.value"
-          :aria-label="t('nuxt-content.editor.undo')"
-          icon="i-lucide-undo-2"
-          color="neutral"
-          variant="ghost"
+          :label="t('nuxt-content.editor.add')"
+          :disabled="disabled"
+          :aria-label="t('nuxt-content.editor.addBlock')"
+          icon="i-lucide-plus"
+          color="primary"
+          variant="soft"
           size="xs"
-          @click="editor.undo()"
+          @click="editor.openPalette()"
         />
-      </UTooltip>
-      <UTooltip :text="t('nuxt-content.editor.redo')" :kbds="['meta', 'shift', 'Z']">
-        <UButton
-          :disabled="disabled || !editor.canRedo.value"
-          :aria-label="t('nuxt-content.editor.redo')"
-          icon="i-lucide-redo-2"
-          color="neutral"
-          variant="ghost"
-          size="xs"
-          @click="editor.redo()"
-        />
-      </UTooltip>
-      <UButton
-        :label="t('nuxt-content.editor.add')"
-        :disabled="disabled"
-        :aria-label="t('nuxt-content.editor.addBlock')"
-        icon="i-lucide-plus"
-        color="primary"
-        variant="soft"
-        size="xs"
-        @click="editor.openPalette()"
-      />
+      </div>
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto p-2">

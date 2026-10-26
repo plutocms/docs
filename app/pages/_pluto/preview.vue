@@ -59,6 +59,8 @@ const selectedId = ref<string | null>(null)
 const cache = new Map<string, MDCRoot>()
 const CACHE_LIMIT = 300
 let run = 0
+// A scroll that came before the block was on screen (a new block): do it after the next render.
+let wantedScroll: string | null = null
 
 /** Puts the id on each element at the top of a body. A component passes it to its root element. */
 function mark(root: MDCRoot, id: string): MDCRoot {
@@ -111,6 +113,10 @@ async function render(message: { frontmatter: Record<string, unknown>, blocks: P
   }
   await nextTick()
   refreshOverlay()
+  if (wantedScroll) {
+    // The components of a block can mount a moment after the render.
+    setTimeout(() => wantedScroll && scrollToBlock(wantedScroll), 80)
+  }
 }
 
 // --- Talk to the editor ---------------------------------------------------------
@@ -181,8 +187,10 @@ function refreshOverlay() {
 function scrollToBlock(id: string) {
   const box = boxOf(id)
   if (!box) {
+    wantedScroll = id
     return
   }
+  wantedScroll = null
   const top = box.top - window.scrollY
   const margin = 24
   if (top < margin || top + box.height > window.innerHeight - margin) {

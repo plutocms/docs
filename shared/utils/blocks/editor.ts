@@ -42,6 +42,16 @@ function textExcerpt(markdown: string): string {
   return plainExcerpt(first ?? '')
 }
 
+/** The first line of text in a component, for the excerpt of a block that has no title. */
+function firstText(component: PlutoComponentBlock): string {
+  for (const child of flatChildren(component)) {
+    if (child.kind === 'text') {
+      return textExcerpt(child.markdown)
+    }
+  }
+  return ''
+}
+
 /** The label, the icon and the excerpt of a block in the outline. */
 export function describeBlock(block: PlutoBlock, overrides: PlutoBlocksConfig = {}): PlutoBlockInfo {
   switch (block.kind) {
@@ -60,7 +70,7 @@ export function describeBlock(block: PlutoBlock, overrides: PlutoBlocksConfig = 
     case 'component': {
       const definition = resolveBlockDefinition(block.name, { overrides })
       const title = typeof block.props.title === 'string' ? block.props.title : typeof block.props.label === 'string' ? block.props.label : ''
-      return { label: definition.label, icon: definition.icon, excerpt: plainExcerpt(title), name: block.name }
+      return { label: definition.label, icon: definition.icon, excerpt: plainExcerpt(title || firstText(block)), name: block.name }
     }
   }
 }
@@ -82,10 +92,14 @@ export function resolveSlotMode(component: PlutoComponentBlock, slot: string, wa
   if (wanted === 'blocks') {
     return 'blocks'
   }
-  if (!children.every((child) => child.kind === 'text')) {
+  // A component or a code block inside the slot needs the list of blocks.
+  if (!children.every((child) => child.kind === 'text' || child.kind === 'raw')) {
     return 'blocks'
   }
-  // The parser already turns unsafe prose into a raw block, so only text is left here.
+  // The parser turns prose that the text editor would lose into a raw block. Markdown keeps it as it is.
+  if (children.some((child) => child.kind === 'raw')) {
+    return 'markdown'
+  }
   const markdown = slotMarkdown(component, slot)
   if (wanted === 'inline') {
     return markdown.includes('\n') ? 'markdown' : 'inline'

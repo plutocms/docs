@@ -39,11 +39,17 @@ const frontmatter = computed<Record<string, unknown>>(() => {
   return Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'body'))
 })
 
-// A selection brings the Block tab forward (and opens the panel on a narrow screen).
+// A selection brings the Block tab forward (and opens the panel on a narrow screen). On a narrow
+// screen the block list is a slideover. A choice in it closes the slideover, so the controls show.
+const wide = useMediaQuery('(min-width: 1024px)')
 watch(() => editor.selection.value, (selection) => {
-  if (selection) {
-    form?.openPanel('block')
+  if (!selection) {
+    return
   }
+  if (!wide.value && selection.source === 'ui') {
+    document.querySelector('[data-block-outline]')?.closest('[role="dialog"]')?.querySelector<HTMLElement>('button[data-slot="close"]')?.click()
+  }
+  form?.openPanel('block')
 })
 
 // One undo stack for the page: Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y). They act while the
@@ -58,13 +64,22 @@ function onKeydown(event: KeyboardEvent) {
   if (!inside) {
     return
   }
+  const row = target instanceof Element ? target.closest<HTMLElement>('[data-block-row]')?.dataset.blockRow : undefined
   if (key === 'z' && !event.shiftKey) {
     event.preventDefault()
     editor.undo()
   } else if ((key === 'z' && event.shiftKey) || key === 'y') {
     event.preventDefault()
     editor.redo()
+  } else {
+    return
   }
+  // A list row that moves in the DOM loses the focus. Give it back, so the next shortcut works.
+  nextTick(() => {
+    if (row && (!document.activeElement || document.activeElement === document.body)) {
+      document.querySelector<HTMLElement>(`[data-block-row="${CSS.escape(row)}"]`)?.focus()
+    }
+  })
 }
 
 onMounted(() => document.addEventListener('keydown', onKeydown, true))
