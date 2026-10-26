@@ -14,7 +14,7 @@ const props = defineProps<{
 const editor = usePlutoBlockEditor()
 const { t, tx } = usePlutoI18n()
 const router = useRouter()
-const appConfig = useAppConfig()
+const blocksConfig = usePlutoBlocksConfig()
 
 const DEBOUNCE_MS = 150
 const LOAD_TIMEOUT_MS = 12000
@@ -29,7 +29,7 @@ const src = computed(() => router.resolve(PREVIEW_PATH).href)
 // The preview marks the top-level blocks and their inner components. So the selection it shows
 // is the deepest component on the path of the selected block (a text inside a card shows the card).
 const shownId = computed(() => previewSelectionId(editor.doc.value, editor.selectedId.value))
-const blocks = computed(() => toPreviewBlocks(editor.doc.value.blocks, appConfig.plutoBlocks))
+const blocks = computed(() => toPreviewBlocks(editor.doc.value.blocks, blocksConfig()))
 
 function send(message: ReturnType<typeof previewMessage>) {
   frame.value?.contentWindow?.postMessage(message, window.location.origin)

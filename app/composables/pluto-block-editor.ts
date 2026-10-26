@@ -317,10 +317,20 @@ export function topLevelId(doc: PlutoBlockDoc, id: string | null): string | null
   return id ? (pathOf(doc, id)[0] ?? null) : null
 }
 
+/**
+ * The `plutoBlocks` value of the app config, as `PlutoBlocksConfig`. Nuxt types
+ * `useAppConfig()` from the literal config of the site, where `'inline'` is a
+ * `string`, so read the value through this function, not from `useAppConfig()`.
+ */
+export function usePlutoBlocksConfig(): () => PlutoBlocksConfig | undefined {
+  const appConfig = useAppConfig()
+  return () => appConfig.plutoBlocks as unknown as PlutoBlocksConfig | undefined
+}
+
 /** The texts of the slots of a component: the title of a slot, and the label of its "Add" button. */
 export function usePlutoBlockLabels() {
   const { t, tx } = usePlutoI18n()
-  const appConfig = useAppConfig()
+  const blocksConfig = usePlutoBlocksConfig()
 
   function slotLabel(definition: PlutoBlockDefinition | undefined, slot: string): string {
     const label = definition?.slots?.[slot]?.label
@@ -334,7 +344,7 @@ export function usePlutoBlockLabels() {
   function addLabel(definition: PlutoBlockDefinition | undefined, slot: string): string {
     const accepts = definition?.slots?.[slot]?.accepts
     if (accepts?.length === 1) {
-      return t('nuxt-content.editor.addItem', { name: tx(resolveBlockDefinition(accepts[0]!, { overrides: appConfig.plutoBlocks }).label) })
+      return t('nuxt-content.editor.addItem', { name: tx(resolveBlockDefinition(accepts[0]!, { overrides: blocksConfig() }).label) })
     }
     if (slot === 'default') {
       return t('nuxt-content.editor.addBlock')
