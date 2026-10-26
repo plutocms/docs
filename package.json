@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@nuxt/content": "^3.16.2",
-    "@plutocms/pluto": "^0.20.0",
+    "@plutocms/pluto": "^0.21.0",
     "remark-gfm": "4.0.1",
     "remark-mdc": "3.11.1",
     "remark-parse": "11.0.0",
