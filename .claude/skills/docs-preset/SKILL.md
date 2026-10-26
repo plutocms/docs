@@ -12,18 +12,24 @@ and in Nitro.
 - `status: false`, `timestamps: false`. A page has no draft state and no stored dates.
 - `defaultSort: { field: 'id', direction: 'asc' }`. The list shows the tree order: `index` first,
   then the numeric prefixes as numbers.
-- `form: { layout: 'focus', width: 'full' }`.
+- `form: { layout: 'canvas', canvasField: 'body' }`: the body fills the page (the block editor), and
+  the other fields are in the Page tab of the right panel.
+- `previewUrl`: the public route of the page (`contentRoutePath(id, routePrefix)`). The form toolbar
+  shows it as the **View** link.
 - `capabilities: { write: 'docs:write', delete: 'docs:delete' }`. There is no read capability.
 - `titleField: 'title'`, `slug: { field: 'slug' }`, icon `lucide:book-open`.
 
 ## Fields
 
+In the `canvas` layout, `region` does not matter: every field but the body is in the Page tab, in
+the order of `order`.
+
 | Field | Type | Frontmatter key | Region |
 | --- | --- | --- | --- |
-| `title` | text, required | `title` | main |
-| `slug` | slug, required | none (the file path) | main |
-| `description` | textarea | `description` | main |
-| `body` | richtext, `widget: 'mdc'`, `editor: 'source'` | none (the file body) | main |
+| `title` | text, required | `title` | side |
+| `slug` | slug, required | none (the file path) | side |
+| `description` | textarea | `description` | side |
+| `body` | richtext, `widget: 'mdc'`, `editor: 'visual'` | none (the file body) | main (the canvas) |
 | `navigationTitle` | text | `navigation.title` | side |
 | `navigationIcon` | text | `navigation.icon` | side |
 | `navigationHidden` | boolean | `navigation: false` | side |

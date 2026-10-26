@@ -2,7 +2,7 @@
 // The admin bar actions of the layer, for a user with `docs:write`:
 // - "New <type>" for each content type, on every page where the bar shows.
 // - "Edit <type>" on a public page that called `usePlutoContentEditLink`. The
-//   admin form has its own "View page", so it does not show on /admin.
+//   admin form has its own View link, so it does not show on /admin.
 // Each button is an <li>, because the bar actions sit in a <ul>.
 const route = useRoute()
 const { can } = usePlutoPermissions()
@@ -36,14 +36,14 @@ const editLabel = computed(() => current.value ? t('pluto.content.edit', { label
       v-for="type in types"
       :key="type"
       :label="texts(type).newLabel"
-      icon="i-lucide-plus"
       :to="contentNewPath(type)"
+      icon="i-lucide-plus"
     />
     <PlutoNavbarButton
       v-if="editPath"
       :label="editLabel"
-      icon="i-lucide-pencil"
       :to="editPath"
+      icon="i-lucide-pencil"
     />
   </template>
 </template>

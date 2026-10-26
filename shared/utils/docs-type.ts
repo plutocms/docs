@@ -3,6 +3,8 @@
 // hooks map `navigation` and `seo` to flat keys, so each of them is a normal
 // field (a virtual field is not read back). See the docs-preset skill.
 
+import { contentRoutePath } from './content-route'
+
 type Frontmatter = Record<string, unknown>
 
 function isRecord(value: unknown): value is Frontmatter {
@@ -110,6 +112,8 @@ export interface DocsTypeOptions {
   labelPlural?: string
   /** Ids to hide from the list: an id (`index`), or a folder with a trailing slash. */
   exclude?: string[]
+  /** The public path in front of the page paths, for example `/docs`. It builds the View link. */
+  routePrefix?: string
 }
 
 /** The capabilities of the docs preset. The client plugin registers them. */
@@ -134,7 +138,7 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     titleField: 'title',
     slug: { field: 'slug' },
     fields: [
-      { name: 'title', type: 'text', label: 'Title', required: true, inList: true, order: 10, region: 'main' },
+      { name: 'title', type: 'text', label: 'Title', required: true, inList: true, order: 10, region: 'side' },
       {
         name: 'slug',
         type: 'slug',
@@ -143,10 +147,10 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
         required: true,
         inList: true,
         order: 20,
-        region: 'main',
+        region: 'side',
       },
-      { name: 'description', type: 'textarea', label: 'Description', rows: 2, order: 30, region: 'main' },
-      { name: 'body', type: 'richtext', label: 'Content', widget: 'mdc', editor: 'source', inList: false, order: 40, region: 'main' },
+      { name: 'description', type: 'textarea', label: 'Description', rows: 2, order: 30, region: 'side' },
+      { name: 'body', type: 'richtext', label: 'Content', widget: 'mdc', editor: 'visual', inList: false, order: 40, region: 'main' },
       { name: 'navigationTitle', type: 'text', label: 'Navigation title', order: 110, inList: false, region: 'side' },
       { name: 'navigationIcon', type: 'text', label: 'Navigation icon', placeholder: 'i-lucide-rocket', order: 120, inList: false, region: 'side' },
       { name: 'navigationHidden', type: 'boolean', label: 'Hide from the navigation', order: 130, inList: false, region: 'side' },
@@ -158,7 +162,9 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     // Tree order: the numeric prefixes decide, not the title.
     defaultSort: { field: 'id', direction: 'asc' },
     capabilities: { write: DOCS_CAPABILITIES.write, delete: DOCS_CAPABILITIES.delete },
-    form: { layout: 'focus', width: 'full' },
+    // The canvas layout: the body fills the page (the block editor), and the other fields are in the Page tab.
+    form: { layout: 'canvas', canvasField: 'body' },
+    previewUrl: (item) => (item.id ? contentRoutePath(String(item.id), options.routePrefix ?? '') : undefined),
     files: {
       nested: true,
       exclude: options.exclude ?? [],

@@ -13,7 +13,7 @@ export interface PlutoNuxtContentTypeOptions {
   labelPlural?: string
   /** Ids that the type must not list or edit. An id (`index`), or a folder with a trailing slash (`drafts/`). */
   exclude?: string[]
-  /** The route prefix of the pages on the public site, for the "View page" action. Default: none. */
+  /** The route prefix of the pages on the public site, for the View link of the form. Default: none. */
   routePrefix?: string
 }
 
