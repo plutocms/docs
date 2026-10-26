@@ -86,6 +86,12 @@ does on the site. It fetches nothing.
   `app/components/PlutoContentPreview.vue` in the app. It gets `frontmatter` and renders the default
   slot where the blocks go. The slot must hold the blocks directly, because the prose styles read
   the first and last child.
+- A page that the site renders with other `ContentRenderer` options (for example a landing with
+  `:prose="false"`) must use the same options in the preview, or a component shows twice (a
+  `prose-pre` with a code fence inside gets two frames). In the site's `PlutoContentPreview`, call
+  `usePlutoPreviewRender(() => ({ prose: false, components: { a: 'prose-a' } }))` for that page.
+  `frontmatter.id` is the content id (`index` for the landing). `PlutoPreviewBlock` reads the
+  options with `inject(plutoPreviewRenderKey)`.
 
 ## The site config
 

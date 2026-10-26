@@ -24,6 +24,11 @@ const { t } = usePlutoI18n()
 const failed = ref<string | null>(null)
 const value = computed(() => (props.body ? { body: props.body } : undefined))
 
+// The render options of the site page (`usePlutoPreviewRender` in the site's PlutoContentPreview).
+const renderOptions = inject(plutoPreviewRenderKey, {})
+const prose = computed(() => toValue(renderOptions).prose ?? true)
+const components = computed(() => toValue(renderOptions).components ?? {})
+
 // A new body gets a new chance to render.
 watch(() => props.body, () => {
   failed.value = null
@@ -52,6 +57,8 @@ const note = computed(() => {
     v-if="value && !failed && !error"
     :value="value"
     :tag="(false as unknown as string)"
+    :prose="prose"
+    :components="components"
   />
 
   <div
