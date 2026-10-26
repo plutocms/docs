@@ -6,7 +6,8 @@
 // raw keys or YAML, except in Advanced and in "Edit as Markdown".
 import type {
   PlutoBlock,
-  PlutoComponentBlock
+  PlutoComponentBlock,
+  PlutoPropValue
 } from '../../../../../shared/utils/blocks/types'
 import {
   resolveSlotMode,
@@ -76,12 +77,57 @@ const advanced = computed(() => {
   return Object.entries(props).filter(([, prop]) => prop.advanced)
 })
 
+// A prop with a `slot` (the label of a button) is one field for the prop and the slot. The slot
+// does not show in Content.
+const coveredSlots = computed(
+  () =>
+    new Set(
+      Object.values(definition.value?.props ?? {}).flatMap((prop) =>
+        prop.slot ? [prop.slot] : []
+      )
+    )
+)
+
+// The field edits the slot when the block has text in it, else the prop. It is chosen when the
+// block is selected, so clearing the field does not move the text to the other place while typing.
+const slotBacked = ref(new Set<string>())
+watch(
+  () => block.value?.id,
+  () => {
+    const current = block.value
+    slotBacked.value = new Set(
+      current?.kind === 'component'
+        ? Object.entries(definition.value?.props ?? {}).flatMap(([name, prop]) =>
+            prop.slot && slotMarkdown(current, prop.slot).trim() ? [name] : []
+          )
+        : []
+    )
+  },
+  { immediate: true }
+)
+
+function propValue(name: string): PlutoPropValue | undefined {
+  const slot = definition.value?.props?.[name]?.slot
+  return slot && slotBacked.value.has(name)
+    ? slotMarkdown(component(), slot)
+    : component().props[name]
+}
+
+function setPropValue(name: string, value: PlutoPropValue) {
+  const slot = definition.value?.props?.[name]?.slot
+  if (slot && slotBacked.value.has(name)) {
+    editor.setSlot(component().id, slot, String(value ?? ''))
+  } else {
+    editor.setProp(component().id, name, value)
+  }
+}
+
 const slots = computed(() => {
   const current = block.value
   if (current?.kind !== 'component') {
     return []
   }
-  return Object.entries(definition.value?.slots ?? {}).map(([name, slot]) => ({
+  return Object.entries(definition.value?.slots ?? {}).filter(([name]) => !coveredSlots.value.has(name)).map(([name, slot]) => ({
     name,
     label: slotLabel(definition.value, name),
     add: addLabel(definition.value, name),
@@ -395,9 +441,9 @@ function applyRaw(markdown: string) {
             :key="name"
             :name="name"
             :definition="prop"
-            :model-value="component().props[name]"
+            :model-value="propValue(name)"
             :disabled="disabled"
-            @update:model-value="editor.setProp(block.id, name, $event)"
+            @update:model-value="setPropValue(name, $event)"
           />
         </section>
 

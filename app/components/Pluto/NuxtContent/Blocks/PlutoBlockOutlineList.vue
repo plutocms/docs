@@ -127,6 +127,13 @@ function onKeydown(event: KeyboardEvent, block: PlutoBlock) {
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     focusRow(target, event.key === 'ArrowUp' ? -1 : 1)
+  } else if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && childLists(block).length) {
+    // Like a tree: Left closes the children, Right opens them.
+    const collapsed = editor.collapsedIds.value.has(block.id)
+    if (collapsed === (event.key === 'ArrowRight')) {
+      event.preventDefault()
+      editor.toggleCollapsed(block.id)
+    }
   } else if (event.key === 'Delete') {
     event.preventDefault()
     editor.remove(block.id)
@@ -207,13 +214,30 @@ onBeforeUnmount(() => sortable?.destroy())
           <UIcon name="i-lucide-grip-vertical" class="size-4" />
         </span>
 
+        <!-- Opens and closes the children of a component. A block with no children keeps the space. -->
+        <button
+          v-if="childLists(block).length"
+          :aria-expanded="!editor.collapsedIds.value.has(block.id)"
+          :aria-label="t(editor.collapsedIds.value.has(block.id) ? 'nuxt-content.editor.expand' : 'nuxt-content.editor.collapse', { name: info(block).label })"
+          type="button"
+          class="flex size-5 shrink-0 items-center justify-center rounded text-muted hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+          @click="editor.toggleCollapsed(block.id)"
+        >
+          <UIcon
+            :class="editor.collapsedIds.value.has(block.id) ? '' : 'rotate-90'"
+            name="i-lucide-chevron-right"
+            class="size-4 transition-transform"
+          />
+        </button>
+        <span v-else class="size-5 shrink-0" aria-hidden="true" />
+
         <button
           :data-block-row="block.id"
           :aria-current="
             editor.selectedId.value === block.id ? 'true' : undefined
           "
           type="button"
-          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete"
+          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown ArrowLeft ArrowRight Delete"
           class="flex min-h-8 min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 text-start text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           @click="editor.select(block.id)"
           @keydown="onKeydown($event, block)"
@@ -249,7 +273,7 @@ onBeforeUnmount(() => sortable?.destroy())
       </div>
 
       <div
-        v-if="childLists(block).length"
+        v-if="childLists(block).length && !editor.collapsedIds.value.has(block.id)"
         class="ms-5 border-s border-default ps-1.5"
       >
         <div

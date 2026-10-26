@@ -24,9 +24,13 @@ Branch / PR: `feat/block-model` (draft PR #16)
 - [x] `PlutoBlockMarkdownSplit`: side by side (stacked below `lg`), click to go to line.
 - [x] `PlutoFieldMdc`: the split in a canvas form, the plain Markdown elsewhere.
 - [x] Skill `mdc-field`; checked in Chrome.
+- [x] Resizable split (`USplitter`, cookie `pluto-mdc-split`, 25 to 75 percent; vertical below `lg`).
 - [ ] Part 2: after the user decides (CodeMirror or not).
 
 ## Log
 
 - 2026-10-26: part 1 built. In Chrome: a click on the Warning selects `::warning` in the Markdown;
   a click on the card group selects `::card-group` and scrolls the pane to it. 201 tests pass.
+- 2026-10-26: the split is resizable (drag 200 px: 379 to 577 px, cookie 73). Same round, in the
+  visual editor: the button Label field edits the slot text (prop `slot` option), the outline has
+  chevrons to collapse a component, and a block selected in the preview scrolls its row into view.

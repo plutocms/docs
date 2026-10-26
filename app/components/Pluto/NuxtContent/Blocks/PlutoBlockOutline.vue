@@ -17,6 +17,15 @@ const emit = defineEmits<{
 
 const editor = usePlutoBlockEditor()
 const { t } = usePlutoI18n()
+
+// A block selected in the preview: scroll the list to its row. The editor opens the collapsed
+// parents first, so the watch runs after the render (`flush: 'post'`).
+watch(() => editor.selection.value, (selection) => {
+  if (selection?.source !== 'preview') {
+    return
+  }
+  document.querySelector<HTMLElement>(`[data-block-row="${CSS.escape(selection.id)}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+}, { flush: 'post' })
 </script>
 
 <template>

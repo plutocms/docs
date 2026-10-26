@@ -194,7 +194,8 @@ const DEFINITIONS: PlutoBlockDefinition[] = [
   }),
   block('u-button', 'landing', 'i-lucide-mouse-pointer-click', {
     props: {
-      label: prop('string', 'label'),
+      // A Markdown page often writes the text as the default slot (`:::u-button` ... `Get started`).
+      label: prop('string', 'label', { slot: 'default' }),
       to: prop('link', 'to'),
       icon: prop('icon', 'icon'),
       color: prop('select', 'color', { options: options(COLORS) }),

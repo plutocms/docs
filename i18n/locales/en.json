@@ -213,6 +213,8 @@
       "duplicate": "Duplicate",
       "delete": "Delete",
       "edited": "Changed",
+      "expand": "Show the blocks inside {name}",
+      "collapse": "Hide the blocks inside {name}",
       "blockActions": "Actions for {name}",
       "addTo": "Add to {name}",
       "emptyTitle": "This page has no blocks yet",

@@ -112,6 +112,12 @@ export interface PlutoBlockPropDefinition {
   options?: Array<string | PlutoBlockPropOption>
   /** A prop in the Advanced section of the panel. */
   advanced?: boolean
+  /**
+   * A slot with the same text, for example the `default` slot of a button and its `label`. The
+   * panel shows one field for both: it edits the slot when the block has text in it (the slot wins
+   * on the site), else the prop. The slot does not show in the Content section.
+   */
+  slot?: string
 }
 
 /** The editor for the content of a slot. */

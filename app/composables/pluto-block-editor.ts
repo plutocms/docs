@@ -54,6 +54,9 @@ export interface PlutoBlockEditor {
   /** The ids of the blocks that changed since the editor opened. A dot marks them in the outline. */
   editedIds: ComputedRef<Set<string>>
   palette: Ref<{ open: boolean, target: PlutoBlockTarget | null }>
+  /** The components whose children the outline hides. A selection inside one opens it. */
+  collapsedIds: Ref<Set<string>>
+  toggleCollapsed: (id: string) => void
   select: (id: string | null, source?: 'ui' | 'preview') => void
   openPalette: (target?: PlutoBlockTarget | null) => void
   undo: () => void
@@ -125,6 +128,7 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
   const selection = ref<PlutoBlockSelection | null>(null)
   const hoverId = ref<string | null>(null)
   const palette = ref<{ open: boolean, target: PlutoBlockTarget | null }>({ open: false, target: null })
+  const collapsedIds = ref(new Set<string>())
   let lastEmitted = options.source()
 
   const selected = computed(() => (selection.value ? findBlock(doc.value, selection.value.id) : undefined))
@@ -143,6 +147,25 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
   })
 
   const editedIds = computed(() => editedBlockIds(doc.value.blocks))
+
+  function toggleCollapsed(id: string): void {
+    const next = new Set(collapsedIds.value)
+    if (!next.delete(id)) {
+      next.add(id)
+    }
+    collapsedIds.value = next
+  }
+
+  // A block selected in the preview or in the panel must show in the outline: open its parents.
+  watch(selection, (current) => {
+    if (!current) {
+      return
+    }
+    const parents = pathOf(doc.value, current.id).slice(0, -1)
+    if (parents.some((id) => collapsedIds.value.has(id))) {
+      collapsedIds.value = new Set([...collapsedIds.value].filter((id) => !parents.includes(id)))
+    }
+  })
 
   function write(next: PlutoBlockDoc): void {
     const text = serializeBlocks(next)
@@ -253,6 +276,8 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
     edited: computed(() => editedIds.value.size > 0),
     editedIds,
     palette,
+    collapsedIds,
+    toggleCollapsed,
     select,
     openPalette(target = null) {
       palette.value = { open: true, target }

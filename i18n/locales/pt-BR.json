@@ -213,6 +213,8 @@
       "duplicate": "Duplicar",
       "delete": "Excluir",
       "edited": "Alterado",
+      "expand": "Mostrar os blocos dentro de {name}",
+      "collapse": "Ocultar os blocos dentro de {name}",
       "blockActions": "Ações de {name}",
       "addTo": "Adicionar em {name}",
       "emptyTitle": "Esta página ainda não tem blocos",

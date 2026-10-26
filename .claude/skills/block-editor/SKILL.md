@@ -27,7 +27,10 @@ The docs type uses the core `canvas` form layout (see the `admin-view-chrome` sk
     the two panels with `PlutoContentCanvasPanel`. It also handles Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z.
   - `PlutoBlockOutline.vue`, `PlutoBlockOutlineList.vue`: the list. Each list is one SortableJS
     group, so a block moves inside its own list only. Keys: Up and Down move the focus,
-    Alt+Up and Alt+Down move the block, Delete removes it (Undo brings it back).
+    Alt+Up and Alt+Down move the block, Delete removes it (Undo brings it back), Left and Right
+    hide and show the blocks inside a component. A chevron before the icon does the same
+    (`editor.collapsedIds`, `editor.toggleCollapsed`; not kept after a reload). A selection opens
+    its collapsed parents, and a block selected in the preview scrolls its row into view.
   - `PlutoBlockPalette.vue`: "Add a block". A `UCommandPalette` in a modal.
   - `PlutoBlockInspector.vue`: Content (one control for each slot), Settings, Advanced, actions.
   - `PlutoBlockPropControl.vue`: one setting. The control follows the prop type.
@@ -113,6 +116,12 @@ The palette shows them, the list shows their label and icon, and the Block panel
 settings and slots. Slot content kinds: `rich` (text editor), `inline` (one line), `blocks` (a
 list with "Add"). A `rich` or `inline` slot becomes a Markdown box when its content has syntax that
 the text editor would lose, and a block list when it holds a component or code.
+
+A prop with `slot` (for example the `label` of `u-button`, with `slot: 'default'`) is one field for
+the prop and that slot, in Settings. The slot does not show in Content. The field edits the slot
+when the selected block has text in it (Markdown often writes a button as `:::u-button` with the
+text inside, and the slot wins on the site), else the prop. The panel chooses when the block is
+selected, so clearing the field does not move the text to the other place.
 
 ## Not in this version
 

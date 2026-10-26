@@ -137,3 +137,24 @@ describe('topLevelId', () => {
     expect(topLevelId(editor.doc.value, null)).toBeNull()
   })
 })
+
+describe('collapsed blocks in the outline', () => {
+  it('toggles a block', () => {
+    const { editor } = create()
+    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    editor.toggleCollapsed(group.id)
+    expect(editor.collapsedIds.value.has(group.id)).toBe(true)
+    editor.toggleCollapsed(group.id)
+    expect(editor.collapsedIds.value.has(group.id)).toBe(false)
+  })
+
+  it('opens the collapsed parents of a selected block', async () => {
+    const { editor } = create()
+    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    const [one] = flatChildren(group as never)
+    editor.toggleCollapsed(group.id)
+    editor.select(one!.id, 'preview')
+    await nextTick()
+    expect(editor.collapsedIds.value.has(group.id)).toBe(false)
+  })
+})
