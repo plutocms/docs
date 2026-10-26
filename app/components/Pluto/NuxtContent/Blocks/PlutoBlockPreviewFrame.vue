@@ -53,7 +53,10 @@ function messageBlocks() {
 }
 
 function sendRender() {
-  send(previewMessage('render', { frontmatter: props.frontmatter, blocks: messageBlocks(), selectedId: shownId.value }))
+  // A nested value of the form is a reactive proxy, and `postMessage` cannot clone a proxy.
+  // The front matter is YAML data, so a JSON copy is a plain copy.
+  const frontmatter = JSON.parse(JSON.stringify(props.frontmatter)) as Record<string, unknown>
+  send(previewMessage('render', { frontmatter, blocks: messageBlocks(), selectedId: shownId.value }))
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined

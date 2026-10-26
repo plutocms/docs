@@ -31,6 +31,7 @@ setup: the collections, the CSS entry, `PlutoRoot`, and the GitHub App.
 
 - A `docs` page type for nested, numbered Markdown pages.
 - A visual block editor with a live preview, and a Markdown mode.
+- Hybrid render mode (default): a save shows on the site at once, with no wait for a build. Build and runtime modes are options.
 - "New Page" and "Edit Page" in the admin bar, and an "Edit in admin" link for the public page.
 
 ## License

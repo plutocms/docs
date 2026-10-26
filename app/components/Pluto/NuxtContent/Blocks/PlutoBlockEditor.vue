@@ -33,10 +33,10 @@ const editor = createPlutoBlockEditor({
 })
 provide(plutoBlockEditorKey, editor)
 
-// The front matter for the preview header: the item without the body.
+// The front matter for the preview header: the item without the body and the internal `_` keys.
 const frontmatter = computed<Record<string, unknown>>(() => {
   const item = form?.item.value ?? {}
-  return Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'body'))
+  return Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'body' && !key.startsWith('_')))
 })
 
 // A selection brings the Block tab forward (and opens the panel on a narrow screen). On a narrow

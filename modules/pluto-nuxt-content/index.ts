@@ -1,9 +1,14 @@
 import type { PlutoNuxtContentOptions } from './options'
-import { defineNuxtModule, useLogger } from '@nuxt/kit'
+import { join } from 'node:path'
+import { addServerHandler, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
 import { PREVIEW_PATH } from '../../shared/utils/blocks/preview-protocol'
+import { buildContentManifest, manifestModuleSource } from './manifest'
 import { resolvePlutoNuxtContentOptions } from './options'
 
 export type { PlutoNuxtContentOptions, PlutoNuxtContentTypeOptions } from './options'
+
+/** The routes of the run-time render mode. The composables of the layer call them. */
+export const RUNTIME_ROUTE_BASE = '/api/_pluto/nuxt-content'
 
 /**
  * Registers the content types of the Nuxt Content layer. It is OFF when the
@@ -21,7 +26,7 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
     const logger = useLogger('pluto-nuxt-content')
     const cms = (nuxt.options as { plutoCms?: { enabled?: boolean | 'auto' } }).plutoCms
 
-    const { enabled, types, errors } = resolvePlutoNuxtContentOptions(options, {
+    const { enabled, render, runtimeMaxAge, types, errors } = resolvePlutoNuxtContentOptions(options, {
       cmsEnabled: cms?.enabled !== false,
     })
 
@@ -33,7 +38,45 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
     }
 
     // The plugins read this key. It is absent when the layer is off.
-    nuxt.options.runtimeConfig.public.plutoNuxtContent = { types }
+    nuxt.options.runtimeConfig.public.plutoNuxtContent = { types, render, runtimeMaxAge }
+
+    if (render === 'hybrid' || render === 'runtime') {
+      const { resolve } = createResolver(import.meta.url)
+      // The toc rules of Nuxt Content, so the run-time parser makes the same table of contents.
+      const content = (nuxt.options as { content?: { build?: { markdown?: { toc?: { depth?: number, searchDepth?: number } } } } }).content
+      nuxt.options.runtimeConfig.plutoNuxtContent = { toc: content?.build?.markdown?.toc } as never
+      for (const name of ['page', 'navigation', 'surround']) {
+        addServerHandler({
+          route: `${RUNTIME_ROUTE_BASE}/:type/${name}`,
+          method: 'get',
+          handler: resolve(`../../server/handlers/${name}.get`),
+        })
+      }
+    }
+
+    // The build manifest: content id → version, for each type. The server compares it with the
+    // store (hybrid). It is a virtual module, so it is part of the server bundle and matches the
+    // pages that Nuxt Content builds in the same run. It is made once, when the bundler first asks.
+    const makeManifest = () => {
+      // The CMS module sets the storage and the content dir. They are known here, after all modules ran.
+      const cmsConfig = nuxt.options.runtimeConfig.public.plutoCms as { storage?: string, dir?: string } | undefined
+      return buildContentManifest(types, {
+        contentDir: join(nuxt.options.rootDir, cmsConfig?.dir ?? 'content'),
+        storage: cmsConfig?.storage ?? 'github',
+      })
+    }
+
+    const manifestId = '#pluto-nuxt-content/manifest'
+    let manifestSource: string | undefined
+    nuxt.hook('nitro:config', (nitroConfig) => {
+      nitroConfig.virtual ||= {}
+      nitroConfig.virtual[manifestId] = () => {
+        if (manifestSource === undefined) {
+          manifestSource = manifestModuleSource(render === 'hybrid' ? makeManifest() : {})
+        }
+        return manifestSource
+      }
+    })
 
     // The preview page of the visual editor is a client-only page that no search engine should list.
     // It is not prerendered, and the response says noindex. An app rule for the same path wins.
@@ -43,7 +86,7 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
     }
 
     if (!nuxt.options._prepare) {
-      logger.info(`Nuxt Content layer on. Types: ${types.map((type) => type.name).join(', ') || 'none'}.`)
+      logger.info(`Nuxt Content layer on. Types: ${types.map((type) => type.name).join(', ') || 'none'}. Render: ${render}.`)
     }
   },
 })
