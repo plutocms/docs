@@ -4,8 +4,14 @@
 // code box. A component has its content (one control for each slot) and its
 // settings. Unknown settings are in the Advanced section. Nothing here shows
 // raw keys or YAML, except in Advanced and in "Edit as Markdown".
-import type { PlutoBlock, PlutoComponentBlock } from '../../../../../shared/utils/blocks/types'
-import { resolveSlotMode, slotMarkdown } from '../../../../../shared/utils/blocks/editor'
+import type {
+  PlutoBlock,
+  PlutoComponentBlock
+} from '../../../../../shared/utils/blocks/types'
+import {
+  resolveSlotMode,
+  slotMarkdown
+} from '../../../../../shared/utils/blocks/editor'
 import { blockMarkdown } from '../../../../../shared/utils/blocks/operations'
 import PlutoBlockPropControl from './PlutoBlockPropControl.vue'
 import PlutoBlockRawEditor from './PlutoBlockRawEditor.vue'
@@ -20,22 +26,43 @@ const { t, tx } = usePlutoI18n()
 const { slotLabel, addLabel } = usePlutoBlockLabels()
 
 const block = computed(() => editor.selected.value?.block)
-const info = computed(() => (block.value ? editor.describe(block.value) : undefined))
-const definition = computed(() => (block.value ? editor.definitionOf(block.value) : undefined))
+const info = computed(() =>
+  block.value ? editor.describe(block.value) : undefined
+)
+const definition = computed(() =>
+  block.value ? editor.definitionOf(block.value) : undefined
+)
 const parent = computed(() => editor.selected.value?.parent)
 
 // "Edit as Markdown" shows the Markdown of the block in a box. It resets with the selection.
 const rawOpen = ref(false)
-watch(() => block.value?.id, () => {
-  rawOpen.value = false
-})
+watch(
+  () => block.value?.id,
+  () => {
+    rawOpen.value = false
+  }
+)
 
 const description = computed(() => {
   const text = definition.value?.description
   return text ? tx(text) : undefined
 })
 
-const LANGUAGES = ['bash', 'css', 'diff', 'html', 'js', 'json', 'md', 'sh', 'sql', 'ts', 'tsx', 'vue', 'yaml']
+const LANGUAGES = [
+  'bash',
+  'css',
+  'diff',
+  'html',
+  'js',
+  'json',
+  'md',
+  'sh',
+  'sql',
+  'ts',
+  'tsx',
+  'vue',
+  'yaml',
+]
 
 // --- Component settings ---------------------------------------------------------
 
@@ -58,7 +85,15 @@ const slots = computed(() => {
     name,
     label: slotLabel(definition.value, name),
     add: addLabel(definition.value, name),
-    mode: resolveSlotMode(current, name, slot.content === 'rich' || slot.content === 'inline' || slot.content === 'blocks' ? slot.content : undefined),
+    mode: resolveSlotMode(
+      current,
+      name,
+      slot.content === 'rich' ||
+        slot.content === 'inline' ||
+        slot.content === 'blocks'
+        ? slot.content
+        : undefined
+    ),
     children: current.slots[name] ?? [],
     accepts: slot.accepts,
   }))
@@ -74,7 +109,11 @@ function childInfo(child: PlutoBlock) {
 }
 
 function addTo(name: string) {
-  editor.openPalette({ parentId: component().id, slot: name, index: (component().slots[name] ?? []).length })
+  editor.openPalette({
+    parentId: component().id,
+    slot: name,
+    index: (component().slots[name] ?? []).length,
+  })
 }
 
 function rawMarkdown(): string {
@@ -95,19 +134,34 @@ function applyRaw(markdown: string) {
 </script>
 
 <template>
-  <div :aria-label="t('nuxt-content.editor.blockPanel')" class="flex flex-col gap-5 p-4" role="region" data-pluto-block-ui>
+  <div
+    :aria-label="t('nuxt-content.editor.blockPanel')"
+    class="flex flex-col gap-5"
+    role="region"
+    data-pluto-block-ui
+  >
     <UEmpty
       v-if="!block || !info"
       :title="t('nuxt-content.editor.nothingSelectedTitle')"
       :description="t('nuxt-content.editor.nothingSelected')"
-      :actions="[{ label: t('nuxt-content.editor.addBlock'), icon: 'i-lucide-plus', color: 'primary', variant: 'soft', onClick: () => editor.openPalette() }]"
+      :actions="[
+        {
+          label: t('nuxt-content.editor.addBlock'),
+          icon: 'i-lucide-plus',
+          color: 'primary',
+          variant: 'soft',
+          onClick: () => editor.openPalette(),
+        },
+      ]"
       icon="i-lucide-mouse-pointer-click"
       variant="naked"
     />
 
     <template v-else>
       <header class="flex items-start gap-3">
-        <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <span
+          class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+        >
           <UIcon :name="info.icon" class="size-5" />
         </span>
         <div class="min-w-0 flex-1">
@@ -122,7 +176,11 @@ function applyRaw(markdown: string) {
 
       <UButton
         v-if="parent"
-        :label="t('nuxt-content.editor.selectParent', { name: tx(editor.describe(parent).label) })"
+        :label="
+          t('nuxt-content.editor.selectParent', {
+            name: tx(editor.describe(parent).label),
+          })
+        "
         icon="i-lucide-corner-left-up"
         color="neutral"
         variant="link"
@@ -160,7 +218,10 @@ function applyRaw(markdown: string) {
       <!-- Code -->
       <template v-else-if="block.kind === 'code'">
         <div class="grid grid-cols-2 gap-3">
-          <UFormField :label="t('nuxt-content.editor.language')" :help="t('nuxt-content.editor.languageHelp')">
+          <UFormField
+            :label="t('nuxt-content.editor.language')"
+            :help="t('nuxt-content.editor.languageHelp')"
+          >
             <UInput
               :model-value="block.lang"
               :disabled="disabled"
@@ -169,13 +230,22 @@ function applyRaw(markdown: string) {
               autocomplete="off"
               spellcheck="false"
               class="w-full"
-              @update:model-value="editor.updateCode(block.id, { lang: String($event ?? '') })"
+              @update:model-value="
+                editor.updateCode(block.id, { lang: String($event ?? '') })
+              "
             />
             <datalist id="pluto-block-languages">
-              <option v-for="language in LANGUAGES" :key="language" :value="language" />
+              <option
+                v-for="language in LANGUAGES"
+                :key="language"
+                :value="language"
+              />
             </datalist>
           </UFormField>
-          <UFormField :label="t('nuxt-content.editor.fileName')" :help="t('nuxt-content.editor.fileNameHelp')">
+          <UFormField
+            :label="t('nuxt-content.editor.fileName')"
+            :help="t('nuxt-content.editor.fileNameHelp')"
+          >
             <UInput
               :model-value="block.filename ?? ''"
               :disabled="disabled"
@@ -183,7 +253,11 @@ function applyRaw(markdown: string) {
               autocomplete="off"
               spellcheck="false"
               class="w-full"
-              @update:model-value="editor.updateCode(block.id, { filename: String($event ?? '') || undefined })"
+              @update:model-value="
+                editor.updateCode(block.id, {
+                  filename: String($event ?? '') || undefined,
+                })
+              "
             />
           </UFormField>
         </div>
@@ -199,7 +273,9 @@ function applyRaw(markdown: string) {
             autocapitalize="off"
             class="w-full"
             autoresize
-            @update:model-value="editor.updateCode(block.id, { code: String($event ?? '') })"
+            @update:model-value="
+              editor.updateCode(block.id, { code: String($event ?? '') })
+            "
           />
         </UFormField>
       </template>
@@ -207,7 +283,11 @@ function applyRaw(markdown: string) {
       <!-- Markdown (raw) -->
       <template v-else-if="block.kind === 'raw'">
         <UAlert
-          :description="block.reason === 'table' ? t('nuxt-content.editor.tableNote') : t('nuxt-content.editor.rawBlockNote')"
+          :description="
+            block.reason === 'table'
+              ? t('nuxt-content.editor.tableNote')
+              : t('nuxt-content.editor.rawBlockNote')
+          "
           color="neutral"
           variant="subtle"
           icon="i-lucide-info"
@@ -229,7 +309,11 @@ function applyRaw(markdown: string) {
             {{ t('nuxt-content.editor.content') }}
           </h4>
 
-          <UFormField v-for="slot in slots" :key="slot.name" :label="slots.length > 1 ? slot.label : undefined">
+          <UFormField
+            v-for="slot in slots"
+            :key="slot.name"
+            :label="slots.length > 1 ? slot.label : undefined"
+          >
             <PlutoBlockTextEditor
               v-if="slot.mode === 'rich'"
               :model-value="slotMarkdown(component(), slot.name)"
@@ -245,7 +329,9 @@ function applyRaw(markdown: string) {
               :disabled="disabled"
               :aria-label="slot.label"
               class="w-full"
-              @update:model-value="editor.setSlot(block.id, slot.name, String($event ?? ''))"
+              @update:model-value="
+                editor.setSlot(block.id, slot.name, String($event ?? ''))
+              "
             />
 
             <PlutoBlockRawEditor
@@ -266,12 +352,20 @@ function applyRaw(markdown: string) {
                     class="flex w-full items-center gap-2 rounded-md border border-default px-2 py-1.5 text-start text-sm hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
                     @click="editor.select(child.id)"
                   >
-                    <UIcon :name="childInfo(child).icon" class="size-4 shrink-0 text-muted" />
+                    <UIcon
+                      :name="childInfo(child).icon"
+                      class="size-4 shrink-0 text-muted"
+                    />
                     <span class="min-w-0 flex-1 truncate">
-                      <span class="font-medium text-highlighted">{{ childInfo(child).label }}</span>
+                      <span class="font-medium text-highlighted">{{
+                        childInfo(child).label
+                      }}</span>
                       <span v-if="childInfo(child).excerpt" class="text-muted">: {{ childInfo(child).excerpt }}</span>
                     </span>
-                    <UIcon name="i-lucide-chevron-right" class="size-4 shrink-0 text-dimmed" />
+                    <UIcon
+                      name="i-lucide-chevron-right"
+                      class="size-4 shrink-0 text-dimmed"
+                    />
                   </button>
                 </li>
               </ul>
@@ -307,9 +401,17 @@ function applyRaw(markdown: string) {
           />
         </section>
 
-        <details v-if="advanced.length" class="group rounded-lg border border-default">
-          <summary class="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-sm font-medium text-highlighted focus-visible:outline-2 focus-visible:outline-primary">
-            <UIcon name="i-lucide-chevron-right" class="size-4 text-muted transition-transform group-open:rotate-90" />
+        <details
+          v-if="advanced.length"
+          class="group rounded-lg border border-default"
+        >
+          <summary
+            class="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-sm font-medium text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <UIcon
+              name="i-lucide-chevron-right"
+              class="size-4 text-muted transition-transform group-open:rotate-90"
+            />
             {{ t('nuxt-content.editor.advanced') }}
           </summary>
           <div class="flex flex-col gap-4 border-t border-default p-3">
@@ -338,7 +440,11 @@ function applyRaw(markdown: string) {
           @click="editor.duplicate(block.id)"
         />
         <UButton
-          :label="rawOpen ? t('nuxt-content.editor.backToControls') : t('nuxt-content.editor.editAsMarkdown')"
+          :label="
+            rawOpen
+              ? t('nuxt-content.editor.backToControls')
+              : t('nuxt-content.editor.editAsMarkdown')
+          "
           :icon="rawOpen ? 'i-lucide-sliders-horizontal' : 'i-lucide-file-code'"
           :disabled="disabled || block.kind === 'raw'"
           color="neutral"
