@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { toPreviewBlocks } from '../../../../../shared/utils/blocks/editor'
+import type { PlutoPreviewChild } from '../../../../../shared/utils/blocks/preview-protocol'
+import { previewSelectionId, toPreviewBlocks } from '../../../../../shared/utils/blocks/editor'
 // The live preview of the page: an iframe of `/_pluto/preview` on the same
 // origin. This component sends the blocks to the frame (after 150 ms of
 // quiet), and tells the editor when a block is clicked or hovered in the frame.
@@ -25,23 +26,34 @@ const frameKey = ref(0)
 const frameError = ref<string | null>(null)
 
 const src = computed(() => router.resolve(PREVIEW_PATH).href)
-const topId = computed(() => topLevelId(editor.doc.value, editor.selectedId.value))
+// The preview marks the top-level blocks and their inner components. So the selection it shows
+// is the deepest component on the path of the selected block (a text inside a card shows the card).
+const shownId = computed(() => previewSelectionId(editor.doc.value, editor.selectedId.value))
 const blocks = computed(() => toPreviewBlocks(editor.doc.value.blocks, appConfig.plutoBlocks))
 
 function send(message: ReturnType<typeof previewMessage>) {
   frame.value?.contentWindow?.postMessage(message, window.location.origin)
 }
 
+/** The inner components with a readable label. */
+function translateChildren(children: PlutoPreviewChild[] | undefined): PlutoPreviewChild[] | undefined {
+  return children?.map((child) => ({ ...child, label: child.label ? tx(child.label) : '', children: translateChildren(child.children) }))
+}
+
 /** The blocks with a readable label: the label of a component is an i18n key or a plain text. */
 function messageBlocks() {
   return blocks.value.map((block) => {
     const source = editor.doc.value.blocks.find((candidate) => candidate.id === block.id)
-    return { ...block, label: block.label ? tx(block.label) : source ? tx(editor.describe(source).label) : '' }
+    return {
+      ...block,
+      label: block.label ? tx(block.label) : source ? tx(editor.describe(source).label) : '',
+      ...(block.children ? { children: translateChildren(block.children) } : {}),
+    }
   })
 }
 
 function sendRender() {
-  send(previewMessage('render', { frontmatter: props.frontmatter, blocks: messageBlocks(), selectedId: topId.value }))
+  send(previewMessage('render', { frontmatter: props.frontmatter, blocks: messageBlocks(), selectedId: shownId.value }))
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -57,7 +69,7 @@ function scheduleRender() {
 watch([blocks, () => props.frontmatter], scheduleRender, { deep: false })
 
 // The selection comes from the outline or the panel: draw it and scroll to it.
-watch(topId, (id) => {
+watch(shownId, (id) => {
   if (!ready.value) {
     return
   }

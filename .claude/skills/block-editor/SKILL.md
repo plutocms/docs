@@ -78,7 +78,20 @@ does on the site. It fetches nothing.
   the origin, the source window, the version and the shape.
 - Each top-level block gets `data-pluto-block="<id>"` on its elements. The frame draws the outline
   (selected and hover) around the union of those elements, with inline styles. A click selects the
-  block, and the page does not follow links. A click inside a container selects the container.
+  block, and the page does not follow links.
+- Inner blocks: `toPreviewBlocks` sends the inner components of a component block as `children`
+  (`PlutoPreviewChild`: `id`, `name`, `label`, `children`), in source order over all slots.
+  `markPreviewChildren` (`shared/utils/blocks/preview-marks.ts`) puts their ids on the matching
+  component elements of the parsed body: it looks only at the direct children of a component and
+  the children of its `template` slots, and matches in order by name (`UPageCard` and
+  `u-page-card` are the same). So an inline component in a paragraph never takes the place of an
+  inner block. A click and a hover take the innermost marked element: a click on a card selects the
+  card, not the card group. Esc in the frame selects the parent.
+- Text, code and raw children have no mark. The editor sends the deepest component on the path of
+  the selection (`previewSelectionId`), so a text inside a card shows the card. A component that
+  drops the attribute (more than one root element) shows its nearest marked parent.
+- Test: `test/blocks-preview-marks.test.ts` marks every inner component of the 48 docs pages with
+  the site parser.
 - A block that throws shows a small card ("This block could not show in the preview"). A block with
   `preview: false` in `plutoBlocks` shows the same card with a note.
 - The page is the generic `PlutoContentPreview` (`UContainer`, `UPageHeader` with the title and the

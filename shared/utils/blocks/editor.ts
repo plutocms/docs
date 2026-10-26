@@ -2,13 +2,13 @@
 // the Markdown of a slot, the blocks sent to the preview, and the palette
 // entries. No Nuxt import, so plain Vitest tests them.
 
-import type { PlutoPreviewBlock } from './preview-protocol'
-import type { PlutoBlock, PlutoBlockDefinition, PlutoBlocksConfig, PlutoComponentBlock } from './types'
+import type { PlutoPreviewBlock, PlutoPreviewChild } from './preview-protocol'
+import type { PlutoBlock, PlutoBlockDefinition, PlutoBlockDoc, PlutoBlocksConfig, PlutoComponentBlock } from './types'
 import { blockMarkdown } from './operations'
 import { BLOCK_KIND_LABELS } from './presets'
 import { listPaletteBlocks, resolveBlockDefinition } from './registry'
 import { renderBlock } from './serialize'
-import { flatChildren } from './tree'
+import { findBlock, flatChildren, pathOf } from './tree'
 
 export interface PlutoBlockInfo {
   /** A plain text or an i18n key. */
@@ -107,6 +107,25 @@ export function resolveSlotMode(component: PlutoComponentBlock, slot: string, wa
   return 'rich'
 }
 
+/**
+ * The block that the preview shows as selected: the deepest component on the
+ * path of the selected block, else its top-level block. The preview marks only
+ * the top-level blocks and the inner components, so a text inside a card shows
+ * the card.
+ */
+export function previewSelectionId(doc: PlutoBlockDoc, id: string | null): string | null {
+  if (!id) {
+    return null
+  }
+  const path = pathOf(doc, id)
+  for (let index = path.length - 1; index > 0; index--) {
+    if (findBlock(doc, path[index]!)?.block.kind === 'component') {
+      return path[index]!
+    }
+  }
+  return path[0] ?? null
+}
+
 /** The top-level blocks as the preview frame wants them. */
 export function toPreviewBlocks(blocks: PlutoBlock[], overrides: PlutoBlocksConfig = {}): PlutoPreviewBlock[] {
   return blocks.map((block) => {
@@ -115,8 +134,34 @@ export function toPreviewBlocks(blocks: PlutoBlock[], overrides: PlutoBlocksConf
       return { id: block.id, markdown }
     }
     const definition = resolveBlockDefinition(block.name, { overrides })
-    return { id: block.id, markdown, label: definition.label, ...(definition.preview === false ? { preview: false } : {}) }
+    const children = previewChildren(block, overrides)
+    return {
+      id: block.id,
+      markdown,
+      label: definition.label,
+      ...(definition.preview === false ? { preview: false } : {}),
+      ...(children.length ? { children } : {}),
+    }
   })
+}
+
+/**
+ * The inner components of a component, in source order over all slots, for
+ * the marks of the preview (a click selects an inner block). Text, code and raw
+ * children are not here: a click on them selects the nearest component.
+ */
+export function previewChildren(component: PlutoComponentBlock, overrides: PlutoBlocksConfig = {}): PlutoPreviewChild[] {
+  return flatChildren(component)
+    .filter((child): child is PlutoComponentBlock => child.kind === 'component')
+    .map((child) => {
+      const children = previewChildren(child, overrides)
+      return {
+        id: child.id,
+        name: child.name,
+        label: resolveBlockDefinition(child.name, { overrides, block: child }).label,
+        ...(children.length ? { children } : {}),
+      }
+    })
 }
 
 /** The component names that a slot accepts, or `undefined` for any. */

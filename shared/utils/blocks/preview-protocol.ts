@@ -10,6 +10,17 @@ export const PREVIEW_PROTOCOL_VERSION = 1
 /** Every message has this `source`, so the frame ignores the messages of other scripts. */
 export const PREVIEW_SOURCE = 'pluto-preview'
 
+/** An inner component of a block, so the preview can mark it and a click can select it. */
+export interface PlutoPreviewChild {
+  id: string
+  /** The component name, as in the Markdown (`card`, `u-page-feature`). */
+  name: string
+  /** The label for the outline in the preview. */
+  label?: string
+  /** The inner components of this component, in source order over all slots. */
+  children?: PlutoPreviewChild[]
+}
+
 export interface PlutoPreviewBlock {
   id: string
   markdown: string
@@ -17,6 +28,8 @@ export interface PlutoPreviewBlock {
   preview?: boolean
   /** The label for the placeholder card and the outline. */
   label?: string
+  /** The inner components of a component block, in source order over all slots. */
+  children?: PlutoPreviewChild[]
 }
 
 interface Envelope<T extends string> {
@@ -76,12 +89,24 @@ function isNullableString(value: unknown): value is string | null {
   return value === null || typeof value === 'string'
 }
 
+// A real page nests a few levels. The limit stops a message that nests without end.
+const MAX_CHILD_DEPTH = 16
+
+function isChildList(value: unknown, depth: number): value is PlutoPreviewChild[] {
+  return Array.isArray(value) && depth <= MAX_CHILD_DEPTH && value.every((child) => isRecord(child)
+    && typeof child.id === 'string'
+    && typeof child.name === 'string'
+    && (child.label === undefined || typeof child.label === 'string')
+    && (child.children === undefined || isChildList(child.children, depth + 1)))
+}
+
 function isBlock(value: unknown): value is PlutoPreviewBlock {
   return isRecord(value)
     && typeof value.id === 'string'
     && typeof value.markdown === 'string'
     && (value.preview === undefined || typeof value.preview === 'boolean')
     && (value.label === undefined || typeof value.label === 'string')
+    && (value.children === undefined || isChildList(value.children, 1))
 }
 
 const TO_FRAME = new Set(['render', 'select', 'scroll-to'])

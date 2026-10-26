@@ -12,6 +12,7 @@ import type { MDCElement, MDCNode, MDCRoot } from '@nuxtjs/mdc'
 import type { CSSProperties } from 'vue'
 import type { PlutoPreviewBlock as PreviewBlockData } from '../../../shared/utils/blocks/preview-protocol'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
+import { markPreviewChildren, PREVIEW_BLOCK_ATTRIBUTE, previewParents } from '../../../shared/utils/blocks/preview-marks'
 import { isTrustedPreviewOrigin, parsePreviewMessage, previewMessage } from '../../../shared/utils/blocks/preview-protocol'
 import PlutoPreviewBlock from '../../components/Pluto/NuxtContent/Blocks/PlutoPreviewBlock.vue'
 
@@ -48,6 +49,8 @@ interface RenderedBlock {
   label: string
   body?: MDCRoot
   error?: string
+  /** The inner components, for the labels and the parents. */
+  children?: PreviewBlockData['children']
 }
 
 const frontmatter = ref<Record<string, unknown>>({})
@@ -62,27 +65,39 @@ let run = 0
 // A scroll that came before the block was on screen (a new block): do it after the next render.
 let wantedScroll: string | null = null
 
-/** Puts the id on each element at the top of a body. A component passes it to its root element. */
-function mark(root: MDCRoot, id: string): MDCRoot {
+/**
+ * Puts the id on each element at the top of a body, and the ids of the inner
+ * components on their elements. A component passes the id to its root element.
+ * The parse is new, so the inner marks change it in place.
+ */
+function mark(root: MDCRoot, block: PreviewBlockData): MDCRoot {
   const children = root.children.map((child): MDCNode => {
     if (child.type !== 'element') {
       return child
     }
     const element = child as MDCElement
-    return { ...element, props: { ...element.props, 'data-pluto-block': id } }
+    if (block.children) {
+      markPreviewChildren(element, block.children)
+    }
+    return { ...element, props: { ...element.props, [PREVIEW_BLOCK_ATTRIBUTE]: block.id } }
   })
   return { ...root, children }
 }
 
+/** The ids of the inner components, for the cache key: the same text with other ids marks other elements. */
+function childIds(children: PreviewBlockData['children']): string {
+  return (children ?? []).map((child) => `${child.id}(${childIds(child.children)})`).join(',')
+}
+
 async function bodyOf(block: PreviewBlockData): Promise<{ body?: MDCRoot, error?: string }> {
-  const key = `${block.id}\u0000${block.markdown}`
+  const key = `${block.id}\u0000${block.markdown}\u0000${childIds(block.children)}`
   const cached = cache.get(key)
   if (cached) {
     return { body: cached }
   }
   try {
     const parsed = await parseMarkdown(block.markdown)
-    const body = mark(parsed.body, block.id)
+    const body = mark(parsed.body, block)
     if (cache.size >= CACHE_LIMIT) {
       cache.delete(cache.keys().next().value!)
     }
@@ -100,7 +115,7 @@ async function render(message: { frontmatter: Record<string, unknown>, blocks: P
     if (block.preview === false) {
       return { id: block.id, label }
     }
-    return { id: block.id, label, ...(await bodyOf(block)) }
+    return { id: block.id, label, children: block.children, ...(await bodyOf(block)) }
   }))
   // A newer message came while the parser worked.
   if (current !== run) {
@@ -154,17 +169,40 @@ const overlay = ref<{ selected: DOMRect | null, hover: DOMRect | null }>({ selec
 
 /** The elements of a block. A style or a script has no box. */
 function elementsOf(id: string): HTMLElement[] {
-  return [...document.querySelectorAll<HTMLElement>(`[data-pluto-block="${CSS.escape(id)}"]`)]
+  return [...document.querySelectorAll<HTMLElement>(`[${PREVIEW_BLOCK_ATTRIBUTE}="${CSS.escape(id)}"]`)]
     .filter((element) => element.tagName !== 'STYLE' && element.tagName !== 'SCRIPT')
+}
+
+/** The parent of each inner component: an inner component or a top-level block. */
+const parents = computed(() => {
+  const map = new Map<string, string>()
+  for (const block of blocks.value) {
+    previewParents(block.id, block.children, map)
+  }
+  return map
+})
+
+/**
+ * The block that shows for an id: the block itself, or the nearest parent with
+ * elements. A component with more than one root element drops the mark, and a
+ * text block inside a component has no mark of its own.
+ */
+function shownId(id: string | null): string | null {
+  let current = id
+  while (current && !elementsOf(current).length) {
+    current = parents.value.get(current) ?? null
+  }
+  return current
 }
 
 /** The box around all elements of a block, in page coordinates. */
 function boxOf(id: string | null): DOMRect | null {
-  if (!id) {
+  const shown = shownId(id)
+  if (!shown) {
     return null
   }
   let box: DOMRect | null = null
-  for (const element of elementsOf(id)) {
+  for (const element of elementsOf(shown)) {
     const rect = element.getBoundingClientRect()
     if (rect.width === 0 && rect.height === 0) {
       continue
@@ -198,20 +236,42 @@ function scrollToBlock(id: string) {
   }
 }
 
-const labels = computed(() => new Map(blocks.value.map((block) => [block.id, block.label])))
+/** The label of each block, the inner components too. */
+const labels = computed(() => {
+  const map = new Map<string, string>()
+  const add = (children: RenderedBlock['children']) => {
+    for (const child of children ?? []) {
+      map.set(child.id, child.label ?? '')
+      add(child.children)
+    }
+  }
+  for (const block of blocks.value) {
+    map.set(block.id, block.label)
+    add(block.children)
+  }
+  return map
+})
 
+/** The innermost block under an element: an inner component, else its top-level block. */
 function blockIdAt(target: EventTarget | null): string | null {
-  return target instanceof Element ? (target.closest<HTMLElement>('[data-pluto-block]')?.dataset.plutoBlock ?? null) : null
+  return target instanceof Element
+    ? (target.closest<HTMLElement>(`[${PREVIEW_BLOCK_ATTRIBUTE}]`)?.getAttribute(PREVIEW_BLOCK_ATTRIBUTE) ?? null)
+    : null
+}
+
+function selectBlock(id: string | null) {
+  selectedId.value = id
+  if (id) {
+    post(previewMessage('select', { id }))
+  }
+  refreshOverlay()
 }
 
 // A click selects the block. The page does not follow links or press buttons.
 function onClick(event: MouseEvent) {
   event.preventDefault()
   event.stopPropagation()
-  const id = blockIdAt(event.target)
-  selectedId.value = id
-  post(previewMessage('select', { id }))
-  refreshOverlay()
+  selectBlock(blockIdAt(event.target))
 }
 
 function onPointerMove(event: PointerEvent) {
@@ -231,15 +291,20 @@ function onPointerLeave() {
   }
 }
 
-// Keyboard: Enter on a focused block selects it, so the preview works without a mouse too.
+// Keyboard: Enter on a focused block selects it, so the preview works without a mouse too. Esc
+// selects the block around the selected inner block.
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter' || event.key === ' ') {
     const id = blockIdAt(event.target)
     if (id) {
       event.preventDefault()
-      selectedId.value = id
-      post(previewMessage('select', { id }))
-      refreshOverlay()
+      selectBlock(id)
+    }
+  } else if (event.key === 'Escape' && selectedId.value) {
+    const parent = parents.value.get(selectedId.value)
+    if (parent) {
+      event.preventDefault()
+      selectBlock(parent)
     }
   }
 }
