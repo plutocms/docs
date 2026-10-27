@@ -17,9 +17,23 @@ export interface PlutoNuxtContentTypeOptions {
   routePrefix?: string
 }
 
+/** How the public pages get their content. See the nuxt-content-setup skill. */
+export type PlutoNuxtContentRender = 'hybrid' | 'build' | 'runtime'
+
 export interface PlutoNuxtContentOptions {
   /** The content types to register. Default: none. */
   types?: PlutoNuxtContentTypeOptions[]
+  /**
+   * `'hybrid'` (default): the pages are built with the site, and the server reads from the content
+   * repository the pages that changed after the build. `'build'`: Nuxt Content builds the pages
+   * and nothing else. `'runtime'`: the server reads every page from the repository at request time.
+   */
+  render?: PlutoNuxtContentRender
+  /**
+   * Seconds that a CDN may cache the answers of the layer routes (`hybrid` and `runtime`). Default 10.
+   * It is short, so a save shows soon. `0` turns the cache header into `no-store`.
+   */
+  runtimeMaxAge?: number
 }
 
 export interface PlutoNuxtContentResolveContext {
@@ -29,11 +43,15 @@ export interface PlutoNuxtContentResolveContext {
 
 export interface PlutoNuxtContentResolveResult {
   enabled: boolean
+  render: PlutoNuxtContentRender
+  runtimeMaxAge: number
   types: PlutoNuxtContentTypeOptions[]
   errors: string[]
 }
 
 export const PLUTO_NUXT_CONTENT_PRESETS = ['docs'] as const
+export const PLUTO_NUXT_CONTENT_RENDER_MODES = ['hybrid', 'build', 'runtime'] as const
+export const DEFAULT_RUNTIME_MAX_AGE = 10
 
 export const CMS_OFF_ERROR
   = 'The Nuxt Content layer needs the standalone CMS. Remove plutoCms.enabled: false, or remove the layer.'
@@ -78,7 +96,25 @@ export function resolvePlutoNuxtContentOptions(
   const errors: string[] = []
 
   if (!ctx.cmsEnabled) {
-    return { enabled: false, types: [], errors: [CMS_OFF_ERROR] }
+    return { enabled: false, render: 'build', runtimeMaxAge: DEFAULT_RUNTIME_MAX_AGE, types: [], errors: [CMS_OFF_ERROR] }
+  }
+
+  let render: PlutoNuxtContentRender = 'hybrid'
+  if (options.render !== undefined) {
+    if ((PLUTO_NUXT_CONTENT_RENDER_MODES as readonly unknown[]).includes(options.render)) {
+      render = options.render
+    } else {
+      errors.push(`plutoNuxtContent.render must be one of: ${PLUTO_NUXT_CONTENT_RENDER_MODES.join(', ')}. Using "hybrid".`)
+    }
+  }
+
+  let runtimeMaxAge = DEFAULT_RUNTIME_MAX_AGE
+  if (options.runtimeMaxAge !== undefined) {
+    if (typeof options.runtimeMaxAge === 'number' && Number.isInteger(options.runtimeMaxAge) && options.runtimeMaxAge >= 0) {
+      runtimeMaxAge = options.runtimeMaxAge
+    } else {
+      errors.push(`plutoNuxtContent.runtimeMaxAge must be a whole number of seconds, 0 or more. Using ${DEFAULT_RUNTIME_MAX_AGE}.`)
+    }
   }
 
   const types: PlutoNuxtContentTypeOptions[] = []
@@ -123,5 +159,5 @@ export function resolvePlutoNuxtContentOptions(
     })
   }
 
-  return { enabled: true, types, errors }
+  return { enabled: true, render, runtimeMaxAge, types, errors }
 }

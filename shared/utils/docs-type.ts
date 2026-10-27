@@ -114,6 +114,11 @@ export interface DocsTypeOptions {
   exclude?: string[]
   /** The public path in front of the page paths, for example `/docs`. It builds the View link. */
   routePrefix?: string
+  /**
+   * The public site shows a save at once, because it reads the type at run time (the render mode
+   * is `hybrid` or `runtime`). The build indicator of the edit form then shows "Live" after a save.
+   */
+  liveOnSave?: boolean
 }
 
 /** The capabilities of the docs preset. The client plugin registers them. */
@@ -159,6 +164,7 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     ],
     // "New page" and "Edit page" in the admin bar (core). See the page-links skill.
     adminBar: true,
+    ...(options.liveOnSave && { liveOnSave: true }),
     status: false,
     timestamps: false,
     // Tree order: the numeric prefixes decide, not the title.

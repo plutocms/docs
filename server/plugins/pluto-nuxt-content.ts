@@ -7,11 +7,12 @@ import type { PlutoNuxtContentTypeOptions } from '../../modules/pluto-nuxt-conte
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig().public.plutoNuxtContent as {
     types: PlutoNuxtContentTypeOptions[]
+    render?: string
   } | undefined
   if (!config) {
     return
   }
   for (const entry of config.types) {
-    registerContentType(createDocsType(entry))
+    registerContentType(createDocsType({ ...entry, liveOnSave: config.render === 'hybrid' || config.render === 'runtime' }))
   }
 })
