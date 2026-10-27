@@ -7,8 +7,8 @@ import { resolvePlutoNuxtContentOptions } from './options'
 
 export type { PlutoNuxtContentOptions, PlutoNuxtContentTypeOptions } from './options'
 
-/** The routes of the run-time render mode. The composables of the layer call them. */
-export const RUNTIME_ROUTE_BASE = '/api/_pluto/nuxt-content'
+/** The routes of the run-time render mode, on the public API of Pluto. The composables of the layer call them. */
+export const RUNTIME_ROUTE_BASE = '/api/pluto/v1/nuxt-content'
 
 /**
  * Registers the content types of the Nuxt Content layer. It is OFF when the

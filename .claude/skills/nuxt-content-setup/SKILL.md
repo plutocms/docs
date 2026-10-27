@@ -65,7 +65,11 @@ Files:
 - `server/utils/pluto-nuxt-content-runtime.ts` — `plutoRuntimePage`, `plutoRuntimeNavigation`,
   `plutoRuntimeSurround`.
 - `server/handlers/{page,navigation,surround}.get.ts` — thin handlers. The module adds them with
-  `addServerHandler` in `'hybrid'` and `'runtime'` mode, at `/api/_pluto/nuxt-content/:type/{page,navigation,surround}`.
+  `addServerHandler` in `'hybrid'` and `'runtime'` mode, on the public API of Pluto:
+  `/api/pluto/v1/nuxt-content/:type/{page,navigation,surround}` (`RUNTIME_ROUTE_BASE`). The answer is `{ data }`,
+  like core's public routes; the composables read `data`. Core's CORS rule (`plutoApi.cors`) covers them.
+- The docs type sets `api: { public: true }`, so the pages are on core's public API too:
+  `/api/pluto/v1/content/<type>[/<id>]` (a list item has `excerpt`, one item has `html`, from the CMS adapter).
 - `app/composables/pluto-content-runtime.ts` — the composables (below).
 - Tests: `test/runtime-content.test.ts`, `test/content-manifest.test.ts`, `test/module-options.test.ts`.
 

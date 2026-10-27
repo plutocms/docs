@@ -164,6 +164,9 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     ],
     // "New page" and "Edit page" in the admin bar (core). See the page-links skill.
     adminBar: true,
+    // The pages are public on core's public API: /api/pluto/v1/content/<name>[/<id>] (the item has
+    // `html`, rendered by the CMS adapter).
+    api: { public: true },
     ...(options.liveOnSave && { liveOnSave: true }),
     status: false,
     timestamps: false,

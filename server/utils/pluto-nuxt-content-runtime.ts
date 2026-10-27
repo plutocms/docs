@@ -306,7 +306,7 @@ async function buildPage(event: H3Event, collection: string, path: string): Prom
   }
 }
 
-/** `GET /api/_pluto/nuxt-content/:type/page?path=/a/b&collection=docs` */
+/** `GET /api/pluto/v1/nuxt-content/:type/page?path=/a/b&collection=docs` */
 export async function plutoRuntimePage(event: H3Event): Promise<unknown> {
   const context = runtimeContext(event)
   const path = queryText(event, 'path')
@@ -351,7 +351,7 @@ export async function plutoRuntimePage(event: H3Event): Promise<unknown> {
   return page
 }
 
-/** `GET /api/_pluto/nuxt-content/:type/navigation?collection=docs&includeRoot=1` */
+/** `GET /api/pluto/v1/nuxt-content/:type/navigation?collection=docs&includeRoot=1` */
 export async function plutoRuntimeNavigation(event: H3Event): Promise<unknown> {
   const context = runtimeContext(event)
   setCacheHeaders(event)
@@ -365,7 +365,7 @@ export async function plutoRuntimeNavigation(event: H3Event): Promise<unknown> {
   return await storeTree(event, context, snapshot.items, false)
 }
 
-/** `GET /api/_pluto/nuxt-content/:type/surround?path=/a/b&collection=docs&includeRoot=1` */
+/** `GET /api/pluto/v1/nuxt-content/:type/surround?path=/a/b&collection=docs&includeRoot=1` */
 export async function plutoRuntimeSurround(event: H3Event): Promise<Array<RuntimeSurroundItem | null> | unknown> {
   const context = runtimeContext(event)
   setCacheHeaders(event)

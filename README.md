@@ -33,6 +33,7 @@ setup: the collections, the CSS entry, `PlutoRoot`, and the GitHub App.
 - A visual block editor with a live preview, and a Markdown mode.
 - Hybrid render mode (default): a save shows on the site at once, with no wait for a build. Build and runtime modes are options.
 - "New Page" and "Edit Page" in the admin bar, and an "Edit in admin" link for the public page.
+- The pages on the public API of Pluto (`/api/pluto/v1/content/<type>`), for a site in any stack.
 
 ## License
 

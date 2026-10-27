@@ -94,14 +94,16 @@ function normalizePath(path: string): string {
   return path.length > 1 ? path.replace(/\/+$/, '') : path
 }
 
+/** A route of the layer on the public API of Pluto. See `RUNTIME_ROUTE_BASE` in the module. */
 function routeUrl(type: string, name: 'page' | 'navigation' | 'surround'): string {
-  return `/api/_pluto/nuxt-content/${encodeURIComponent(type)}/${name}`
+  return `/api/pluto/v1/nuxt-content/${encodeURIComponent(type)}/${name}`
 }
 
-/** Runs a server route. A 404 gives `null`. Any other error is thrown. */
+/** Runs a server route and returns its `data`. A 404 gives `null`. Any other error is thrown. */
 async function fetchRoute<T>(url: string, query: Record<string, string | undefined>): Promise<T | null> {
   try {
-    return await $fetch<T>(url, { query }) as T
+    const answer = await $fetch<{ data: T }>(url, { query })
+    return answer.data
   } catch (error) {
     if ((error as { statusCode?: number }).statusCode === 404) {
       return null

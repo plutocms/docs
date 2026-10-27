@@ -27,6 +27,10 @@ describe('createDocsType', () => {
     ])
   })
 
+  it('is public on the public API of core', () => {
+    expect(type.api).toEqual({ public: true })
+  })
+
   it('makes title the required field of the Page tab', () => {
     const title = type.fields.find((field) => field.name === 'title')
     expect(title).toMatchObject({ type: 'text', required: true, region: 'side' })
