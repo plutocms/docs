@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/plutocms/nuxt-content/compare/v0.6.0...v0.7.0) (2026-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* the default render mode is now 'hybrid'. Content pages must not be prerendered in hybrid or runtime mode. Set `render: 'build'` to keep a fully static site. Needs @plutocms/pluto with `markPublicRead` and `readFile`.
+
+### Features
+
+* render the pages in hybrid mode by default, with build and runtime modes ([#24](https://github.com/plutocms/nuxt-content/issues/24)) ([44efefe](https://github.com/plutocms/nuxt-content/commit/44efefec130c9a48744ec79eba0f454399f5560b))
+
 ## [0.6.0](https://github.com/plutocms/nuxt-content/compare/v0.5.0...v0.6.0) (2026-10-27)
 
 
