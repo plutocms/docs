@@ -68,11 +68,11 @@ const items = computed(() => shared.value.slice(1))
       <UEditorToolbar
         :editor="editor"
         :items="items"
-        :aria-label="t('pluto.cms.editor.toolbar')"
+        :aria-label="t('pluto.github.editor.toolbar')"
         class="sticky top-0 z-10 flex-wrap rounded-t-md border-b border-default bg-default px-1.5 py-1"
       >
         <template #link>
-          <PlutoCmsEditorLink :editor="editor" />
+          <PlutoGithubEditorLink :editor="editor" />
         </template>
       </UEditorToolbar>
     </UEditor>
