@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/plutocms/nuxt-content/compare/v0.7.0...v0.8.0) (2026-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* `/api/_pluto/nuxt-content/:type/{page,navigation,surround}` is now `/api/pluto/v1/nuxt-content/:type/{page,navigation,surround}`, and the answer is `{ data }`. A site that uses the composables needs no change.
+
+### Features
+
+* serve the layer routes on the public API of Pluto, and make the docs pages public ([#26](https://github.com/plutocms/nuxt-content/issues/26)) ([9c1ddd9](https://github.com/plutocms/nuxt-content/commit/9c1ddd982d7c24ff22e70337a345a76ddeb63131))
+
 ## [0.7.0](https://github.com/plutocms/nuxt-content/compare/v0.6.0...v0.7.0) (2026-10-27)
 
 
