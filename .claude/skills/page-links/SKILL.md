@@ -18,14 +18,15 @@ Two links connect the public page and the admin form of the same Markdown file.
 
 ## From the page to the admin: "Edit in admin"
 
-`usePlutoContentEditLink(page, type = 'doc')` (`app/composables/pluto-content-edit-link.ts`)
-returns a computed value:
+`usePlutoContentEditLink(page, type = 'doc')` (`app/composables/pluto-content-edit-link.ts`) is a
+wrapper of core's `usePlutoEditLink(type, () => page.stem)`. It returns a computed value:
 
-- `/admin/content/<type>/<contentIdPath(page.stem)>` for signed-in staff.
+- `/admin/content/<type>/<contentIdPath(page.stem)>` for a confirmed staff user with `docs:write`.
 - `null` for everyone else.
 
-The staff check is `usePlutoAdminBar().visible`. The bar is client only, so the link appears after
-hydration and is never in the server HTML. A cached public page holds no editor data.
+The staff check is `usePlutoAdminBar().confirmed`, which runs in the browser. So the link appears
+after hydration and is never in the server HTML, even when the server renders the admin bar from
+its hint. A cached public page holds no editor data.
 
 The `stem` of a Nuxt Content page is the file path without the extension and relative to the
 collection source. It equals the content id when the collection source is the content dir
@@ -45,21 +46,16 @@ const adminLink = usePlutoContentEditLink(page)
 
 ## The admin bar: "New Page" and "Edit Page"
 
-The client plugin registers one `navbarActions` component action, `PlutoNuxtContentBarActions`
-(async). It renders `PlutoNavbarButton` items (each is an `<li>`), only when
-`can(DOCS_CAPABILITIES.write)` is true:
+Core draws these buttons. The docs type sets `adminBar: true`, so core's content bar actions show
+(see "Content buttons" in the admin-shell skill of `@plutocms/pluto`):
 
-- **New <label>** for each type of the layer config (`usePlutoContentTexts()(type).newLabel`),
-  to `contentNewPath(type)` (`/admin/content/<type>/new`). It shows on every page where the bar
-  shows, `/admin/**` too.
-- **Edit <label>** (`nuxt-content.actions.edit`, "Edit {label}") on a public page, to
-  `contentEditPath(type, id)`. It does not show on `/admin/**`, because the form has the View link.
+- **New <label>** on every page where the bar shows, `/admin/**` too.
+- **Edit <label>** on a public page that calls `usePlutoContentEditLink` (it records the page in
+  core's `usePlutoCurrentContent()`). It does not show on `/admin/**`, because the form has the
+  View link.
 
-The layer does not own the collections, so it cannot find the page of a route. The page tells
-it: `usePlutoContentEditLink(page, type)` also sets `usePlutoContentCurrentPage()` (a `useState`,
-`{ type, id, owner }`) in the browser, and clears it in `onScopeDispose`. The next page can mount
-before the old one unmounts, so a page clears the value only when its own `owner` number is still
-there. The server never sets the value. A site that wants "Edit Page" on a page must call
-`usePlutoContentEditLink` there, the landing page too.
+Both need `docs:write`, the `write` capability of the type. The layer registers no navbar action of
+its own. A site that wants "Edit Page" on a page must call `usePlutoContentEditLink` there, the
+landing page too.
 
 `contentEditPath` and `contentNewPath` are in `shared/utils/content-route.ts` and have tests.

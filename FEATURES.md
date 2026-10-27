@@ -12,7 +12,7 @@ policies shared by every project here.
   @.claude/skills/docs-preset/SKILL.md.
 - MDC field: the `mdc` field widget. Visual mode (the block editor) and Markdown mode (with the
   Insert menu of snippets). See @.claude/skills/mdc-field/SKILL.md.
-- Page links: the View link of the form (`previewUrl`), the admin bar actions ("New Page", "Edit Page"),
+- Page links: the View link of the form (`previewUrl`), the "New Page" and "Edit Page" buttons of the admin bar (core draws them from `adminBar`),
   `contentRoutePath`, `contentEditPath`, and `usePlutoContentEditLink`. See
   @.claude/skills/page-links/SKILL.md.
 - Admin bar offset: CSS that keeps a Nuxt UI header under the Pluto admin bar. See

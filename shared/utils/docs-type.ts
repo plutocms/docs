@@ -157,6 +157,8 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
       { name: 'seoTitle', type: 'text', label: 'SEO title', order: 140, inList: false, region: 'side' },
       { name: 'seoDescription', type: 'textarea', label: 'SEO description', rows: 3, order: 150, inList: false, region: 'side' },
     ],
+    // "New page" and "Edit page" in the admin bar (core). See the page-links skill.
+    adminBar: true,
     status: false,
     timestamps: false,
     // Tree order: the numeric prefixes decide, not the title.
