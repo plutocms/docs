@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/plutocms/nuxt-content/compare/v0.5.0...v0.6.0) (2026-10-27)
+
+
+### Features
+
+* use the admin bar buttons of core, and shorten the README ([#22](https://github.com/plutocms/nuxt-content/issues/22)) ([568f54b](https://github.com/plutocms/nuxt-content/commit/568f54b3f0a73e0346c44f2aec44e6c34c0320fe))
+
 ## [0.5.0](https://github.com/plutocms/nuxt-content/compare/v0.4.1...v0.5.0) (2026-10-26)
 
 
