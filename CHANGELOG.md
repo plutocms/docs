@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.9.0](https://github.com/plutocms/nuxt-content/compare/v0.8.0...v0.9.0) (2026-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* the layer reads `plutoGithub`, not `plutoCms`. An app that sets `plutoCms` options sets `plutoGithub` now.
+
+### Features
+
+* use the GitHub names of pluto 0.28 ([#28](https://github.com/plutocms/nuxt-content/issues/28)) ([f3f2ee7](https://github.com/plutocms/nuxt-content/commit/f3f2ee7dc08a0f5872eab82fb02e7271cded822f))
+
 ## [0.8.0](https://github.com/plutocms/nuxt-content/compare/v0.7.0...v0.8.0) (2026-10-27)
 
 
