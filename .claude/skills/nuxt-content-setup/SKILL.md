@@ -7,8 +7,8 @@ The layer edits the pages of a Nuxt Content site in the Pluto admin. The app tur
 
 - `nuxt.config.ts` — extends `process.env.PLUTO_PLUTO_PATH || '@plutocms/pluto'`, adds the
   `@nuxt/content` module, sets `$meta.name: 'nuxt-content'`, the native SQLite connector, and the
-  layer defaults `plutoCms.postType: false` and `plutoCms.commit.skipDeploy: false`. It has no `css`
-  entry. The other `plutoCms` options use the core defaults (`enabled: 'auto'`, `storage` by mode,
+  layer defaults `plutoGithub.postType: false` and `plutoGithub.commit.skipDeploy: false`. It has no `css`
+  entry. The other `plutoGithub` options use the core defaults (`enabled: 'auto'`, `storage` by mode,
   the repo from the env or the git remote). See the `github-cms` skill in pluto.
 - `modules/pluto-nuxt-content/index.ts` — the Nuxt module. Config key `plutoNuxtContent`.
 - `modules/pluto-nuxt-content/manifest.ts` — the build manifest of the hybrid mode (Node).
@@ -77,7 +77,7 @@ Files:
 
 The module makes a Nitro virtual module `#pluto-nuxt-content/manifest` in the `nitro:config` hook. It is
 `{ [typeName]: { [contentId]: version } }`. It is made once, when the bundler first asks for it, from the `.md`
-files under `<rootDir>/<plutoCms.dir>/<type.source>` (the same files that the CMS lists: dot files and dirs, and
+files under `<rootDir>/<plutoGithub.dir>/<type.source>` (the same files that the CMS lists: dot files and dirs, and
 `node_modules`-like dirs are skipped, ids follow the CMS id rule and `exclude`). In `'build'` and `'runtime'`
 mode the module is `{}`.
 
@@ -89,7 +89,7 @@ The version is the `_version` that the store reports for the file:
 - Storage `fs` (and `memory`): core's fs store hashes the file as it is on the disk (`gitBlobSha(raw text)`), so the
   manifest does too.
 
-The storage and the dir come from `runtimeConfig.public.plutoCms`, which the CMS module sets.
+The storage and the dir come from `runtimeConfig.public.plutoGithub`, which the CMS module sets.
 
 ### The routes
 
@@ -143,7 +143,7 @@ the core version that has the field.
 
 The layer needs a pluto version with `markPublicRead`, `PlutoContentAdapter.readFile`, `_frontmatter` on `get`, and
 `PlutoContentType.liveOnSave`. A save commits through the adapter, and the store sets the new head in its cache at once,
-so the next request of the same server reads the new text. Other instances follow within `plutoCms.cache.headTtl`.
+so the next request of the same server reads the new text. Other instances follow within `plutoGithub.cache.headTtl`.
 
 Limits: the search stays build time. The root `index` page is not in the navigation from the store unless
 `includeRoot` is set. A `.navigation.yml` of the root folder is not read. Hybrid mode checks the list of files, not
@@ -151,11 +151,11 @@ the content of non-`.md` files.
 
 ## The CMS must be on
 
-The module reads `nuxt.options.plutoCms.enabled`. Core defaults it to `'auto'`, so an app
-sets nothing. When the app sets `plutoCms.enabled: false`, the module logs this error and stays
+The module reads `nuxt.options.plutoGithub.enabled`. Core defaults it to `'auto'`, so an app
+sets nothing. When the app sets `plutoGithub.enabled: false`, the module logs this error and stays
 off:
 
-> The Nuxt Content layer needs the standalone CMS. Remove plutoCms.enabled: false, or remove the
+> The Nuxt Content layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the
 > layer.
 
 When the module is on, it copies the valid types to `runtimeConfig.public.plutoNuxtContent`.

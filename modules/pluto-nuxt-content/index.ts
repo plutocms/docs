@@ -12,7 +12,7 @@ export const RUNTIME_ROUTE_BASE = '/api/pluto/v1/nuxt-content'
 
 /**
  * Registers the content types of the Nuxt Content layer. It is OFF when the
- * app turns the standalone CMS off (`plutoCms.enabled: false`). The default
+ * app turns the standalone CMS off (`plutoGithub.enabled: false`). The default
  * `'auto'` and `true` both count as on. The module only checks the options
  * and copies them to the public runtime config. The client plugin
  * (`app/plugins/pluto-nuxt-content.ts`) and the Nitro plugin
@@ -24,7 +24,7 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
   defaults: { types: [] },
   setup(options, nuxt) {
     const logger = useLogger('pluto-nuxt-content')
-    const cms = (nuxt.options as { plutoCms?: { enabled?: boolean | 'auto' } }).plutoCms
+    const cms = (nuxt.options as { plutoGithub?: { enabled?: boolean | 'auto' } }).plutoGithub
 
     const { enabled, render, runtimeMaxAge, types, errors } = resolvePlutoNuxtContentOptions(options, {
       cmsEnabled: cms?.enabled !== false,
@@ -59,7 +59,7 @@ export default defineNuxtModule<PlutoNuxtContentOptions>({
     // pages that Nuxt Content builds in the same run. It is made once, when the bundler first asks.
     const makeManifest = () => {
       // The CMS module sets the storage and the content dir. They are known here, after all modules ran.
-      const cmsConfig = nuxt.options.runtimeConfig.public.plutoCms as { storage?: string, dir?: string } | undefined
+      const cmsConfig = nuxt.options.runtimeConfig.public.plutoGithub as { storage?: string, dir?: string } | undefined
       return buildContentManifest(types, {
         contentDir: join(nuxt.options.rootDir, cmsConfig?.dir ?? 'content'),
         storage: cmsConfig?.storage ?? 'github',

@@ -37,7 +37,7 @@ export interface PlutoNuxtContentOptions {
 }
 
 export interface PlutoNuxtContentResolveContext {
-  /** False when the app sets `plutoCms.enabled` to false. */
+  /** False when the app sets `plutoGithub.enabled` to false. */
   cmsEnabled: boolean
 }
 
@@ -54,7 +54,7 @@ export const PLUTO_NUXT_CONTENT_RENDER_MODES = ['hybrid', 'build', 'runtime'] as
 export const DEFAULT_RUNTIME_MAX_AGE = 10
 
 export const CMS_OFF_ERROR
-  = 'The Nuxt Content layer needs the standalone CMS. Remove plutoCms.enabled: false, or remove the layer.'
+  = 'The Nuxt Content layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the layer.'
 
 const NAME_PATTERN = /^[a-z][a-z0-9-]*$/
 const SOURCE_SEGMENT = /^(?:\d+\.)?[a-z0-9]+(?:-[a-z0-9]+)*$/
