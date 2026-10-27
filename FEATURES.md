@@ -15,7 +15,9 @@ policies shared by every project here.
 - Render modes: `plutoNuxtContent.render` is `'hybrid'` (default: the build data, and the repository for the
   pages that changed after the build), `'build'` or `'runtime'`. A build manifest, server routes, `.navigation.yml`
   and frontmatter parity, and the composables `usePlutoContentPage`, `usePlutoContentNavigation` and
-  `usePlutoContentSurround` that hide the mode. See @.claude/skills/nuxt-content-setup/SKILL.md.
+  `usePlutoContentSurround` that hide the mode. The layer routes are on the public API
+  (`/api/pluto/v1/nuxt-content/:type/{page,navigation,surround}`, `{ data }` answers), and the docs type is
+  public on core's `/api/pluto/v1/content/<type>`. See @.claude/skills/nuxt-content-setup/SKILL.md.
 - Page links: the View link of the form (`previewUrl`), the "New Page" and "Edit Page" buttons of the admin bar (core draws them from `adminBar`),
   `contentRoutePath`, `contentEditPath`, and `usePlutoContentEditLink`. See
   @.claude/skills/page-links/SKILL.md.
