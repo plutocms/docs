@@ -152,14 +152,21 @@ defineExpose({ reload })
       loading="eager"
     />
 
+    <!--
+      While the preview loads: the shape of a page (core's canvas skeleton) and a small status
+      pill at the bottom, so the frame does not flash empty.
+    -->
     <div
       v-if="!ready && !timedOut"
-      class="pointer-events-none absolute inset-0 flex items-center justify-center bg-default/70"
+      class="pointer-events-none absolute inset-0 flex flex-col bg-default"
       role="status"
     >
-      <div class="flex items-center gap-2 text-sm text-muted">
-        <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
-        {{ t('nuxt-content.editor.previewLoading') }}
+      <PlutoSkeletonCanvas />
+      <div class="absolute inset-x-0 bottom-6 flex justify-center">
+        <div class="flex items-center gap-2 rounded-full bg-elevated px-3.5 py-1.5 text-xs font-medium text-muted shadow-sm ring ring-default">
+          <UIcon name="i-lucide-loader-circle" class="size-3.5 animate-spin" />
+          {{ t('nuxt-content.editor.previewLoading') }}
+        </div>
       </div>
     </div>
 
