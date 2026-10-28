@@ -27,6 +27,15 @@ useHead({
   // drag, and the default cursor everywhere (not the hand of a link or a button).
   style: [{
     textContent: '*, *::before, *::after { cursor: default !important; user-select: none !important; -webkit-user-select: none !important; -webkit-user-drag: none !important; }',
+  }, {
+    // A thin scrollbar that fits the editor, in both color modes: a gray thumb on no track.
+    textContent: [
+      'html { scrollbar-width: thin; scrollbar-color: rgb(128 128 128 / 0.45) transparent; }',
+      'html::-webkit-scrollbar { width: 10px; }',
+      'html::-webkit-scrollbar-track { background: transparent; }',
+      'html::-webkit-scrollbar-thumb { background: rgb(128 128 128 / 0.45); border: 3px solid transparent; border-radius: 9999px; background-clip: content-box; }',
+      'html::-webkit-scrollbar-thumb:hover { background-color: rgb(128 128 128 / 0.7); }',
+    ].join('\n'),
   }],
 })
 

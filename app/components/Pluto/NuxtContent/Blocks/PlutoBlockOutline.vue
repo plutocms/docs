@@ -2,7 +2,9 @@
 // The left panel of the editor: the blocks of the page as a list. A header
 // with Undo, Redo and Add. The list has the drag handle, the block menu, and
 // the blocks inside a container. The mode switch (Visual or Markdown) sits at
-// the bottom.
+// the bottom. The list scrolls in a Reka UI scroll area, with a thin scrollbar
+// that shows on hover. The panel is white in light mode and #0b0b0b in dark.
+import { ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport } from 'reka-ui'
 import PlutoBlockModeSwitch from './PlutoBlockModeSwitch.vue'
 import PlutoBlockOutlineList from './PlutoBlockOutlineList.vue'
 
@@ -29,7 +31,7 @@ watch(() => editor.selection.value, (selection) => {
 </script>
 
 <template>
-  <div :aria-label="t('nuxt-content.editor.blocks')" class="flex min-h-0 flex-1 flex-col" role="region" data-block-outline data-pluto-block-ui>
+  <div :aria-label="t('nuxt-content.editor.blocks')" class="flex min-h-0 flex-1 flex-col bg-white dark:bg-[#0b0b0b]" role="region" data-block-outline data-pluto-block-ui>
     <div class="flex h-12 shrink-0 items-center gap-1 border-b border-default px-3">
       <h2 class="min-w-0 truncate text-sm font-semibold text-highlighted max-lg:hidden">
         {{ t('nuxt-content.editor.blocks') }}
@@ -72,16 +74,23 @@ watch(() => editor.selection.value, (selection) => {
       </div>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto p-2">
-      <PlutoBlockOutlineList v-if="editor.doc.value.blocks.length" :blocks="editor.doc.value.blocks" />
-      <UEmpty
-        v-else
-        :title="t('nuxt-content.editor.emptyTitle')"
-        :description="t('nuxt-content.editor.emptyDescription')"
-        :actions="[{ label: t('nuxt-content.editor.addBlock'), icon: 'i-lucide-plus', onClick: () => editor.openPalette() }]"
-        icon="i-lucide-blocks"
-      />
-    </div>
+    <ScrollAreaRoot type="hover" class="relative min-h-0 flex-1 overflow-hidden">
+      <ScrollAreaViewport class="size-full">
+        <div class="p-2">
+          <PlutoBlockOutlineList v-if="editor.doc.value.blocks.length" :blocks="editor.doc.value.blocks" />
+          <UEmpty
+            v-else
+            :title="t('nuxt-content.editor.emptyTitle')"
+            :description="t('nuxt-content.editor.emptyDescription')"
+            :actions="[{ label: t('nuxt-content.editor.addBlock'), icon: 'i-lucide-plus', onClick: () => editor.openPalette() }]"
+            icon="i-lucide-blocks"
+          />
+        </div>
+      </ScrollAreaViewport>
+      <ScrollAreaScrollbar orientation="vertical" class="flex w-2.5 touch-none p-0.5 select-none">
+        <ScrollAreaThumb class="relative flex-1 rounded-full bg-(--ui-border-accented) hover:bg-(--ui-text-dimmed)" />
+      </ScrollAreaScrollbar>
+    </ScrollAreaRoot>
 
     <div class="flex shrink-0 items-center justify-between gap-2 border-t border-default px-3 py-2">
       <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
