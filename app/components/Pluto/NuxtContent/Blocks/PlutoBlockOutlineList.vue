@@ -252,7 +252,7 @@ onBeforeUnmount(() => sortable?.destroy())
           "
           type="button"
           aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown ArrowLeft ArrowRight Delete"
-          class="flex min-h-8 min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 text-start text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          class="flex min-h-8 min-w-0 flex-1 items-center gap-2 rounded p-1 text-start text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           @click="editor.select(block.id)"
           @keydown="onKeydown($event, block)"
         >

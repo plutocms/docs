@@ -64,7 +64,7 @@ const groups = computed<CommandPaletteGroup[]>(() =>
         :groups="groups"
         :placeholder="t('nuxt-content.editor.searchBlocks')"
         :close="true"
-        class="h-[28rem] max-h-[80dvh]"
+        class="h-112 max-h-[80dvh]"
         @update:open="open = $event"
       >
         <template #empty>
