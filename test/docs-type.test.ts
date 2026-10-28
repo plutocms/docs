@@ -64,8 +64,12 @@ describe('createDocsType', () => {
     expect(type.defaultSort).toEqual({ field: 'id', direction: 'asc' })
   })
 
-  it('uses the canvas layout with the body on the canvas', () => {
-    expect(type.form).toEqual({ layout: 'canvas', canvasField: 'body' })
+  it('uses the canvas layout with the body on the canvas and the block list on the left', () => {
+    expect(type.form).toEqual({
+      layout: 'canvas',
+      canvasField: 'body',
+      leftPanel: { label: 'nuxt-content.editor.blocks', class: 'bg-white dark:bg-[#0b0b0b]' },
+    })
   })
 
   it('builds the View link from the page id and the route prefix', () => {

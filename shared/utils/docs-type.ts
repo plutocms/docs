@@ -174,7 +174,8 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     defaultSort: { field: 'id', direction: 'asc' },
     capabilities: { write: DOCS_CAPABILITIES.write, delete: DOCS_CAPABILITIES.delete },
     // The canvas layout: the body fills the page (the block editor), and the other fields are in the Page tab.
-    form: { layout: 'canvas', canvasField: 'body' },
+    // `leftPanel`: the block list. Core shows its skeleton while the page or the editor code loads.
+    form: { layout: 'canvas', canvasField: 'body', leftPanel: { label: 'nuxt-content.editor.blocks', class: 'bg-white dark:bg-[#0b0b0b]' } },
     previewUrl: (item) => (item.id ? contentRoutePath(String(item.id), options.routePrefix ?? '') : undefined),
     files: {
       nested: true,
