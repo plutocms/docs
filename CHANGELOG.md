@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/plutocms/nuxt-content/compare/v0.10.0...v0.11.0) (2026-10-28)
+
+
+### Features
+
+* **editor:** block list layout, scroll area, preview loading, Markdown footer, canonical classes and Prettier ([#33](https://github.com/plutocms/nuxt-content/issues/33)) ([6743ca9](https://github.com/plutocms/nuxt-content/commit/6743ca98f044641fc4ac8074270efb1b6ce33e75))
+
 ## [0.10.0](https://github.com/plutocms/nuxt-content/compare/v0.9.0...v0.10.0) (2026-10-28)
 
 
