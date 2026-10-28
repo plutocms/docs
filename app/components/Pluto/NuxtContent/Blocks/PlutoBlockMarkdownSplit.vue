@@ -40,7 +40,9 @@ provide(plutoBlockEditorKey, editor)
 // The front matter for the preview header: the item without the body.
 const frontmatter = computed<Record<string, unknown>>(() => {
   const item = form?.item.value ?? {}
-  return Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'body'))
+  return Object.fromEntries(
+    Object.entries(item).filter(([key]) => key !== 'body')
+  )
 })
 
 const code = useTemplateRef<InstanceType<typeof PlutoMdcCodeEditor>>('code')
@@ -49,13 +51,23 @@ const code = useTemplateRef<InstanceType<typeof PlutoMdcCodeEditor>>('code')
 
 const isDesktop = useMediaQuery('(min-width: 64rem)')
 // The size of the Markdown pane, in percent of the row (desktop) or of the column (narrow).
-const splitSize = useCookie<number>('pluto-mdc-split', { default: () => 50, maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+const splitSize = useCookie<number>('pluto-mdc-split', {
+  default: () => 50,
+  maxAge: 60 * 60 * 24 * 365,
+  sameSite: 'lax',
+})
 const MIN = 25
 const MAX = 75
 // Read once: a reactive `defaultSize` would rebuild the panels on each save of the size.
 const initialSize = Math.min(MAX, Math.max(MIN, Number(splitSize.value) || 50))
 const items: SplitterItem[] = [
-  { id: 'pluto-mdc-source', slot: 'source', defaultSize: initialSize, minSize: MIN, maxSize: MAX },
+  {
+    id: 'pluto-mdc-source',
+    slot: 'source',
+    defaultSize: initialSize,
+    minSize: MIN,
+    maxSize: MAX,
+  },
   { id: 'pluto-mdc-preview', slot: 'preview' },
 ]
 
@@ -74,15 +86,18 @@ function onDragging(_index: number, value: boolean) {
 }
 
 // A click on a block in the preview: go to that block in the Markdown.
-watch(() => editor.selection.value, (selection) => {
-  if (selection?.source !== 'preview') {
-    return
+watch(
+  () => editor.selection.value,
+  (selection) => {
+    if (selection?.source !== 'preview') {
+      return
+    }
+    const original = findBlock(editor.doc.value, selection.id)?.block.original
+    if (original) {
+      code.value?.reveal(original.start, original.end)
+    }
   }
-  const original = findBlock(editor.doc.value, selection.id)?.block.original
-  if (original) {
-    code.value?.reveal(original.start, original.end)
-  }
-})
+)
 </script>
 
 <template>
@@ -96,7 +111,8 @@ watch(() => editor.selection.value, (selection) => {
       // and the 6px haze-400 bar: it fades in after 300ms of hover, and shows at
       // once while dragging. In both directions. The `!` keeps the duration and
       // the delay against the no-transition rule of the admin (core pluto-layer.css).
-      handle: 'bg-(--ui-border) data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px before:absolute before:z-10 before:transition-colors before:duration-150! hover:before:bg-haze-400 hover:before:delay-300! data-[resize-handle-state=drag]:before:bg-haze-400 data-[resize-handle-state=drag]:before:delay-0! data-[orientation=horizontal]:before:inset-y-0 data-[orientation=horizontal]:before:inset-x-[-2.5px] data-[orientation=vertical]:before:inset-x-0 data-[orientation=vertical]:before:inset-y-[-2.5px]',
+      handle:
+        'bg-(--ui-border) data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px before:absolute before:z-10 before:transition-colors before:duration-150! hover:before:bg-haze-400 hover:before:delay-300! data-[resize-handle-state=drag]:before:bg-haze-400 data-[resize-handle-state=drag]:before:delay-0! data-[orientation=horizontal]:before:inset-y-0 data-[orientation=horizontal]:before:inset-x-[-2.5px] data-[orientation=vertical]:before:inset-x-0 data-[orientation=vertical]:before:inset-y-[-2.5px]',
     }"
     data-block-canvas
     @layout="onLayout"
@@ -120,8 +136,14 @@ watch(() => editor.selection.value, (selection) => {
             </template>
           </PlutoMdcCodeEditor>
         </div>
-        <div class="flex shrink-0 items-center justify-between gap-2 border-t border-default px-3 py-2">
-          <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
+        <div
+          class="flex shrink-0 items-center justify-between gap-2 border-t border-default px-3 py-2"
+        >
+          <PlutoBlockModeSwitch
+            :mode="mode"
+            :disabled="disabled"
+            @update:mode="emit('update:mode', $event)"
+          />
         </div>
       </div>
     </template>

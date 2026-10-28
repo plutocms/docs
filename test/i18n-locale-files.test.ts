@@ -18,7 +18,11 @@ const codes = readdirSync(dir)
 
 type FlatMessages = Record<string, string>
 
-function flatten(value: unknown, prefix = '', out: FlatMessages = {}): FlatMessages {
+function flatten(
+  value: unknown,
+  prefix = '',
+  out: FlatMessages = {}
+): FlatMessages {
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
     const path = prefix ? `${prefix}.${key}` : key
     if (typeof child === 'string') {
@@ -32,7 +36,9 @@ function flatten(value: unknown, prefix = '', out: FlatMessages = {}): FlatMessa
 
 const locales: Record<string, FlatMessages> = {}
 for (const code of codes) {
-  locales[code] = flatten(JSON.parse(readFileSync(join(dir, `${code}.json`), 'utf8')))
+  locales[code] = flatten(
+    JSON.parse(readFileSync(join(dir, `${code}.json`), 'utf8'))
+  )
 }
 
 /** The keys of the layer namespace only. */
@@ -41,7 +47,9 @@ function own(messages: FlatMessages): string[] {
 }
 
 function placeholders(message: string): string[] {
-  return [...message.matchAll(/\{(\w+)\}/g)].map((match) => match[1]!).toSorted()
+  return [...message.matchAll(/\{(\w+)\}/g)]
+    .map((match) => match[1]!)
+    .toSorted()
 }
 
 describe('nuxt-content locale files', () => {
@@ -52,9 +60,13 @@ describe('nuxt-content locale files', () => {
 
   for (const code of codes.filter((name) => name !== 'en')) {
     it(`${code} has the keys and the placeholders of en`, () => {
-      expect(own(locales[code]!).toSorted()).toEqual(own(locales.en!).toSorted())
+      expect(own(locales[code]!).toSorted()).toEqual(
+        own(locales.en!).toSorted()
+      )
       for (const [key, message] of Object.entries(locales.en!)) {
-        expect(placeholders(locales[code]![key] ?? ''), key).toEqual(placeholders(message))
+        expect(placeholders(locales[code]![key] ?? ''), key).toEqual(
+          placeholders(message)
+        )
       }
     })
   }
@@ -62,7 +74,10 @@ describe('nuxt-content locale files', () => {
   for (const code of codes) {
     it(`${code} has only the nuxt-content namespace and the doc type keys, and no empty value`, () => {
       for (const key of Object.keys(locales[code]!)) {
-        expect(key.startsWith('nuxt-content.') || key.startsWith('content.doc.'), key).toBe(true)
+        expect(
+          key.startsWith('nuxt-content.') || key.startsWith('content.doc.'),
+          key
+        ).toBe(true)
       }
       for (const [key, message] of Object.entries(locales[code]!)) {
         expect(message.trim(), key).not.toBe('')
@@ -90,7 +105,11 @@ function sourceFiles(folder: string): string[] {
 // match shows as raw text.
 function isCoreMessageKey(key: string): boolean {
   const [namespace, ...parts] = key.split('.')
-  return /^[a-z][a-z0-9-]*$/.test(namespace!) && parts.length > 0 && parts.every((part) => /^[\w-]+$/.test(part))
+  return (
+    /^[a-z][a-z0-9-]*$/.test(namespace!) &&
+    parts.length > 0 &&
+    parts.every((part) => /^[\w-]+$/.test(part))
+  )
 }
 
 describe('the layer keys', () => {
@@ -106,15 +125,21 @@ describe('the doc type keys', () => {
   const fields = new Set(type.fields.map((field) => field.name))
 
   it('are not in en', () => {
-    expect(Object.keys(locales.en!).filter((key) => key.startsWith('content.'))).toEqual([])
+    expect(
+      Object.keys(locales.en!).filter((key) => key.startsWith('content.'))
+    ).toEqual([])
   })
 
   for (const code of codes.filter((name) => name !== 'en')) {
     it(`${code} names only real fields and has both labels`, () => {
-      const keys = Object.keys(locales[code]!).filter((key) => key.startsWith('content.doc.'))
+      const keys = Object.keys(locales[code]!).filter((key) =>
+        key.startsWith('content.doc.')
+      )
       expect(keys).toContain('content.doc.label')
       expect(keys).toContain('content.doc.labelPlural')
-      for (const key of keys.filter((key) => key.startsWith('content.doc.fields.'))) {
+      for (const key of keys.filter((key) =>
+        key.startsWith('content.doc.fields.')
+      )) {
         expect(fields.has(key.split('.')[3]!), key).toBe(true)
       }
     })
@@ -126,7 +151,9 @@ describe('nuxt-content i18n keys in the code', () => {
     const keys = new Set<string>()
     for (const folder of ['app', 'shared', 'modules', 'server']) {
       for (const file of sourceFiles(join(root, folder))) {
-        for (const match of readFileSync(file, 'utf8').matchAll(/(['"`])(nuxt-content\.[\w-]+(?:\.[\w-]+)+)\1/g)) {
+        for (const match of readFileSync(file, 'utf8').matchAll(
+          /(['"`])(nuxt-content\.[\w-]+(?:\.[\w-]+)+)\1/g
+        )) {
           keys.add(match[2]!)
         }
       }

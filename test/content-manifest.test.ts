@@ -3,13 +3,22 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { buildContentManifest, buildTypeManifest, gitBlobSha, isListedId, manifestModuleSource, versionOf } from '../modules/pluto-nuxt-content/manifest'
+import {
+  buildContentManifest,
+  buildTypeManifest,
+  gitBlobSha,
+  isListedId,
+  manifestModuleSource,
+  versionOf,
+} from '../modules/pluto-nuxt-content/manifest'
 import { parseNavigationConfig } from '../shared/utils/navigation-config'
 
 describe('gitBlobSha', () => {
   it('matches the blob id that git makes', () => {
     // `printf 'hello\n' | git hash-object --stdin`
-    expect(gitBlobSha('hello\n')).toBe('ce013625030ba8dba906f756967f9e9ca394464a')
+    expect(gitBlobSha('hello\n')).toBe(
+      'ce013625030ba8dba906f756967f9e9ca394464a'
+    )
     expect(gitBlobSha('')).toBe('e69de29bb2d1d6434b8b29ae775ad8c2e48c5391')
   })
 
@@ -63,19 +72,32 @@ describe('buildTypeManifest', () => {
   ]
 
   it('lists the listed .md pages by id, sorted', () => {
-    const manifest = buildTypeManifest(files, { storage: 'fs', exclude: ['drafts/'] })
+    const manifest = buildTypeManifest(files, {
+      storage: 'fs',
+      exclude: ['drafts/'],
+    })
     expect(Object.keys(manifest)).toEqual(['1.start/2.install', 'index'])
     expect(manifest.index).toBe(gitBlobSha('a\n'))
   })
 
   it('gives the same manifest for LF and CRLF files with the github storage', () => {
-    const crlf = files.map((file) => ({ ...file, text: file.text.replace(/\n/g, '\r\n') }))
-    expect(buildTypeManifest(crlf, { storage: 'github' })).toEqual(buildTypeManifest(files, { storage: 'github' }))
+    const crlf = files.map((file) => ({
+      ...file,
+      text: file.text.replace(/\n/g, '\r\n'),
+    }))
+    expect(buildTypeManifest(crlf, { storage: 'github' })).toEqual(
+      buildTypeManifest(files, { storage: 'github' })
+    )
   })
 
   it('gives another manifest for CRLF files with the fs storage', () => {
-    const crlf = files.map((file) => ({ ...file, text: file.text.replace(/\n/g, '\r\n') }))
-    expect(buildTypeManifest(crlf, { storage: 'fs' }).index).not.toBe(buildTypeManifest(files, { storage: 'fs' }).index)
+    const crlf = files.map((file) => ({
+      ...file,
+      text: file.text.replace(/\n/g, '\r\n'),
+    }))
+    expect(buildTypeManifest(crlf, { storage: 'fs' }).index).not.toBe(
+      buildTypeManifest(files, { storage: 'fs' }).index
+    )
   })
 })
 
@@ -92,7 +114,10 @@ describe('buildContentManifest (disk)', () => {
     writeFileSync(join(root, 'content', '1.docs', '.hidden.md'), 'x')
     writeFileSync(join(root, 'content', 'node_modules', 'x.md'), 'x')
     const manifest = buildContentManifest(
-      [{ name: 'all', source: '' }, { name: 'docs', source: '1.docs' }],
+      [
+        { name: 'all', source: '' },
+        { name: 'docs', source: '1.docs' },
+      ],
       { contentDir: join(root, 'content'), storage: 'github' }
     )
     expect(Object.keys(manifest.all!)).toEqual(['1.docs/1.a/1.page', 'index'])
@@ -101,20 +126,37 @@ describe('buildContentManifest (disk)', () => {
   })
 
   it('gives an empty type manifest for a missing folder', () => {
-    expect(buildContentManifest([{ name: 'x', source: 'nope' }], { contentDir: join(tmpdir(), 'pluto-no-such-dir'), storage: 'fs' })).toEqual({ x: {} })
+    expect(
+      buildContentManifest([{ name: 'x', source: 'nope' }], {
+        contentDir: join(tmpdir(), 'pluto-no-such-dir'),
+        storage: 'fs',
+      })
+    ).toEqual({ x: {} })
   })
 
   it('matches git hash-object for a real file', () => {
     root = mkdtempSync(join(tmpdir(), 'pluto-manifest-'))
     mkdirSync(join(root, 'content'))
-    writeFileSync(join(root, 'content', 'index.md'), '---\ntitle: Home\n---\nHello\n')
+    writeFileSync(
+      join(root, 'content', 'index.md'),
+      '---\ntitle: Home\n---\nHello\n'
+    )
     let expected: string
     try {
-      expected = execFileSync('git', ['hash-object', '--no-filters', join(root, 'content', 'index.md')], { encoding: 'utf8' }).trim()
+      expected = execFileSync(
+        'git',
+        ['hash-object', '--no-filters', join(root, 'content', 'index.md')],
+        { encoding: 'utf8' }
+      ).trim()
     } catch {
       return
     }
-    expect(buildContentManifest([{ name: 'all', source: '' }], { contentDir: join(root, 'content'), storage: 'fs' }).all!.index).toBe(expected)
+    expect(
+      buildContentManifest([{ name: 'all', source: '' }], {
+        contentDir: join(root, 'content'),
+        storage: 'fs',
+      }).all!.index
+    ).toBe(expected)
   })
 })
 
@@ -127,11 +169,16 @@ describe('manifestModuleSource', () => {
 
 describe('parseNavigationConfig', () => {
   it('reads the keys of a .navigation.yml', () => {
-    expect(parseNavigationConfig('title: Core\nicon: i-lucide-box\n')).toEqual({ title: 'Core', icon: 'i-lucide-box' })
+    expect(parseNavigationConfig('title: Core\nicon: i-lucide-box\n')).toEqual({
+      title: 'Core',
+      icon: 'i-lucide-box',
+    })
   })
 
   it('reads navigation: false', () => {
-    expect(parseNavigationConfig('navigation: false\n')).toEqual({ navigation: false })
+    expect(parseNavigationConfig('navigation: false\n')).toEqual({
+      navigation: false,
+    })
   })
 
   it('gives undefined for empty text, a list, a scalar or bad YAML', () => {

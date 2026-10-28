@@ -20,11 +20,14 @@ const { t } = usePlutoI18n()
 
 const draft = ref(props.modelValue)
 
-watch(() => props.modelValue, (value) => {
-  if (props.live || value !== draft.value) {
-    draft.value = value
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (props.live || value !== draft.value) {
+      draft.value = value
+    }
   }
-})
+)
 
 function update(value: string) {
   draft.value = value

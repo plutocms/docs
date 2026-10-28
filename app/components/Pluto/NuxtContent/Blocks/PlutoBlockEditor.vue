@@ -36,21 +36,32 @@ provide(plutoBlockEditorKey, editor)
 // The front matter for the preview header: the item without the body and the internal `_` keys.
 const frontmatter = computed<Record<string, unknown>>(() => {
   const item = form?.item.value ?? {}
-  return Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'body' && !key.startsWith('_')))
+  return Object.fromEntries(
+    Object.entries(item).filter(
+      ([key]) => key !== 'body' && !key.startsWith('_')
+    )
+  )
 })
 
 // A selection brings the Block tab forward (and opens the panel on a narrow screen). On a narrow
 // screen the block list is a slideover. A choice in it closes the slideover, so the controls show.
 const wide = useMediaQuery('(min-width: 1024px)')
-watch(() => editor.selection.value, (selection) => {
-  if (!selection) {
-    return
+watch(
+  () => editor.selection.value,
+  (selection) => {
+    if (!selection) {
+      return
+    }
+    if (!wide.value && selection.source === 'ui') {
+      document
+        .querySelector('[data-block-outline]')
+        ?.closest('[role="dialog"]')
+        ?.querySelector<HTMLElement>('button[data-slot="close"]')
+        ?.click()
+    }
+    form?.openPanel('block')
   }
-  if (!wide.value && selection.source === 'ui') {
-    document.querySelector('[data-block-outline]')?.closest('[role="dialog"]')?.querySelector<HTMLElement>('button[data-slot="close"]')?.click()
-  }
-  form?.openPanel('block')
-})
+)
 
 // One undo stack for the page: Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y). They act while the
 // focus is in the editor (a panel or the canvas). Elsewhere (the Page tab) the browser keeps its own undo.
@@ -59,12 +70,18 @@ function onKeydown(event: KeyboardEvent) {
     return
   }
   const target = event.target
-  const inside = target instanceof Element && (target.closest('[data-pluto-block-ui]') || target.closest('[data-block-canvas]'))
+  const inside =
+    target instanceof Element &&
+    (target.closest('[data-pluto-block-ui]') ||
+      target.closest('[data-block-canvas]'))
   const key = event.key.toLowerCase()
   if (!inside) {
     return
   }
-  const row = target instanceof Element ? target.closest<HTMLElement>('[data-block-row]')?.dataset.blockRow : undefined
+  const row =
+    target instanceof Element
+      ? target.closest<HTMLElement>('[data-block-row]')?.dataset.blockRow
+      : undefined
   if (key === 'z' && !event.shiftKey) {
     event.preventDefault()
     editor.undo()
@@ -76,8 +93,13 @@ function onKeydown(event: KeyboardEvent) {
   }
   // A list row that moves in the DOM loses the focus. Give it back, so the next shortcut works.
   nextTick(() => {
-    if (row && (!document.activeElement || document.activeElement === document.body)) {
-      document.querySelector<HTMLElement>(`[data-block-row="${CSS.escape(row)}"]`)?.focus()
+    if (
+      row &&
+      (!document.activeElement || document.activeElement === document.body)
+    ) {
+      document
+        .querySelector<HTMLElement>(`[data-block-row="${CSS.escape(row)}"]`)
+        ?.focus()
     }
   })
 }
@@ -92,21 +114,46 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown, true))
       <UAlert
         :title="t('nuxt-content.editor.parseErrorTitle')"
         :description="t('nuxt-content.editor.parseError')"
-        :actions="[{ label: t('nuxt-content.editor.switchToMarkdown'), color: 'neutral', variant: 'outline', onClick: () => emit('update:mode', 'markdown') }]"
+        :actions="[
+          {
+            label: t('nuxt-content.editor.switchToMarkdown'),
+            color: 'neutral',
+            variant: 'outline',
+            onClick: () => emit('update:mode', 'markdown'),
+          },
+        ]"
         color="warning"
         variant="subtle"
         icon="i-lucide-triangle-alert"
       />
     </div>
 
-    <PlutoBlockPreviewFrame v-else :frontmatter="frontmatter" class="min-h-0 flex-1" />
+    <PlutoBlockPreviewFrame
+      v-else
+      :frontmatter="frontmatter"
+      class="min-h-0 flex-1"
+    />
 
     <template v-if="!editor.error.value">
-      <PlutoContentCanvasPanel id="blocks" :label="t('nuxt-content.editor.blocks')" side="left" icon="i-lucide-blocks">
-        <PlutoBlockOutline :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
+      <PlutoContentCanvasPanel
+        id="blocks"
+        :label="t('nuxt-content.editor.blocks')"
+        side="left"
+        icon="i-lucide-blocks"
+      >
+        <PlutoBlockOutline
+          :mode="mode"
+          :disabled="disabled"
+          @update:mode="emit('update:mode', $event)"
+        />
       </PlutoContentCanvasPanel>
 
-      <PlutoContentCanvasPanel id="block" :label="t('nuxt-content.editor.blockTab')" side="right" icon="i-lucide-square-pen">
+      <PlutoContentCanvasPanel
+        id="block"
+        :label="t('nuxt-content.editor.blockTab')"
+        side="right"
+        icon="i-lucide-square-pen"
+      >
         <PlutoBlockInspector :disabled="disabled" />
       </PlutoContentCanvasPanel>
 

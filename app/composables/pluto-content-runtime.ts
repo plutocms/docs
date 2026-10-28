@@ -20,8 +20,8 @@ export interface PlutoContentPage {
   path: string
   title: string
   description: string
-  seo?: { title?: string, description?: string }
-  navigation?: false | { title?: string, icon?: string }
+  seo?: { title?: string; description?: string }
+  navigation?: false | { title?: string; icon?: string }
 
   body: any
 
@@ -75,17 +75,25 @@ export function usePlutoContentRender(): 'hybrid' | 'build' | 'runtime' {
 }
 
 function runtimeTypeName(options: PlutoContentReadOptions): string {
-  const config = useRuntimeConfig().public.plutoNuxtContent as unknown as { types?: Array<{ name: string }> } | undefined
+  const config = useRuntimeConfig().public.plutoNuxtContent as unknown as
+    { types?: Array<{ name: string }> } | undefined
   const name = options.type ?? config?.types?.[0]?.name
   if (!name) {
-    throw new Error('[pluto-nuxt-content] No content type is registered. Add one to plutoNuxtContent.types.')
+    throw new Error(
+      '[pluto-nuxt-content] No content type is registered. Add one to plutoNuxtContent.types.'
+    )
   }
   return name
 }
 
-function buildCollection(options: PlutoContentReadOptions, caller: string): string {
+function buildCollection(
+  options: PlutoContentReadOptions,
+  caller: string
+): string {
   if (!options.collection) {
-    throw new Error(`[pluto-nuxt-content] ${caller} needs the "collection" option in build mode.`)
+    throw new Error(
+      `[pluto-nuxt-content] ${caller} needs the "collection" option in build mode.`
+    )
   }
   return options.collection
 }
@@ -95,12 +103,18 @@ function normalizePath(path: string): string {
 }
 
 /** A route of the layer on the public API of Pluto. See `RUNTIME_ROUTE_BASE` in the module. */
-function routeUrl(type: string, name: 'page' | 'navigation' | 'surround'): string {
+function routeUrl(
+  type: string,
+  name: 'page' | 'navigation' | 'surround'
+): string {
   return `/api/pluto/v1/nuxt-content/${encodeURIComponent(type)}/${name}`
 }
 
 /** Runs a server route and returns its `data`. A 404 gives `null`. Any other error is thrown. */
-async function fetchRoute<T>(url: string, query: Record<string, string | undefined>): Promise<T | null> {
+async function fetchRoute<T>(
+  url: string,
+  query: Record<string, string | undefined>
+): Promise<T | null> {
   try {
     const answer = await $fetch<{ data: T }>(url, { query })
     return answer.data
@@ -119,18 +133,31 @@ async function fetchRoute<T>(url: string, query: Record<string, string | undefin
  * @example
  * const { data: page } = await usePlutoContentPage(() => route.path, { collection: 'docs' })
  */
-export function usePlutoContentPage(path: MaybeRefOrGetter<string>, options: PlutoContentReadOptions = {}) {
+export function usePlutoContentPage(
+  path: MaybeRefOrGetter<string>,
+  options: PlutoContentReadOptions = {}
+) {
   const mode = usePlutoContentRender()
-  const key = computed(() => `pluto-content-page:${mode}:${options.collection ?? options.type ?? ''}:${normalizePath(toValue(path))}`)
+  const key = computed(
+    () =>
+      `pluto-content-page:${mode}:${options.collection ?? options.type ?? ''}:${normalizePath(toValue(path))}`
+  )
   return useAsyncData<PlutoContentPage | null>(
     () => key.value,
     async () => {
       const current = normalizePath(toValue(path))
       if (mode !== 'build') {
-        return fetchRoute<PlutoContentPage>(routeUrl(runtimeTypeName(options), 'page'), { path: current, collection: options.collection })
+        return fetchRoute<PlutoContentPage>(
+          routeUrl(runtimeTypeName(options), 'page'),
+          { path: current, collection: options.collection }
+        )
       }
       // The collection name is a string here. The generated types know the names of the site.
-      const page = await queryCollection(buildCollection(options, 'usePlutoContentPage') as never).path(current).first()
+      const page = await queryCollection(
+        buildCollection(options, 'usePlutoContentPage') as never
+      )
+        .path(current)
+        .first()
       return (page as PlutoContentPage | null) ?? null
     },
     { watch: [key] }
@@ -144,7 +171,9 @@ export function usePlutoContentPage(path: MaybeRefOrGetter<string>, options: Plu
  * Folder titles, icons and the other keys of a `.navigation.yml` file apply in every mode: Nuxt
  * Content reads them at build time, and the server reads them from the store at run time.
  */
-export function usePlutoContentNavigation(options: PlutoContentNavigationOptions = {}) {
+export function usePlutoContentNavigation(
+  options: PlutoContentNavigationOptions = {}
+) {
   const mode = usePlutoContentRender()
   return useAsyncData<PlutoContentNavigationItem[]>(
     `pluto-content-navigation:${mode}:${options.collection ?? options.type ?? ''}`,
@@ -152,11 +181,16 @@ export function usePlutoContentNavigation(options: PlutoContentNavigationOptions
       if (mode !== 'build') {
         const tree = await fetchRoute<PlutoContentNavigationItem[]>(
           routeUrl(runtimeTypeName(options), 'navigation'),
-          { collection: options.collection, includeRoot: options.includeRoot ? '1' : undefined }
+          {
+            collection: options.collection,
+            includeRoot: options.includeRoot ? '1' : undefined,
+          }
         )
         return tree ?? []
       }
-      return await queryCollectionNavigation(buildCollection(options, 'usePlutoContentNavigation') as never) as PlutoContentNavigationItem[]
+      return (await queryCollectionNavigation(
+        buildCollection(options, 'usePlutoContentNavigation') as never
+      )) as PlutoContentNavigationItem[]
     }
   )
 }
@@ -165,9 +199,15 @@ export function usePlutoContentNavigation(options: PlutoContentNavigationOptions
  * The previous and the next page of a route path: `[previous, next]`, each one an item or
  * `null`. Each item has `title`, `path` and `description`.
  */
-export function usePlutoContentSurround(path: MaybeRefOrGetter<string>, options: PlutoContentNavigationOptions = {}) {
+export function usePlutoContentSurround(
+  path: MaybeRefOrGetter<string>,
+  options: PlutoContentNavigationOptions = {}
+) {
   const mode = usePlutoContentRender()
-  const key = computed(() => `pluto-content-surround:${mode}:${options.collection ?? options.type ?? ''}:${normalizePath(toValue(path))}`)
+  const key = computed(
+    () =>
+      `pluto-content-surround:${mode}:${options.collection ?? options.type ?? ''}:${normalizePath(toValue(path))}`
+  )
   return useAsyncData<PlutoContentSurroundItem[]>(
     () => key.value,
     async () => {
@@ -175,13 +215,21 @@ export function usePlutoContentSurround(path: MaybeRefOrGetter<string>, options:
       if (mode !== 'build') {
         const surround = await fetchRoute<PlutoContentSurroundItem[]>(
           routeUrl(runtimeTypeName(options), 'surround'),
-          { path: current, collection: options.collection, includeRoot: options.includeRoot ? '1' : undefined }
+          {
+            path: current,
+            collection: options.collection,
+            includeRoot: options.includeRoot ? '1' : undefined,
+          }
         )
         return surround ?? []
       }
-      const surround = await queryCollectionItemSurroundings(buildCollection(options, 'usePlutoContentSurround') as never, current, {
-        fields: ['description'],
-      })
+      const surround = await queryCollectionItemSurroundings(
+        buildCollection(options, 'usePlutoContentSurround') as never,
+        current,
+        {
+          fields: ['description'],
+        }
+      )
       return surround as PlutoContentSurroundItem[]
     },
     { watch: [key] }

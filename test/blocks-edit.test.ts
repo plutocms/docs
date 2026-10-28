@@ -1,6 +1,15 @@
-import type { PlutoBlock, PlutoComponentBlock } from '../shared/utils/blocks/types'
+import type {
+  PlutoBlock,
+  PlutoComponentBlock,
+} from '../shared/utils/blocks/types'
 import { describe, expect, it } from 'vitest'
-import { removeBlock, setProp, setSlot, updateCode, updateText } from '../shared/utils/blocks/operations'
+import {
+  removeBlock,
+  setProp,
+  setSlot,
+  updateCode,
+  updateText,
+} from '../shared/utils/blocks/operations'
 import { parseBlocks } from '../shared/utils/blocks/parse'
 import { serializeBlocks } from '../shared/utils/blocks/serialize'
 import { flatChildren, walkBlocks } from '../shared/utils/blocks/tree'
@@ -33,14 +42,17 @@ function changedLines(before: string, after: string): number {
 }
 
 describe('edit of a Text block', () => {
-  const source = '# Title\n\nFirst text.\n\n## Part\n\nSecond text.\n\n```ts\nconst a = 1\n```\n\nThird text.\n'
+  const source =
+    '# Title\n\nFirst text.\n\n## Part\n\nSecond text.\n\n```ts\nconst a = 1\n```\n\nThird text.\n'
 
   it('changes only the lines of that block', () => {
     const doc = parseBlocks(source)
     const second = doc.blocks[1]!
     expect(second.kind).toBe('text')
     const next = updateText(doc, second.id, '## Part\n\nSecond text, changed.')
-    expect(serializeBlocks(next)).toBe(source.replace('Second text.', 'Second text, changed.'))
+    expect(serializeBlocks(next)).toBe(
+      source.replace('Second text.', 'Second text, changed.')
+    )
     // The other blocks keep their slices.
     expect(next.blocks[0]!.original).toBeDefined()
     expect(next.blocks[2]!.original).toBeDefined()
@@ -83,14 +95,27 @@ describe('edit of a Code block', () => {
     const source = 'Text.\n\n```ts [file.ts]\nconst a = 1\n```\n\nEnd.\n'
     const doc = parseBlocks(source)
     const code = doc.blocks[1]!
-    expect(code).toMatchObject({ kind: 'code', lang: 'ts', filename: 'file.ts', code: 'const a = 1' })
-    expect(serializeBlocks(updateCode(doc, code.id, { code: 'const a = 2' }))).toBe(source.replace('a = 1', 'a = 2'))
-    expect(serializeBlocks(updateCode(doc, code.id, { filename: 'other.ts', lang: 'js' }))).toBe(source.replace('ts [file.ts]', 'js [other.ts]'))
+    expect(code).toMatchObject({
+      kind: 'code',
+      lang: 'ts',
+      filename: 'file.ts',
+      code: 'const a = 1',
+    })
+    expect(
+      serializeBlocks(updateCode(doc, code.id, { code: 'const a = 2' }))
+    ).toBe(source.replace('a = 1', 'a = 2'))
+    expect(
+      serializeBlocks(
+        updateCode(doc, code.id, { filename: 'other.ts', lang: 'js' })
+      )
+    ).toBe(source.replace('ts [file.ts]', 'js [other.ts]'))
   })
 
   it('uses a longer fence when the code holds a fence', () => {
     const doc = parseBlocks('```md\nx\n```\n')
-    const out = serializeBlocks(updateCode(doc, doc.blocks[0]!.id, { code: 'a\n```\nb' }))
+    const out = serializeBlocks(
+      updateCode(doc, doc.blocks[0]!.id, { code: 'a\n```\nb' })
+    )
     expect(out).toBe('````md\na\n```\nb\n````\n')
   })
 })
@@ -126,24 +151,41 @@ describe('edit of a prop', () => {
   it('changes only the opening line of an inline component', () => {
     const doc = parseBlocks(source)
     const note = doc.blocks[1]!
-    expect(note).toMatchObject({ kind: 'component', name: 'note', props: { icon: 'i-lucide-info', class: 'wide' }, propsStyle: 'inline' })
+    expect(note).toMatchObject({
+      kind: 'component',
+      name: 'note',
+      props: { icon: 'i-lucide-info', class: 'wide' },
+      propsStyle: 'inline',
+    })
     const out = serializeBlocks(setProp(doc, note.id, 'icon', 'i-lucide-star'))
-    expect(out).toBe(source.replace('icon="i-lucide-info"', 'icon="i-lucide-star"'))
+    expect(out).toBe(
+      source.replace('icon="i-lucide-info"', 'icon="i-lucide-star"')
+    )
   })
 
   it('adds a prop at the end and removes a prop', () => {
     const doc = parseBlocks(source)
     const note = doc.blocks[1]!
-    expect(serializeBlocks(setProp(doc, note.id, 'to', '/docs'))).toBe(source.replace('.wide}', '.wide to="/docs"}'))
-    expect(serializeBlocks(setProp(doc, note.id, 'icon', undefined))).toBe(source.replace('icon="i-lucide-info" ', ''))
+    expect(serializeBlocks(setProp(doc, note.id, 'to', '/docs'))).toBe(
+      source.replace('.wide}', '.wide to="/docs"}')
+    )
+    expect(serializeBlocks(setProp(doc, note.id, 'icon', undefined))).toBe(
+      source.replace('icon="i-lucide-info" ', '')
+    )
   })
 
   it('writes boolean and bound values', () => {
     const doc = parseBlocks('::note\nText.\n::\n')
     const id = doc.blocks[0]!.id
-    expect(serializeBlocks(setProp(doc, id, 'open', true))).toBe('::note{open}\nText.\n::\n')
-    expect(serializeBlocks(setProp(doc, id, 'cols', 3))).toBe('::note{:cols=\'3\'}\nText.\n::\n')
-    expect(serializeBlocks(setProp(doc, id, 'title', 'Say "hi"'))).toBe('::note{title=\'Say "hi"\'}\nText.\n::\n')
+    expect(serializeBlocks(setProp(doc, id, 'open', true))).toBe(
+      '::note{open}\nText.\n::\n'
+    )
+    expect(serializeBlocks(setProp(doc, id, 'cols', 3))).toBe(
+      "::note{:cols='3'}\nText.\n::\n"
+    )
+    expect(serializeBlocks(setProp(doc, id, 'title', 'Say "hi"'))).toBe(
+      '::note{title=\'Say "hi"\'}\nText.\n::\n'
+    )
   })
 
   it('changes only one entry of a YAML block, inside a nested component', () => {
@@ -151,13 +193,20 @@ describe('edit of a prop', () => {
     const group = doc.blocks[2] as PlutoComponentBlock
     expect(group.kind).toBe('component')
     const card = flatChildren(group)[0]!
-    expect(card).toMatchObject({ kind: 'component', name: 'card', propsStyle: 'yaml', props: { title: 'One', icon: 'i-lucide-box', to: '/one' } })
+    expect(card).toMatchObject({
+      kind: 'component',
+      name: 'card',
+      propsStyle: 'yaml',
+      props: { title: 'One', icon: 'i-lucide-box', to: '/one' },
+    })
     const out = serializeBlocks(setProp(doc, card.id, 'title', 'First'))
     expect(out).toBe(source.replace('title: One', 'title: First'))
     expect(changedLines(source, out)).toBe(1)
     // A new key goes at the end of the YAML block.
     const added = serializeBlocks(setProp(doc, card.id, 'color', 'primary'))
-    expect(added).toBe(source.replace('  to: /one\n', '  to: /one\n  color: primary\n'))
+    expect(added).toBe(
+      source.replace('  to: /one\n', '  to: /one\n  color: primary\n')
+    )
   })
 
   it('keeps the other children of a component untouched', () => {
@@ -181,7 +230,12 @@ describe('edit of a prop', () => {
         if (key === undefined) {
           continue
         }
-        expect(serializeBlocks(setProp(parseBlocks(body), block.id, key, block.props[key])), file).toBe(body)
+        expect(
+          serializeBlocks(
+            setProp(parseBlocks(body), block.id, key, block.props[key])
+          ),
+          file
+        ).toBe(body)
       }
     }
   })
@@ -192,8 +246,13 @@ describe('edit of a prop', () => {
         if (block.kind !== 'component') {
           continue
         }
-        const out = serializeBlocks(setProp(parseBlocks(body), block.id, 'data-test', 'x'))
-        expect(changedLines(body, out), `${file} ${block.name}`).toBeLessThanOrEqual(1)
+        const out = serializeBlocks(
+          setProp(parseBlocks(body), block.id, 'data-test', 'x')
+        )
+        expect(
+          changedLines(body, out),
+          `${file} ${block.name}`
+        ).toBeLessThanOrEqual(1)
         expect(out.length, file).toBeGreaterThan(body.length)
       }
     }
@@ -201,29 +260,42 @@ describe('edit of a prop', () => {
 })
 
 describe('edit of a slot', () => {
-  const source = '::u-page-section\n#title\nOld title\n\n#description\nOld text.\n::\n'
+  const source =
+    '::u-page-section\n#title\nOld title\n\n#description\nOld text.\n::\n'
 
   it('changes only the content of that slot', () => {
     const doc = parseBlocks(source)
     const section = doc.blocks[0] as PlutoComponentBlock
     expect(section).toMatchObject({ kind: 'component', name: 'u-page-section' })
     expect(Object.keys(section.slots)).toEqual(['title', 'description'])
-    expect(serializeBlocks(setSlot(doc, section.id, 'title', 'New title'))).toBe(source.replace('Old title', 'New title'))
-    expect(serializeBlocks(setSlot(doc, section.id, 'description', 'First.\n\nSecond.'))).toBe(source.replace('Old text.', 'First.\n\nSecond.'))
+    expect(
+      serializeBlocks(setSlot(doc, section.id, 'title', 'New title'))
+    ).toBe(source.replace('Old title', 'New title'))
+    expect(
+      serializeBlocks(
+        setSlot(doc, section.id, 'description', 'First.\n\nSecond.')
+      )
+    ).toBe(source.replace('Old text.', 'First.\n\nSecond.'))
   })
 
   it('empties a slot and fills it again', () => {
     const doc = parseBlocks(source)
     const id = doc.blocks[0]!.id
     const empty = setSlot(doc, id, 'title', '')
-    expect(serializeBlocks(empty)).toBe('::u-page-section\n#title\n\n#description\nOld text.\n::\n')
+    expect(serializeBlocks(empty)).toBe(
+      '::u-page-section\n#title\n\n#description\nOld text.\n::\n'
+    )
     const again = setSlot(empty, id, 'title', 'Back')
-    expect(serializeBlocks(again)).toBe('::u-page-section\n#title\nBack\n\n#description\nOld text.\n::\n')
+    expect(serializeBlocks(again)).toBe(
+      '::u-page-section\n#title\nBack\n\n#description\nOld text.\n::\n'
+    )
   })
 
   it('adds a slot that the component does not have', () => {
     const doc = parseBlocks('::note\nText.\n::\n')
-    const out = serializeBlocks(setSlot(doc, doc.blocks[0]!.id, 'title', 'Heading'))
+    const out = serializeBlocks(
+      setSlot(doc, doc.blocks[0]!.id, 'title', 'Heading')
+    )
     expect(out).toBe('::note\nText.\n#title\nHeading\n::\n')
     const parsed = parseBlocks(out).blocks[0] as PlutoComponentBlock
     expect(Object.keys(parsed.slots)).toEqual(['default', 'title'])
@@ -231,13 +303,19 @@ describe('edit of a slot', () => {
 
   it('fills the default slot of an empty component', () => {
     const doc = parseBlocks('::note\n::\n')
-    expect(serializeBlocks(setSlot(doc, doc.blocks[0]!.id, 'default', 'Now with text.'))).toBe('::note\nNow with text.\n::\n')
+    expect(
+      serializeBlocks(
+        setSlot(doc, doc.blocks[0]!.id, 'default', 'Now with text.')
+      )
+    ).toBe('::note\nNow with text.\n::\n')
   })
 
   it('removes the last child without losing the slot lines', () => {
     const doc = parseBlocks(source)
     const section = doc.blocks[0] as PlutoComponentBlock
     const out = serializeBlocks(removeBlock(doc, section.slots.title![0]!.id))
-    expect(out).toBe('::u-page-section\n#title\n\n#description\nOld text.\n::\n')
+    expect(out).toBe(
+      '::u-page-section\n#title\n\n#description\nOld text.\n::\n'
+    )
   })
 })

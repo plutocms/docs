@@ -21,7 +21,11 @@ function pick(mode: 'visual' | 'markdown') {
 </script>
 
 <template>
-  <div :aria-label="t('nuxt-content.editor.mode')" role="group" class="flex gap-1">
+  <div
+    :aria-label="t('nuxt-content.editor.mode')"
+    role="group"
+    class="flex gap-1"
+  >
     <UButton
       :variant="mode === 'visual' ? 'solid' : 'outline'"
       :aria-pressed="mode === 'visual'"

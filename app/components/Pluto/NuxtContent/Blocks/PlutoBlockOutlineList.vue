@@ -41,7 +41,9 @@ interface PlutoBlockChildList {
 // A row keeps a column for the chevron only when a block of this list has
 // children. A list of leaves (often the cards of a slot) has no empty column,
 // so its titles do not move to the right for nothing.
-const hasChevrons = computed(() => props.blocks.some((block) => childLists(block).length > 0))
+const hasChevrons = computed(() =>
+  props.blocks.some((block) => childLists(block).length > 0)
+)
 
 function childLists(block: PlutoBlock): PlutoBlockChildList[] {
   if (block.kind !== 'component') {
@@ -132,7 +134,10 @@ function onKeydown(event: KeyboardEvent, block: PlutoBlock) {
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     focusRow(target, event.key === 'ArrowUp' ? -1 : 1)
-  } else if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && childLists(block).length) {
+  } else if (
+    (event.key === 'ArrowLeft' || event.key === 'ArrowRight') &&
+    childLists(block).length
+  ) {
     // Like a tree: Left closes the children, Right opens them.
     const collapsed = editor.collapsedIds.value.has(block.id)
     if (collapsed === (event.key === 'ArrowRight')) {
@@ -232,7 +237,14 @@ onBeforeUnmount(() => sortable?.destroy())
         <button
           v-if="childLists(block).length"
           :aria-expanded="!editor.collapsedIds.value.has(block.id)"
-          :aria-label="t(editor.collapsedIds.value.has(block.id) ? 'nuxt-content.editor.expand' : 'nuxt-content.editor.collapse', { name: info(block).label })"
+          :aria-label="
+            t(
+              editor.collapsedIds.value.has(block.id)
+                ? 'nuxt-content.editor.expand'
+                : 'nuxt-content.editor.collapse',
+              { name: info(block).label }
+            )
+          "
           type="button"
           class="flex size-4 shrink-0 items-center justify-center rounded text-muted hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
           @click="editor.toggleCollapsed(block.id)"
@@ -243,7 +255,11 @@ onBeforeUnmount(() => sortable?.destroy())
             class="size-4 transition-transform"
           />
         </button>
-        <span v-else-if="hasChevrons" class="size-4 shrink-0" aria-hidden="true" />
+        <span
+          v-else-if="hasChevrons"
+          class="size-4 shrink-0"
+          aria-hidden="true"
+        />
 
         <button
           :data-block-row="block.id"
@@ -287,7 +303,9 @@ onBeforeUnmount(() => sortable?.destroy())
       </div>
 
       <div
-        v-if="childLists(block).length && !editor.collapsedIds.value.has(block.id)"
+        v-if="
+          childLists(block).length && !editor.collapsedIds.value.has(block.id)
+        "
         class="ms-7 border-s border-default ps-1"
       >
         <div

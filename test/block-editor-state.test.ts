@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { nextTick, ref } from 'vue'
-import { createPlutoBlockEditor, topLevelId } from '../app/composables/pluto-block-editor'
+import {
+  createPlutoBlockEditor,
+  topLevelId,
+} from '../app/composables/pluto-block-editor'
 import { buildPalette } from '../shared/utils/blocks/editor'
 import { flatChildren } from '../shared/utils/blocks/tree'
 import { corpusBodies } from './helpers/corpus'
@@ -9,7 +12,8 @@ import { corpusBodies } from './helpers/corpus'
 // the text on open, every edit writes only the changed block, and Undo and
 // Redo give the exact bytes back.
 
-const SOURCE = '# Title\n\nFirst text.\n\n::note\nA note.\n::\n\n::card-group\n  :::card\n  ---\n  title: One\n  ---\n  First card.\n  :::\n\n  :::card\n  ---\n  title: Two\n  ---\n  Second card.\n  :::\n::\n\n## Last\n\nEnd.\n'
+const SOURCE =
+  '# Title\n\nFirst text.\n\n::note\nA note.\n::\n\n::card-group\n  :::card\n  ---\n  title: One\n  ---\n  First card.\n  :::\n\n  :::card\n  ---\n  title: Two\n  ---\n  Second card.\n  :::\n::\n\n## Last\n\nEnd.\n'
 
 function create(source = SOURCE) {
   const text = ref(source)
@@ -42,10 +46,14 @@ describe('open and save with no edit', () => {
 describe('edit actions', () => {
   it('writes only the changed block', () => {
     const { editor, emitted } = create()
-    const note = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'note')!
+    const note = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'note'
+    )!
     editor.setProp(note.id, 'icon', 'i-lucide-info')
     expect(emitted).toHaveLength(1)
-    expect(emitted[0]).toBe(SOURCE.replace('::note\n', '::note{icon="i-lucide-info"}\n'))
+    expect(emitted[0]).toBe(
+      SOURCE.replace('::note\n', '::note{icon="i-lucide-info"}\n')
+    )
     expect([...editor.editedIds.value]).toEqual([note.id])
   })
 
@@ -62,7 +70,9 @@ describe('edit actions', () => {
 
   it('undo and redo give the same bytes', () => {
     const { editor, emitted } = create()
-    const note = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'note')!
+    const note = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'note'
+    )!
     editor.remove(note.id)
     const removed = emitted.at(-1)!
     expect(removed).not.toContain('::note')
@@ -78,7 +88,9 @@ describe('edit actions', () => {
     const second = editor.doc.value.blocks[1]!
     editor.remove(first.id)
     expect(editor.selectedId.value).toBe(second.id)
-    const entry = buildPalette().flatMap((group) => group.entries).find((item) => item.id === 'component:warning')!
+    const entry = buildPalette()
+      .flatMap((group) => group.entries)
+      .find((item) => item.id === 'component:warning')!
     const ids = editor.insert(entry)
     expect(ids).toHaveLength(1)
     expect(editor.selectedId.value).toBe(ids[0])
@@ -86,10 +98,14 @@ describe('edit actions', () => {
 
   it('moves a block with a delta, in its own list', () => {
     const { editor, emitted } = create()
-    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    const group = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'card-group'
+    )!
     const [one] = flatChildren(group as never)
     editor.move(one!.id, 1)
-    expect(emitted.at(-1)!.indexOf('title: Two')).toBeLessThan(emitted.at(-1)!.indexOf('title: One'))
+    expect(emitted.at(-1)!.indexOf('title: Two')).toBeLessThan(
+      emitted.at(-1)!.indexOf('title: One')
+    )
     // At the end of the list nothing moves.
     const count = emitted.length
     editor.move(one!.id, 5)
@@ -98,11 +114,17 @@ describe('edit actions', () => {
 
   it('inserts a card into the selected card group', () => {
     const { editor, emitted } = create()
-    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    const group = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'card-group'
+    )!
     editor.select(group.id)
-    const entry = buildPalette().flatMap((item) => item.entries).find((item) => item.id === 'component:card')!
+    const entry = buildPalette()
+      .flatMap((item) => item.entries)
+      .find((item) => item.id === 'component:card')!
     editor.insert(entry)
-    const cards = flatChildren((editor.doc.value.blocks.find((block) => block.id === group.id)) as never)
+    const cards = flatChildren(
+      editor.doc.value.blocks.find((block) => block.id === group.id) as never
+    )
     expect(cards).toHaveLength(3)
     expect(emitted.at(-1)).toContain('title: Two')
     expect(emitted.at(-1)).toContain('title: Title')
@@ -131,7 +153,9 @@ describe('edit actions', () => {
 describe('topLevelId', () => {
   it('gives the top-level block of a child', () => {
     const { editor } = create()
-    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    const group = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'card-group'
+    )!
     const [one] = flatChildren(group as never)
     expect(topLevelId(editor.doc.value, one!.id)).toBe(group.id)
     expect(topLevelId(editor.doc.value, null)).toBeNull()
@@ -141,7 +165,9 @@ describe('topLevelId', () => {
 describe('collapsed blocks in the outline', () => {
   it('toggles a block', () => {
     const { editor } = create()
-    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    const group = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'card-group'
+    )!
     editor.toggleCollapsed(group.id)
     expect(editor.collapsedIds.value.has(group.id)).toBe(true)
     editor.toggleCollapsed(group.id)
@@ -150,7 +176,9 @@ describe('collapsed blocks in the outline', () => {
 
   it('opens the collapsed parents of a selected block', async () => {
     const { editor } = create()
-    const group = editor.doc.value.blocks.find((block) => block.kind === 'component' && block.name === 'card-group')!
+    const group = editor.doc.value.blocks.find(
+      (block) => block.kind === 'component' && block.name === 'card-group'
+    )!
     const [one] = flatChildren(group as never)
     editor.toggleCollapsed(group.id)
     editor.select(one!.id, 'preview')

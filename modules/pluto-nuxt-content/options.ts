@@ -50,11 +50,15 @@ export interface PlutoNuxtContentResolveResult {
 }
 
 export const PLUTO_NUXT_CONTENT_PRESETS = ['docs'] as const
-export const PLUTO_NUXT_CONTENT_RENDER_MODES = ['hybrid', 'build', 'runtime'] as const
+export const PLUTO_NUXT_CONTENT_RENDER_MODES = [
+  'hybrid',
+  'build',
+  'runtime',
+] as const
 export const DEFAULT_RUNTIME_MAX_AGE = 10
 
-export const CMS_OFF_ERROR
-  = 'The Nuxt Content layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the layer.'
+export const CMS_OFF_ERROR =
+  'The Nuxt Content layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the layer.'
 
 const NAME_PATTERN = /^[a-z][a-z0-9-]*$/
 const SOURCE_SEGMENT = /^(?:\d+\.)?[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -72,7 +76,10 @@ export function isValidSource(source: unknown): source is string {
     return true
   }
   const segments = source.split('/')
-  return segments.length <= 6 && segments.every((segment) => SOURCE_SEGMENT.test(segment))
+  return (
+    segments.length <= 6 &&
+    segments.every((segment) => SOURCE_SEGMENT.test(segment))
+  )
 }
 
 /** Normalizes a route prefix to `/a/b`, or `''` for none. */
@@ -96,24 +103,42 @@ export function resolvePlutoNuxtContentOptions(
   const errors: string[] = []
 
   if (!ctx.cmsEnabled) {
-    return { enabled: false, render: 'build', runtimeMaxAge: DEFAULT_RUNTIME_MAX_AGE, types: [], errors: [CMS_OFF_ERROR] }
+    return {
+      enabled: false,
+      render: 'build',
+      runtimeMaxAge: DEFAULT_RUNTIME_MAX_AGE,
+      types: [],
+      errors: [CMS_OFF_ERROR],
+    }
   }
 
   let render: PlutoNuxtContentRender = 'hybrid'
   if (options.render !== undefined) {
-    if ((PLUTO_NUXT_CONTENT_RENDER_MODES as readonly unknown[]).includes(options.render)) {
+    if (
+      (PLUTO_NUXT_CONTENT_RENDER_MODES as readonly unknown[]).includes(
+        options.render
+      )
+    ) {
       render = options.render
     } else {
-      errors.push(`plutoNuxtContent.render must be one of: ${PLUTO_NUXT_CONTENT_RENDER_MODES.join(', ')}. Using "hybrid".`)
+      errors.push(
+        `plutoNuxtContent.render must be one of: ${PLUTO_NUXT_CONTENT_RENDER_MODES.join(', ')}. Using "hybrid".`
+      )
     }
   }
 
   let runtimeMaxAge = DEFAULT_RUNTIME_MAX_AGE
   if (options.runtimeMaxAge !== undefined) {
-    if (typeof options.runtimeMaxAge === 'number' && Number.isInteger(options.runtimeMaxAge) && options.runtimeMaxAge >= 0) {
+    if (
+      typeof options.runtimeMaxAge === 'number' &&
+      Number.isInteger(options.runtimeMaxAge) &&
+      options.runtimeMaxAge >= 0
+    ) {
       runtimeMaxAge = options.runtimeMaxAge
     } else {
-      errors.push(`plutoNuxtContent.runtimeMaxAge must be a whole number of seconds, 0 or more. Using ${DEFAULT_RUNTIME_MAX_AGE}.`)
+      errors.push(
+        `plutoNuxtContent.runtimeMaxAge must be a whole number of seconds, 0 or more. Using ${DEFAULT_RUNTIME_MAX_AGE}.`
+      )
     }
   }
 
@@ -127,12 +152,18 @@ export function resolvePlutoNuxtContentOptions(
       errors.push(`${where} must be an object.`)
       continue
     }
-    if (!(PLUTO_NUXT_CONTENT_PRESETS as readonly unknown[]).includes(entry.preset)) {
-      errors.push(`${where}.preset must be one of: ${PLUTO_NUXT_CONTENT_PRESETS.join(', ')}.`)
+    if (
+      !(PLUTO_NUXT_CONTENT_PRESETS as readonly unknown[]).includes(entry.preset)
+    ) {
+      errors.push(
+        `${where}.preset must be one of: ${PLUTO_NUXT_CONTENT_PRESETS.join(', ')}.`
+      )
       continue
     }
     if (typeof entry.name !== 'string' || !NAME_PATTERN.test(entry.name)) {
-      errors.push(`${where}.name must use lowercase letters, numbers and dashes, and start with a letter.`)
+      errors.push(
+        `${where}.name must use lowercase letters, numbers and dashes, and start with a letter.`
+      )
       continue
     }
     if (names.has(entry.name)) {
@@ -140,10 +171,18 @@ export function resolvePlutoNuxtContentOptions(
       continue
     }
     if (!isValidSource(entry.source)) {
-      errors.push(`${where}.source must be '' or a folder path such as "docs" or "1.docs/api".`)
+      errors.push(
+        `${where}.source must be '' or a folder path such as "docs" or "1.docs/api".`
+      )
       continue
     }
-    if (entry.exclude !== undefined && !(Array.isArray(entry.exclude) && entry.exclude.every((item) => typeof item === 'string'))) {
+    if (
+      entry.exclude !== undefined &&
+      !(
+        Array.isArray(entry.exclude) &&
+        entry.exclude.every((item) => typeof item === 'string')
+      )
+    ) {
       errors.push(`${where}.exclude must be a list of strings.`)
       continue
     }
@@ -153,8 +192,12 @@ export function resolvePlutoNuxtContentOptions(
       name: entry.name,
       source: entry.source,
       ...(typeof entry.label === 'string' && { label: entry.label }),
-      ...(typeof entry.labelPlural === 'string' && { labelPlural: entry.labelPlural }),
-      ...(Array.isArray(entry.exclude) && { exclude: entry.exclude as string[] }),
+      ...(typeof entry.labelPlural === 'string' && {
+        labelPlural: entry.labelPlural,
+      }),
+      ...(Array.isArray(entry.exclude) && {
+        exclude: entry.exclude as string[],
+      }),
       routePrefix: normalizeRoutePrefix(entry.routePrefix),
     })
   }

@@ -1,9 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { buildNavigationTree, diffManifest, flattenNavigation, folderItemFields, frontmatterExtras, isRootIndexId, pageIdForRoute, surroundOf, titleFromSegment } from '../shared/utils/runtime-content'
+import {
+  buildNavigationTree,
+  diffManifest,
+  flattenNavigation,
+  folderItemFields,
+  frontmatterExtras,
+  isRootIndexId,
+  pageIdForRoute,
+  surroundOf,
+  titleFromSegment,
+} from '../shared/utils/runtime-content'
 
 const pages = [
   { id: 'index', title: 'Home' },
-  { id: '1.start/1.index', title: 'Start here', navigationIcon: 'i-lucide-rocket' },
+  {
+    id: '1.start/1.index',
+    title: 'Start here',
+    navigationIcon: 'i-lucide-rocket',
+  },
   { id: '1.start/2.install', title: 'Install', description: 'How to install' },
   { id: '1.start/3.secret', title: 'Secret', navigationHidden: true },
   { id: '2.core/01.layers', title: 'Layers' },
@@ -21,7 +35,11 @@ describe('buildNavigationTree', () => {
   })
 
   it('keeps the root index with includeRoot', () => {
-    expect(buildNavigationTree(pages, { includeRoot: true })[0]).toMatchObject({ title: 'Home', path: '/', stem: 'index' })
+    expect(buildNavigationTree(pages, { includeRoot: true })[0]).toMatchObject({
+      title: 'Home',
+      path: '/',
+      stem: 'index',
+    })
   })
 
   it('merges the index page into its folder', () => {
@@ -31,40 +49,77 @@ describe('buildNavigationTree', () => {
       stem: '1.start/1.index',
       icon: 'i-lucide-rocket',
       children: [
-        { title: 'Start here', path: '/start', stem: '1.start/1.index', icon: 'i-lucide-rocket' },
+        {
+          title: 'Start here',
+          path: '/start',
+          stem: '1.start/1.index',
+          icon: 'i-lucide-rocket',
+        },
         { title: 'Install', path: '/start/install', stem: '1.start/2.install' },
       ],
     })
   })
 
   it('makes a placeholder folder with page false and a title from the name', () => {
-    expect(tree[1]).toMatchObject({ title: 'Core', path: '/core', stem: '2.core', page: false })
-    expect(tree[1]!.children!.map((child) => child.title)).toEqual(['Layers', 'Form fields'])
+    expect(tree[1]).toMatchObject({
+      title: 'Core',
+      path: '/core',
+      stem: '2.core',
+      page: false,
+    })
+    expect(tree[1]!.children!.map((child) => child.title)).toEqual([
+      'Layers',
+      'Form fields',
+    ])
   })
 
   it('nests folders', () => {
     const guides = tree[2]!
     expect(guides).toMatchObject({ title: 'Guides', page: false })
-    expect(guides.children![0]).toMatchObject({ title: 'Deep', path: '/guides/deep', page: false })
-    expect(guides.children![0]!.children![0]).toMatchObject({ title: 'One', path: '/guides/deep/one' })
+    expect(guides.children![0]).toMatchObject({
+      title: 'Deep',
+      path: '/guides/deep',
+      page: false,
+    })
+    expect(guides.children![0]!.children![0]).toMatchObject({
+      title: 'One',
+      path: '/guides/deep/one',
+    })
   })
 
   it('uses the route prefix', () => {
-    const prefixed = buildNavigationTree([{ id: '1.a/1.index', title: 'A' }, { id: '1.a/2.b', title: 'B' }], { routePrefix: '/docs' })
+    const prefixed = buildNavigationTree(
+      [
+        { id: '1.a/1.index', title: 'A' },
+        { id: '1.a/2.b', title: 'B' },
+      ],
+      { routePrefix: '/docs' }
+    )
     expect(prefixed[0]).toMatchObject({ path: '/docs/a' })
-    expect(prefixed[0]!.children!.map((child) => child.path)).toEqual(['/docs/a', '/docs/a/b'])
+    expect(prefixed[0]!.children!.map((child) => child.path)).toEqual([
+      '/docs/a',
+      '/docs/a/b',
+    ])
   })
 
   it('adds the description only on request', () => {
     expect(JSON.stringify(tree)).not.toContain('How to install')
-    expect(JSON.stringify(buildNavigationTree(pages, { withDescription: true }))).toContain('How to install')
+    expect(
+      JSON.stringify(buildNavigationTree(pages, { withDescription: true }))
+    ).toContain('How to install')
   })
 
   it('folds an index that comes after its siblings into the placeholder', () => {
-    const late = buildNavigationTree([{ id: '1.a/2.b', title: 'B' }, { id: '1.a/index', title: 'A' }])
+    const late = buildNavigationTree([
+      { id: '1.a/2.b', title: 'B' },
+      { id: '1.a/index', title: 'A' },
+    ])
     expect(late[0]).toMatchObject({ title: 'A', path: '/a' })
     expect(late[0]!.page).toBeUndefined()
-    expect(late[0]!.children!.map((child) => child.path)).toEqual(['/a', '/a/b'])
+    expect(late[0]!.children!.map((child) => child.path)).toEqual([
+      '/a',
+      '/a/b',
+    ])
   })
 })
 
@@ -98,7 +153,9 @@ describe('flattenNavigation and surroundOf', () => {
   })
 
   it('keeps the description of a neighbor', () => {
-    expect(surroundOf(tree, '/start')[1]).toMatchObject({ description: 'How to install' })
+    expect(surroundOf(tree, '/start')[1]).toMatchObject({
+      description: 'How to install',
+    })
   })
 })
 
@@ -117,7 +174,9 @@ describe('pageIdForRoute', () => {
   })
 
   it('uses the route prefix', () => {
-    expect(pageIdForRoute(ids, '/docs/core/layers', '/docs')).toBe('2.core/01.layers')
+    expect(pageIdForRoute(ids, '/docs/core/layers', '/docs')).toBe(
+      '2.core/01.layers'
+    )
   })
 })
 
@@ -134,7 +193,11 @@ describe('small helpers', () => {
 })
 
 describe('diffManifest', () => {
-  const manifest = { 'index': 'a1', '1.start/1.install': 'b2', '1.start/2.old': 'c3' }
+  const manifest = {
+    index: 'a1',
+    '1.start/1.install': 'b2',
+    '1.start/2.old': 'c3',
+  }
 
   it('is the same when ids and versions match', () => {
     const diff = diffManifest(manifest, [
@@ -151,7 +214,12 @@ describe('diffManifest', () => {
       { id: '1.start/1.install', version: 'NEW' },
       { id: '2.more/1.page', version: 'd4' },
     ])
-    expect(diff).toEqual({ same: false, changed: ['1.start/1.install'], added: ['2.more/1.page'], removed: ['1.start/2.old'] })
+    expect(diff).toEqual({
+      same: false,
+      changed: ['1.start/1.install'],
+      added: ['2.more/1.page'],
+      removed: ['1.start/2.old'],
+    })
   })
 
   it('counts an entry without a version as changed', () => {
@@ -159,7 +227,10 @@ describe('diffManifest', () => {
   })
 
   it('has no manifest: every page is added', () => {
-    expect(diffManifest(undefined, [{ id: 'a', version: 'x' }])).toMatchObject({ same: false, added: ['a'] })
+    expect(diffManifest(undefined, [{ id: 'a', version: 'x' }])).toMatchObject({
+      same: false,
+      added: ['a'],
+    })
   })
 })
 
@@ -177,17 +248,27 @@ describe('folder configs (.navigation.yml)', () => {
   const tree = buildNavigationTree(withFolders, { folders })
 
   it('keeps the title and the other keys of the config on an index folder', () => {
-    expect(tree[0]).toMatchObject({ title: 'Getting started', icon: 'i-lucide-rocket', path: '/start' })
+    expect(tree[0]).toMatchObject({
+      title: 'Getting started',
+      icon: 'i-lucide-rocket',
+      path: '/start',
+    })
     // The index child keeps the page title.
     expect(tree[0]!.children![0]).toMatchObject({ title: 'Start here' })
   })
 
   it('gives a placeholder folder the title and the icon of the config', () => {
-    expect(tree[1]).toMatchObject({ title: 'The core', icon: 'i-lucide-box', page: false })
+    expect(tree[1]).toMatchObject({
+      title: 'The core',
+      icon: 'i-lucide-box',
+      page: false,
+    })
   })
 
   it('lets the navigation object override the keys', () => {
-    expect(folderItemFields({ title: 'A', icon: 'x', navigation: { title: 'B' } })).toEqual({ title: 'B', icon: 'x' })
+    expect(
+      folderItemFields({ title: 'A', icon: 'x', navigation: { title: 'B' } })
+    ).toEqual({ title: 'B', icon: 'x' })
   })
 
   it('hides a folder with navigation false, with all its pages', () => {
@@ -201,14 +282,25 @@ describe('folder configs (.navigation.yml)', () => {
 
   it('works without configs', () => {
     expect(folderItemFields(undefined)).toEqual({})
-    expect(buildNavigationTree(pages, { folders: {} })).toEqual(buildNavigationTree(pages))
+    expect(buildNavigationTree(pages, { folders: {} })).toEqual(
+      buildNavigationTree(pages)
+    )
   })
 })
 
 describe('frontmatterExtras', () => {
   it('passes unknown keys at the top level and in meta', () => {
-    const { top, meta } = frontmatterExtras({ title: 'T', links: [{ label: 'A' }], layout: 'wide', badge: { label: 'New' } })
-    expect(top).toEqual({ links: [{ label: 'A' }], layout: 'wide', badge: { label: 'New' } })
+    const { top, meta } = frontmatterExtras({
+      title: 'T',
+      links: [{ label: 'A' }],
+      layout: 'wide',
+      badge: { label: 'New' },
+    })
+    expect(top).toEqual({
+      links: [{ label: 'A' }],
+      layout: 'wide',
+      badge: { label: 'New' },
+    })
     expect(meta).toEqual(top)
   })
 

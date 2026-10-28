@@ -27,7 +27,10 @@ export function contentRoutePath(id: string, prefix = ''): string {
  * of the id is URL-encoded, and the slashes stay (like `contentIdPath` in core).
  */
 export function contentEditPath(type: string, id: string): string {
-  const path = String(id).split('/').map((segment) => encodeURIComponent(segment)).join('/')
+  const path = String(id)
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
   return `/admin/content/${encodeURIComponent(type)}/${path}`
 }
 

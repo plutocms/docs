@@ -2,11 +2,21 @@
 // props found in the document into one definition for each component. Pure
 // functions: the caller reads the app config and passes it in.
 
-import type { PlutoBlock, PlutoBlockDefinition, PlutoBlockOverride, PlutoBlockPropDefinition, PlutoBlocksConfig, PlutoBlockSlotDefinition, PlutoComponentBlock } from './types'
+import type {
+  PlutoBlock,
+  PlutoBlockDefinition,
+  PlutoBlockOverride,
+  PlutoBlockPropDefinition,
+  PlutoBlocksConfig,
+  PlutoBlockSlotDefinition,
+  PlutoComponentBlock,
+} from './types'
 import { BLOCK_GROUPS, BLOCK_PRESETS, HIDDEN_PROP_NAMES } from './presets'
 
 /** The definition of a block that a site declares in `app.config.ts`. It gives type help. */
-export function definePlutoBlock<T extends Partial<Omit<PlutoBlockDefinition, 'name'>>>(definition: T): T {
+export function definePlutoBlock<
+  T extends Partial<Omit<PlutoBlockDefinition, 'name'>>,
+>(definition: T): T {
   return definition
 }
 
@@ -24,7 +34,13 @@ export function humanizeName(name: string): string {
 }
 
 function automaticDefinition(name: string): PlutoBlockDefinition {
-  return { name, label: humanizeName(name), icon: 'i-lucide-puzzle', group: 'site', slots: { default: { content: 'blocks' } } }
+  return {
+    name,
+    label: humanizeName(name),
+    icon: 'i-lucide-puzzle',
+    group: 'site',
+    slots: { default: { content: 'blocks' } },
+  }
 }
 
 function propFromValue(value: unknown): PlutoBlockPropDefinition {
@@ -35,14 +51,22 @@ function propFromValue(value: unknown): PlutoBlockPropDefinition {
     return { type: 'number', advanced: true }
   }
   const text = typeof value === 'string' ? value : ''
-  return { type: typeof value === 'string' && !text.includes('\n') ? 'string' : 'text', advanced: true }
+  return {
+    type: typeof value === 'string' && !text.includes('\n') ? 'string' : 'text',
+    advanced: true,
+  }
 }
 
-function isOverrideObject(override: PlutoBlockOverride | undefined): override is Exclude<PlutoBlockOverride, false> {
+function isOverrideObject(
+  override: PlutoBlockOverride | undefined
+): override is Exclude<PlutoBlockOverride, false> {
   return typeof override === 'object' && override !== null
 }
 
-function mergeDefinition(base: PlutoBlockDefinition, override: PlutoBlockOverride | undefined): PlutoBlockDefinition {
+function mergeDefinition(
+  base: PlutoBlockDefinition,
+  override: PlutoBlockOverride | undefined
+): PlutoBlockDefinition {
   if (override === false) {
     return { ...base, hidden: true }
   }
@@ -69,7 +93,10 @@ function slotFromChildren(children: PlutoBlock[]): PlutoBlockSlotDefinition {
  * override over it, and the props and slots of `options.block` that neither
  * lists. Found props go to the Advanced section.
  */
-export function resolveBlockDefinition(name: string, options: ResolveOptions = {}): PlutoBlockDefinition {
+export function resolveBlockDefinition(
+  name: string,
+  options: ResolveOptions = {}
+): PlutoBlockDefinition {
   const base = BLOCK_PRESETS[name] ?? automaticDefinition(name)
   const merged = mergeDefinition(base, options.overrides?.[name])
   const found = options.block?.kind === 'component' ? options.block : undefined
@@ -78,7 +105,10 @@ export function resolveBlockDefinition(name: string, options: ResolveOptions = {
   }
   const props = { ...merged.props }
   for (const [key, value] of Object.entries(found.props)) {
-    if (!(key in props) && !(HIDDEN_PROP_NAMES as readonly string[]).includes(key)) {
+    if (
+      !(key in props) &&
+      !(HIDDEN_PROP_NAMES as readonly string[]).includes(key)
+    ) {
       props[key] = propFromValue(value)
     }
   }
@@ -106,17 +136,28 @@ export interface PaletteGroup {
  * components that only the site config declares. A hidden block, or a block set
  * to `false`, is not in the list.
  */
-export function listPaletteBlocks(overrides: PlutoBlocksConfig = {}): PaletteGroup[] {
-  const names = [...Object.keys(BLOCK_PRESETS), ...Object.keys(overrides).filter((name) => !(name in BLOCK_PRESETS))]
+export function listPaletteBlocks(
+  overrides: PlutoBlocksConfig = {}
+): PaletteGroup[] {
+  const names = [
+    ...Object.keys(BLOCK_PRESETS),
+    ...Object.keys(overrides).filter((name) => !(name in BLOCK_PRESETS)),
+  ]
   const groups = new Map<string, PlutoBlockDefinition[]>()
   for (const name of names) {
     const definition = resolveBlockDefinition(name, { overrides })
     if (definition.hidden) {
       continue
     }
-    groups.set(definition.group, [...(groups.get(definition.group) ?? []), definition])
+    groups.set(definition.group, [
+      ...(groups.get(definition.group) ?? []),
+      definition,
+    ])
   }
   const known = BLOCK_GROUPS as readonly string[]
-  const order = [...known.filter((group) => groups.has(group)), ...[...groups.keys()].filter((group) => !known.includes(group))]
+  const order = [
+    ...known.filter((group) => groups.has(group)),
+    ...[...groups.keys()].filter((group) => !known.includes(group)),
+  ]
   return order.map((group) => ({ group, items: groups.get(group)! }))
 }

@@ -26,12 +26,15 @@ const { t } = usePlutoI18n()
 const touched = ref(false)
 let echo = false
 
-watch(() => props.modelValue, () => {
-  echo = true
-  nextTick(() => {
-    echo = false
-  })
-})
+watch(
+  () => props.modelValue,
+  () => {
+    echo = true
+    nextTick(() => {
+      echo = false
+    })
+  }
+)
 
 function onUpdate(value: string) {
   if (touched.value && !echo && value !== props.modelValue) {
@@ -46,7 +49,14 @@ const items = computed(() => shared.value.slice(1))
 
 <template>
   <!-- The editor root is a bordered box. A click anywhere in the box puts the cursor in the text. -->
-  <div class="w-full" @focusin="touched = true" @keydown.capture="touched = true" @pointerdown.capture="touched = true" @paste.capture="touched = true" @drop.capture="touched = true">
+  <div
+    class="w-full"
+    @focusin="touched = true"
+    @keydown.capture="touched = true"
+    @pointerdown.capture="touched = true"
+    @paste.capture="touched = true"
+    @drop.capture="touched = true"
+  >
     <UEditor
       v-slot="{ editor }"
       :model-value="modelValue"
@@ -58,7 +68,9 @@ const items = computed(() => shared.value.slice(1))
       :ui="{
         root: 'w-full',
         content: compact ? 'min-h-24 cursor-text' : 'min-h-48 cursor-text',
-        base: compact ? 'min-h-24 px-3 py-2 sm:px-3' : 'min-h-48 px-3 py-2 sm:px-3',
+        base: compact
+          ? 'min-h-24 px-3 py-2 sm:px-3'
+          : 'min-h-48 px-3 py-2 sm:px-3',
       }"
       :aria-label="label"
       content-type="markdown"

@@ -2,8 +2,18 @@
 // bytes. The gaps between blocks are always the source text. Only an edited
 // block is built from the model, so one edit changes only the lines of that block.
 
-import type { PlutoBlock, PlutoBlockDoc, PlutoCodeBlock, PlutoComponentBlock } from './types'
-import { completeOrder, isSameProps, renderInlineProps, renderYamlProps } from './mdc-props'
+import type {
+  PlutoBlock,
+  PlutoBlockDoc,
+  PlutoCodeBlock,
+  PlutoComponentBlock,
+} from './types'
+import {
+  completeOrder,
+  isSameProps,
+  renderInlineProps,
+  renderYamlProps,
+} from './mdc-props'
 import { flatChildren } from './tree'
 
 /** Puts the indent before each non-blank line but the first. */
@@ -27,7 +37,13 @@ function renderCode(block: PlutoCodeBlock): string {
       fence = char.repeat(match[1]!.length + 1)
     }
   }
-  const info = [block.lang, block.filename === undefined ? '' : `[${block.filename}]`, block.meta ?? ''].filter(Boolean).join(' ')
+  const info = [
+    block.lang,
+    block.filename === undefined ? '' : `[${block.filename}]`,
+    block.meta ?? '',
+  ]
+    .filter(Boolean)
+    .join(' ')
   const body = block.code === '' ? '' : `\n${block.code}`
   return indentLines(`${fence}${info}${body}\n${fence}`, block.indent ?? '')
 }
@@ -44,9 +60,13 @@ export function renderOpener(block: PlutoComponentBlock): string {
     if (entries.length === 0) {
       return head
     }
-    const fenceIndent = block.yamlHead.slice(block.yamlHead.lastIndexOf('\n') + 1)
+    const fenceIndent = block.yamlHead.slice(
+      block.yamlHead.lastIndexOf('\n') + 1
+    )
     const yamlIndent = block.yamlIndent ?? ''
-    const inner = entries.map((entry) => yamlIndent + indentLines(entry, yamlIndent)).join('\n')
+    const inner = entries
+      .map((entry) => yamlIndent + indentLines(entry, yamlIndent))
+      .join('\n')
     return `${head}${block.yamlHead}---\n${inner}\n${fenceIndent}---`
   }
   const body = renderInlineProps(block.props, order, block.propSource)

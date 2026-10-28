@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import type { PlutoPreviewChild } from '../../../../../shared/utils/blocks/preview-protocol'
-import { previewSelectionId, toPreviewBlocks } from '../../../../../shared/utils/blocks/editor'
+import {
+  previewSelectionId,
+  toPreviewBlocks,
+} from '../../../../../shared/utils/blocks/editor'
 // The live preview of the page: an iframe of `/_pluto/preview` on the same
 // origin. This component sends the blocks to the frame (after 150 ms of
 // quiet), and tells the editor when a block is clicked or hovered in the frame.
 // Both sides check the origin and the shape of every message.
-import { isTrustedPreviewOrigin, parsePreviewMessage, PREVIEW_PATH, previewMessage } from '../../../../../shared/utils/blocks/preview-protocol'
+import {
+  isTrustedPreviewOrigin,
+  parsePreviewMessage,
+  PREVIEW_PATH,
+  previewMessage,
+} from '../../../../../shared/utils/blocks/preview-protocol'
 
 const props = defineProps<{
   frontmatter: Record<string, unknown>
@@ -28,26 +36,44 @@ const frameError = ref<string | null>(null)
 const src = computed(() => router.resolve(PREVIEW_PATH).href)
 // The preview marks the top-level blocks and their inner components. So the selection it shows
 // is the deepest component on the path of the selected block (a text inside a card shows the card).
-const shownId = computed(() => previewSelectionId(editor.doc.value, editor.selectedId.value))
-const blocks = computed(() => toPreviewBlocks(editor.doc.value.blocks, blocksConfig()))
+const shownId = computed(() =>
+  previewSelectionId(editor.doc.value, editor.selectedId.value)
+)
+const blocks = computed(() =>
+  toPreviewBlocks(editor.doc.value.blocks, blocksConfig())
+)
 
 function send(message: ReturnType<typeof previewMessage>) {
   frame.value?.contentWindow?.postMessage(message, window.location.origin)
 }
 
 /** The inner components with a readable label. */
-function translateChildren(children: PlutoPreviewChild[] | undefined): PlutoPreviewChild[] | undefined {
-  return children?.map((child) => ({ ...child, label: child.label ? tx(child.label) : '', children: translateChildren(child.children) }))
+function translateChildren(
+  children: PlutoPreviewChild[] | undefined
+): PlutoPreviewChild[] | undefined {
+  return children?.map((child) => ({
+    ...child,
+    label: child.label ? tx(child.label) : '',
+    children: translateChildren(child.children),
+  }))
 }
 
 /** The blocks with a readable label: the label of a component is an i18n key or a plain text. */
 function messageBlocks() {
   return blocks.value.map((block) => {
-    const source = editor.doc.value.blocks.find((candidate) => candidate.id === block.id)
+    const source = editor.doc.value.blocks.find(
+      (candidate) => candidate.id === block.id
+    )
     return {
       ...block,
-      label: block.label ? tx(block.label) : source ? tx(editor.describe(source).label) : '',
-      ...(block.children ? { children: translateChildren(block.children) } : {}),
+      label: block.label
+        ? tx(block.label)
+        : source
+          ? tx(editor.describe(source).label)
+          : '',
+      ...(block.children
+        ? { children: translateChildren(block.children) }
+        : {}),
     }
   })
 }
@@ -55,8 +81,17 @@ function messageBlocks() {
 function sendRender() {
   // A nested value of the form is a reactive proxy, and `postMessage` cannot clone a proxy.
   // The front matter is YAML data, so a JSON copy is a plain copy.
-  const frontmatter = JSON.parse(JSON.stringify(props.frontmatter)) as Record<string, unknown>
-  send(previewMessage('render', { frontmatter, blocks: messageBlocks(), selectedId: shownId.value }))
+  const frontmatter = JSON.parse(JSON.stringify(props.frontmatter)) as Record<
+    string,
+    unknown
+  >
+  send(
+    previewMessage('render', {
+      frontmatter,
+      blocks: messageBlocks(),
+      selectedId: shownId.value,
+    })
+  )
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -83,7 +118,10 @@ watch(shownId, (id) => {
 })
 
 function onMessage(event: MessageEvent) {
-  if (event.source !== frame.value?.contentWindow || !isTrustedPreviewOrigin(event.origin, window.location.origin)) {
+  if (
+    event.source !== frame.value?.contentWindow ||
+    !isTrustedPreviewOrigin(event.origin, window.location.origin)
+  ) {
     return
   }
   const message = parsePreviewMessage(event.data, 'from-frame')
@@ -163,18 +201,31 @@ defineExpose({ reload })
     >
       <PlutoSkeletonCanvas />
       <div class="absolute inset-x-0 bottom-6 flex justify-center">
-        <div class="flex items-center gap-2 rounded-full bg-elevated px-3.5 py-1.5 text-xs font-medium text-muted shadow-sm ring ring-default">
+        <div
+          class="flex items-center gap-2 rounded-full bg-elevated px-3.5 py-1.5 text-xs font-medium text-muted shadow-sm ring ring-default"
+        >
           <UIcon name="i-lucide-loader-circle" class="size-3.5 animate-spin" />
           {{ t('nuxt-content.editor.previewLoading') }}
         </div>
       </div>
     </div>
 
-    <div v-if="timedOut" class="absolute inset-0 flex items-center justify-center bg-default p-6">
+    <div
+      v-if="timedOut"
+      class="absolute inset-0 flex items-center justify-center bg-default p-6"
+    >
       <UEmpty
         :title="t('nuxt-content.editor.previewFailedTitle')"
         :description="t('nuxt-content.editor.previewFailed')"
-        :actions="[{ label: t('nuxt-content.editor.previewRetry'), icon: 'i-lucide-refresh-cw', color: 'neutral', variant: 'outline', onClick: reload }]"
+        :actions="[
+          {
+            label: t('nuxt-content.editor.previewRetry'),
+            icon: 'i-lucide-refresh-cw',
+            color: 'neutral',
+            variant: 'outline',
+            onClick: reload,
+          },
+        ]"
         icon="i-lucide-triangle-alert"
       />
     </div>

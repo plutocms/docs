@@ -5,10 +5,14 @@
 import { parse } from 'yaml'
 
 /** The parsed file, or `undefined` when the text is empty, is not valid YAML, or is not a map. */
-export function parseNavigationConfig(source: string): Record<string, unknown> | undefined {
+export function parseNavigationConfig(
+  source: string
+): Record<string, unknown> | undefined {
   try {
     const data: unknown = parse(source)
-    return typeof data === 'object' && data !== null && !Array.isArray(data) ? data as Record<string, unknown> : undefined
+    return typeof data === 'object' && data !== null && !Array.isArray(data)
+      ? (data as Record<string, unknown>)
+      : undefined
   } catch {
     return undefined
   }

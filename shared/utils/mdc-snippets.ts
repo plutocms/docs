@@ -13,11 +13,41 @@ export interface MdcSnippet {
 }
 
 export const MDC_SNIPPETS: MdcSnippet[] = [
-  { id: 'note', label: 'nuxt-content.snippets.note', icon: 'i-lucide-info', block: true, text: '::note\nText of the note.\n::' },
-  { id: 'tip', label: 'nuxt-content.snippets.tip', icon: 'i-lucide-lightbulb', block: true, text: '::tip\nText of the tip.\n::' },
-  { id: 'warning', label: 'nuxt-content.snippets.warning', icon: 'i-lucide-triangle-alert', block: true, text: '::warning\nText of the warning.\n::' },
-  { id: 'caution', label: 'nuxt-content.snippets.caution', icon: 'i-lucide-octagon-alert', block: true, text: '::caution\nText of the caution.\n::' },
-  { id: 'callout', label: 'nuxt-content.snippets.callout', icon: 'i-lucide-message-square-quote', block: true, text: '::callout{icon="i-lucide-info" color="primary"}\nText of the callout.\n::' },
+  {
+    id: 'note',
+    label: 'nuxt-content.snippets.note',
+    icon: 'i-lucide-info',
+    block: true,
+    text: '::note\nText of the note.\n::',
+  },
+  {
+    id: 'tip',
+    label: 'nuxt-content.snippets.tip',
+    icon: 'i-lucide-lightbulb',
+    block: true,
+    text: '::tip\nText of the tip.\n::',
+  },
+  {
+    id: 'warning',
+    label: 'nuxt-content.snippets.warning',
+    icon: 'i-lucide-triangle-alert',
+    block: true,
+    text: '::warning\nText of the warning.\n::',
+  },
+  {
+    id: 'caution',
+    label: 'nuxt-content.snippets.caution',
+    icon: 'i-lucide-octagon-alert',
+    block: true,
+    text: '::caution\nText of the caution.\n::',
+  },
+  {
+    id: 'callout',
+    label: 'nuxt-content.snippets.callout',
+    icon: 'i-lucide-message-square-quote',
+    block: true,
+    text: '::callout{icon="i-lucide-info" color="primary"}\nText of the callout.\n::',
+  },
   {
     id: 'code-group',
     label: 'nuxt-content.snippets.codeGroup',
@@ -60,7 +90,25 @@ export const MDC_SNIPPETS: MdcSnippet[] = [
     block: true,
     text: '::field-group\n  :::field{name="name" type="string" required}\n  Text of the field.\n  :::\n::',
   },
-  { id: 'kbd', label: 'nuxt-content.snippets.kbd', icon: 'i-lucide-keyboard', block: false, text: ':kbd{value="Ctrl"}' },
-  { id: 'icon', label: 'nuxt-content.snippets.icon', icon: 'i-lucide-smile', block: false, text: ':icon{name="i-lucide-rocket"}' },
-  { id: 'code-file', label: 'nuxt-content.snippets.codeFile', icon: 'i-lucide-file-code', block: true, text: '```ts [file.ts]\nconst value = 1\n```' },
+  {
+    id: 'kbd',
+    label: 'nuxt-content.snippets.kbd',
+    icon: 'i-lucide-keyboard',
+    block: false,
+    text: ':kbd{value="Ctrl"}',
+  },
+  {
+    id: 'icon',
+    label: 'nuxt-content.snippets.icon',
+    icon: 'i-lucide-smile',
+    block: false,
+    text: ':icon{name="i-lucide-rocket"}',
+  },
+  {
+    id: 'code-file',
+    label: 'nuxt-content.snippets.codeFile',
+    icon: 'i-lucide-file-code',
+    block: true,
+    text: '```ts [file.ts]\nconst value = 1\n```',
+  },
 ]

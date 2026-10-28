@@ -24,17 +24,17 @@ and in Nitro.
 In the `canvas` layout, `region` does not matter: every field but the body is in the Page tab, in
 the order of `order`.
 
-| Field | Type | Frontmatter key | Region |
-| --- | --- | --- | --- |
-| `title` | text, required | `title` | side |
-| `slug` | slug, required | none (the file path) | side |
-| `description` | textarea | `description` | side |
-| `body` | richtext, `widget: 'mdc'`, `editor: 'visual'` | none (the file body) | main (the canvas) |
-| `navigationTitle` | text | `navigation.title` | side |
-| `navigationIcon` | text | `navigation.icon` | side |
-| `navigationHidden` | boolean | `navigation: false` | side |
-| `seoTitle` | text | `seo.title` | side |
-| `seoDescription` | textarea | `seo.description` | side |
+| Field              | Type                                          | Frontmatter key      | Region            |
+| ------------------ | --------------------------------------------- | -------------------- | ----------------- |
+| `title`            | text, required                                | `title`              | side              |
+| `slug`             | slug, required                                | none (the file path) | side              |
+| `description`      | textarea                                      | `description`        | side              |
+| `body`             | richtext, `widget: 'mdc'`, `editor: 'visual'` | none (the file body) | main (the canvas) |
+| `navigationTitle`  | text                                          | `navigation.title`   | side              |
+| `navigationIcon`   | text                                          | `navigation.icon`    | side              |
+| `navigationHidden` | boolean                                       | `navigation: false`  | side              |
+| `seoTitle`         | text                                          | `seo.title`          | side              |
+| `seoDescription`   | textarea                                      | `seo.description`    | side              |
 
 - The slug field holds the whole id, a path. A new path moves the file in one commit. It is never
   a frontmatter key, because Nuxt Content reserves `path`.

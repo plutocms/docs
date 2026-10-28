@@ -13,7 +13,9 @@ const FENCE = /^\s*(`{3,}|~{3,})/
 const YAML_FENCE = /^\s*---\s*$/
 
 /** One kind (or `undefined`) for each line of `text`, in order. */
-export function mdcLineKinds(text: string): Array<PlutoMdcLineKind | undefined> {
+export function mdcLineKinds(
+  text: string
+): Array<PlutoMdcLineKind | undefined> {
   const lines = text.split('\n')
   const kinds: Array<PlutoMdcLineKind | undefined> = []
   let fence: string | null = null
@@ -22,7 +24,10 @@ export function mdcLineKinds(text: string): Array<PlutoMdcLineKind | undefined> 
   for (const line of lines) {
     if (fence) {
       kinds.push('code')
-      if (line.trim().startsWith(fence) && !line.trim().slice(fence.length).trim()) {
+      if (
+        line.trim().startsWith(fence) &&
+        !line.trim().slice(fence.length).trim()
+      ) {
         fence = null
       }
       continue

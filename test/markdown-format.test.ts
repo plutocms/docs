@@ -34,7 +34,9 @@ describe('inline formats', () => {
 
 describe('links', () => {
   it('selects the URL after a link around the selection', () => {
-    expect(apply('see [the docs] now', 'link')).toBe('see [the docs]([https://]) now')
+    expect(apply('see [the docs] now', 'link')).toBe(
+      'see [the docs]([https://]) now'
+    )
   })
 
   it('selects the text of a new link', () => {
@@ -49,11 +51,15 @@ describe('line formats', () => {
   })
 
   it('numbers the lines, and changes a bullet to a number', () => {
-    expect(apply('[one\n- two\n\nthree]', 'number')).toBe('[1. one\n2. two\n\n3. three]')
+    expect(apply('[one\n- two\n\nthree]', 'number')).toBe(
+      '[1. one\n2. two\n\n3. three]'
+    )
   })
 
   it('uses the whole line of a caret', () => {
-    expect(apply('first\nsec[]ond\nlast', 'quote')).toBe('first\n[> second]\nlast')
+    expect(apply('first\nsec[]ond\nlast', 'quote')).toBe(
+      'first\n[> second]\nlast'
+    )
   })
 
   it('cycles the heading level', () => {
@@ -74,8 +80,16 @@ describe('line formats', () => {
 
 describe('minimalChange', () => {
   it('keeps the same start and end', () => {
-    expect(minimalChange('abcXdef', 'abcYYdef')).toEqual({ from: 3, to: 4, insert: 'YY' })
-    expect(minimalChange('same', 'same')).toEqual({ from: 4, to: 4, insert: '' })
+    expect(minimalChange('abcXdef', 'abcYYdef')).toEqual({
+      from: 3,
+      to: 4,
+      insert: 'YY',
+    })
+    expect(minimalChange('same', 'same')).toEqual({
+      from: 4,
+      to: 4,
+      insert: '',
+    })
   })
 })
 
@@ -116,6 +130,12 @@ describe('mdcLineKinds', () => {
   })
 
   it('does not take a heading or a rule for a slot or props', () => {
-    expect(mdcLineKinds('# Title\n\n---\n\nText')).toEqual([undefined, undefined, undefined, undefined, undefined])
+    expect(mdcLineKinds('# Title\n\n---\n\nText')).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ])
   })
 })
