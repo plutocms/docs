@@ -6,7 +6,7 @@
 //   the left and the controls of the selected block at the right. It needs the
 //   'canvas' form layout (the docs type uses it) and loads on demand, so
 //   Tiptap and the remark parser stay out of the other admin pages.
-// - Markdown: `PlutoMdcCodeEditor` (CodeMirror: the author sees all the MDC,
+// - Markdown: `PlutoMarkdownCodeEditor` of core (CodeMirror: the author sees all the MDC,
 //   with the format shown as they type, quick formats and an Insert menu). In a canvas form the live preview shows at
 //   its side, and a click on a block in the preview goes to that block in the
 //   Markdown (PlutoBlockMarkdownSplit, loaded on demand too).
@@ -36,12 +36,6 @@ const loadingComponent = () =>
   ])
 const PlutoBlockEditor = defineAsyncComponent({
   loader: () => import('./Blocks/PlutoBlockEditor.vue'),
-  loadingComponent,
-  delay: 120,
-})
-// The Markdown editor (CodeMirror) loads on demand too, so the Visual mode does not load it.
-const PlutoMdcCodeEditor = defineAsyncComponent({
-  loader: () => import('./PlutoMdcCodeEditor.vue'),
   loadingComponent,
   delay: 120,
 })
@@ -107,7 +101,8 @@ function setMode(next: Mode) {
     :description="field.description"
     :required="field.required"
   >
-    <PlutoMdcCodeEditor
+    <!-- The core editor (CodeMirror) loads on demand, so the Visual mode does not load it. -->
+    <LazyPlutoMarkdownCodeEditor
       :model-value="value"
       :disabled="disabled"
       :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
@@ -117,6 +112,6 @@ function setMode(next: Mode) {
       <template #toolbar="{ insert }">
         <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
       </template>
-    </PlutoMdcCodeEditor>
+    </LazyPlutoMarkdownCodeEditor>
   </UFormField>
 </template>

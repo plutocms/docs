@@ -5,11 +5,11 @@
 // The preview is the frame of the visual editor, so it renders with the site
 // parser. A click on a block in the preview selects the first line of that
 // block in the Markdown and scrolls to it. The Markdown editor is
-// PlutoMdcCodeEditor (CodeMirror). The Markdown is the only editor
+// PlutoMarkdownCodeEditor of core (CodeMirror). The Markdown is the only editor
 // here: the block model only feeds the preview and never writes.
 import type { SplitterItem } from '@nuxt/ui'
+import type { PlutoMarkdownCodeEditor as CodeEditor } from '#components'
 import { findBlock } from '../../../../../shared/utils/blocks/tree'
-import PlutoMdcCodeEditor from '../PlutoMdcCodeEditor.vue'
 import PlutoMdcInsertMenu from '../PlutoMdcInsertMenu.vue'
 import PlutoBlockModeSwitch from './PlutoBlockModeSwitch.vue'
 import PlutoBlockPreviewFrame from './PlutoBlockPreviewFrame.vue'
@@ -45,7 +45,7 @@ const frontmatter = computed<Record<string, unknown>>(() => {
   )
 })
 
-const code = useTemplateRef<InstanceType<typeof PlutoMdcCodeEditor>>('code')
+const code = useTemplateRef<InstanceType<typeof CodeEditor>>('code')
 
 // --- The split ---------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ watch(
     <template #source>
       <div class="flex size-full min-h-0 flex-col">
         <div class="min-h-0 flex-1 p-4">
-          <PlutoMdcCodeEditor
+          <PlutoMarkdownCodeEditor
             ref="code"
             :model-value="modelValue"
             :disabled="disabled"
@@ -134,7 +134,7 @@ watch(
             <template #toolbar="{ insert }">
               <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
             </template>
-          </PlutoMdcCodeEditor>
+          </PlutoMarkdownCodeEditor>
         </div>
         <div
           class="flex shrink-0 items-center justify-between gap-2 border-t border-default px-3 py-2"
