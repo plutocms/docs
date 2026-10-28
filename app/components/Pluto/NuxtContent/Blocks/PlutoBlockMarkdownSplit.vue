@@ -98,24 +98,27 @@ watch(() => editor.selection.value, (selection) => {
     @layout="onLayout"
     @dragging="onDragging"
   >
+    <!-- The source pane: the code editor, and the mode switch in a fixed footer, as in the Visual mode. -->
     <template #source>
-      <div class="size-full p-4">
-        <PlutoMdcCodeEditor
-          ref="code"
-          :model-value="modelValue"
-          :disabled="disabled"
-          :placeholder="placeholder"
-          :aria-label="label"
-          fill
-          @update:model-value="emit('update:modelValue', $event)"
-        >
-          <template #toolbar="{ insert }">
-            <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
-          </template>
-          <template #toolbar-end>
-            <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
-          </template>
-        </PlutoMdcCodeEditor>
+      <div class="flex size-full min-h-0 flex-col">
+        <div class="min-h-0 flex-1 p-4">
+          <PlutoMdcCodeEditor
+            ref="code"
+            :model-value="modelValue"
+            :disabled="disabled"
+            :placeholder="placeholder"
+            :aria-label="label"
+            fill
+            @update:model-value="emit('update:modelValue', $event)"
+          >
+            <template #toolbar="{ insert }">
+              <PlutoMdcInsertMenu :insert="insert" :disabled="disabled" />
+            </template>
+          </PlutoMdcCodeEditor>
+        </div>
+        <div class="flex shrink-0 items-center justify-between gap-2 border-t border-default px-3 py-2">
+          <PlutoBlockModeSwitch :mode="mode" :disabled="disabled" @update:mode="emit('update:mode', $event)" />
+        </div>
       </div>
     </template>
 
