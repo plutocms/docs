@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.0](https://github.com/plutocms/nuxt-content/compare/v0.9.0...v0.10.0) (2026-10-28)
+
+
+### Features
+
+* **editor:** show the block row controls on hover ([#30](https://github.com/plutocms/nuxt-content/issues/30)) ([5a2faf5](https://github.com/plutocms/nuxt-content/commit/5a2faf56461cc944670931eafea1cbac705623a4))
+
+
+### Bug Fixes
+
+* **deps:** use @plutocms/pluto 0.29 ([#32](https://github.com/plutocms/nuxt-content/issues/32)) ([423c6db](https://github.com/plutocms/nuxt-content/commit/423c6dba402f67ad8306651e377c5697041d9ddb))
+
 ## [0.9.0](https://github.com/plutocms/nuxt-content/compare/v0.8.0...v0.9.0) (2026-10-27)
 
 
