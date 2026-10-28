@@ -96,7 +96,7 @@ watch(() => editor.selection.value, (selection) => {
       // and the 6px haze-400 bar: it fades in after 300ms of hover, and shows at
       // once while dragging. In both directions. The `!` keeps the duration and
       // the delay against the no-transition rule of the admin (core pluto-layer.css).
-      handle: 'bg-(--ui-border) data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px before:absolute before:z-10 before:transition-colors before:duration-150! hover:before:bg-haze-400 hover:before:delay-300! data-[resize-handle-state=drag]:before:bg-haze-400 data-[resize-handle-state=drag]:before:delay-0! data-[orientation=horizontal]:before:inset-y-0 data-[orientation=horizontal]:before:-inset-x-[2.5px] data-[orientation=vertical]:before:inset-x-0 data-[orientation=vertical]:before:-inset-y-[2.5px]',
+      handle: 'bg-(--ui-border) data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px before:absolute before:z-10 before:transition-colors before:duration-150! hover:before:bg-haze-400 hover:before:delay-300! data-[resize-handle-state=drag]:before:bg-haze-400 data-[resize-handle-state=drag]:before:delay-0! data-[orientation=horizontal]:before:inset-y-0 data-[orientation=horizontal]:before:inset-x-[-2.5px] data-[orientation=vertical]:before:inset-x-0 data-[orientation=vertical]:before:inset-y-[-2.5px]',
     }"
     data-block-canvas
     @layout="onLayout"

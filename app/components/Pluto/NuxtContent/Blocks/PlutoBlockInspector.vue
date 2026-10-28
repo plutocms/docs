@@ -313,7 +313,7 @@ function applyRaw(markdown: string) {
             :disabled="disabled"
             :rows="10"
             :maxrows="28"
-            :ui="{ base: 'font-mono text-sm leading-6' }"
+            :ui="{ base: 'font-mono text-sm/6' }"
             spellcheck="false"
             autocomplete="off"
             autocapitalize="off"
