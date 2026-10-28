@@ -4,7 +4,10 @@
 // friendly content and selects it. The editor state holds the open flag and
 // the target, so the outline, the inspector and a shortcut can open it.
 import type { CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
-import { acceptedNames, buildPalette } from '../../../../../shared/utils/blocks/editor'
+import {
+  acceptedNames,
+  buildPalette,
+} from '../../../../../shared/utils/blocks/editor'
 import { groupLabelKey } from '../../../../../shared/utils/blocks/presets'
 import { findBlock } from '../../../../../shared/utils/blocks/tree'
 
@@ -25,9 +28,13 @@ const accepts = computed(() => {
   if (target?.parentId === undefined) {
     return undefined
   }
-  const parent = editor.doc.value.blocks.length ? findBlockById(target.parentId) : undefined
+  const parent = editor.doc.value.blocks.length
+    ? findBlockById(target.parentId)
+    : undefined
   const definition = parent ? editor.definitionOf(parent) : undefined
-  return definition ? acceptedNames(definition, target.slot ?? 'default') : undefined
+  return definition
+    ? acceptedNames(definition, target.slot ?? 'default')
+    : undefined
 })
 
 function findBlockById(id: string) {
@@ -64,7 +71,7 @@ const groups = computed<CommandPaletteGroup[]>(() =>
         :groups="groups"
         :placeholder="t('nuxt-content.editor.searchBlocks')"
         :close="true"
-        class="h-[28rem] max-h-[80dvh]"
+        class="h-112 max-h-[80dvh]"
         @update:open="open = $event"
       >
         <template #empty>

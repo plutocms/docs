@@ -8,15 +8,21 @@ const props = defineProps<{
 
 const { t } = usePlutoI18n()
 
-const items = computed(() => MDC_SNIPPETS.map((snippet) => ({
-  label: t(snippet.label),
-  icon: snippet.icon,
-  onSelect: () => props.insert(snippet.text, { block: snippet.block }),
-})))
+const items = computed(() =>
+  MDC_SNIPPETS.map((snippet) => ({
+    label: t(snippet.label),
+    icon: snippet.icon,
+    onSelect: () => props.insert(snippet.text, { block: snippet.block }),
+  }))
+)
 </script>
 
 <template>
-  <UDropdownMenu :items="items" :content="{ align: 'start' }" :disabled="disabled">
+  <UDropdownMenu
+    :items="items"
+    :content="{ align: 'start' }"
+    :disabled="disabled"
+  >
     <UButton
       :label="t('nuxt-content.mdc.insert')"
       :disabled="disabled"

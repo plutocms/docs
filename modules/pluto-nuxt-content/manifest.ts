@@ -15,7 +15,15 @@ export type TypeManifest = Record<string, string>
 export type ContentManifest = Record<string, TypeManifest>
 
 /** The same dirs that the CMS fs store skips. */
-const SKIPPED_DIRS = new Set(['node_modules', '.nuxt', '.output', '.data', '.nitro', '.cache', 'dist'])
+const SKIPPED_DIRS = new Set([
+  'node_modules',
+  '.nuxt',
+  '.output',
+  '.data',
+  '.nitro',
+  '.cache',
+  'dist',
+])
 const SEGMENT_PATTERN = /^(?:\d+\.)?[a-z0-9]+(?:-[a-z0-9]+)*$/
 const MAX_SEGMENTS = 6
 const MAX_ID_LENGTH = 255
@@ -23,7 +31,10 @@ const MAX_ID_LENGTH = 255
 /** The Git blob id of a text: sha1 of `blob <byteLength>\0` and the UTF-8 bytes. Core does the same. */
 export function gitBlobSha(text: string): string {
   const bytes = Buffer.from(text, 'utf8')
-  return createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex')
+  return createHash('sha1')
+    .update(`blob ${bytes.length}\0`)
+    .update(bytes)
+    .digest('hex')
 }
 
 /**
@@ -39,15 +50,23 @@ export function versionOf(text: string, storage: string): string {
 }
 
 /** Whether a content id is one that the CMS lists: 1 to 6 safe segments, and not excluded. */
-export function isListedId(id: string, exclude: readonly string[] = []): boolean {
+export function isListedId(
+  id: string,
+  exclude: readonly string[] = []
+): boolean {
   if (id.length === 0 || id.length > MAX_ID_LENGTH) {
     return false
   }
   const segments = id.split('/')
-  if (segments.length > MAX_SEGMENTS || segments.some((segment) => !SEGMENT_PATTERN.test(segment))) {
+  if (
+    segments.length > MAX_SEGMENTS ||
+    segments.some((segment) => !SEGMENT_PATTERN.test(segment))
+  ) {
     return false
   }
-  return !exclude.some((entry) => entry.endsWith('/') ? id.startsWith(entry) : id === entry)
+  return !exclude.some((entry) =>
+    entry.endsWith('/') ? id.startsWith(entry) : id === entry
+  )
 }
 
 /** One file in memory: the path is relative to the type folder, with `/`. */
@@ -57,9 +76,14 @@ export interface ManifestFile {
 }
 
 /** Builds the manifest of one type from its files. A file that is not a listed `.md` page is skipped. */
-export function buildTypeManifest(files: ManifestFile[], options: { storage: string, exclude?: readonly string[] }): TypeManifest {
+export function buildTypeManifest(
+  files: ManifestFile[],
+  options: { storage: string; exclude?: readonly string[] }
+): TypeManifest {
   const manifest: TypeManifest = {}
-  for (const file of [...files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))) {
+  for (const file of [...files].sort((a, b) =>
+    a.path < b.path ? -1 : a.path > b.path ? 1 : 0
+  )) {
     if (!file.path.endsWith('.md')) {
       continue
     }
@@ -112,11 +136,19 @@ export interface ManifestTypeInput {
 }
 
 /** Builds the manifest of every type. `contentDir` is the absolute path of the CMS content dir. */
-export function buildContentManifest(types: ManifestTypeInput[], options: { contentDir: string, storage: string }): ContentManifest {
+export function buildContentManifest(
+  types: ManifestTypeInput[],
+  options: { contentDir: string; storage: string }
+): ContentManifest {
   const manifest: ContentManifest = {}
   for (const type of types) {
-    const folder = type.source ? join(options.contentDir, type.source) : options.contentDir
-    manifest[type.name] = buildTypeManifest(readTypeFiles(folder), { storage: options.storage, exclude: type.exclude })
+    const folder = type.source
+      ? join(options.contentDir, type.source)
+      : options.contentDir
+    manifest[type.name] = buildTypeManifest(readTypeFiles(folder), {
+      storage: options.storage,
+      exclude: type.exclude,
+    })
   }
   return manifest
 }

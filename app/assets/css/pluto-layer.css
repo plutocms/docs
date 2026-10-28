@@ -25,7 +25,9 @@
 }
 
 :root[data-pluto-admin-bar]:not([data-pluto-admin]) {
-  --ui-header-height: calc(var(--pluto-site-header-height) + var(--pluto-admin-bar-height));
+  --ui-header-height: calc(
+    var(--pluto-site-header-height) + var(--pluto-admin-bar-height)
+  );
 }
 
 :root[data-pluto-admin-bar]:not([data-pluto-admin]) body {

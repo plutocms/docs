@@ -13,7 +13,7 @@ export interface PlutoHistory<T> {
   present: T
   future: T[]
   /** The key and the time of the last push, to join typing in one block. */
-  last?: { key: string, at: number }
+  last?: { key: string; at: number }
 }
 
 export interface PlutoHistoryOptions {
@@ -38,13 +38,24 @@ export function canRedo(history: PlutoHistory<unknown>): boolean {
  * `key` (for example the id of a block), a push with the same key within
  * `mergeMs` of the last push replaces the present, so it is one undo step.
  */
-export function pushHistory<T>(history: PlutoHistory<T>, state: T, now: number, key?: string, options: PlutoHistoryOptions = {}): PlutoHistory<T> {
+export function pushHistory<T>(
+  history: PlutoHistory<T>,
+  state: T,
+  now: number,
+  key?: string,
+  options: PlutoHistoryOptions = {}
+): PlutoHistory<T> {
   if (state === history.present) {
     return history
   }
   const limit = options.limit ?? HISTORY_LIMIT
   const mergeMs = options.mergeMs ?? HISTORY_MERGE_MS
-  const merge = key !== undefined && history.last?.key === key && now - history.last.at <= mergeMs && history.past.length > 0 && history.future.length === 0
+  const merge =
+    key !== undefined &&
+    history.last?.key === key &&
+    now - history.last.at <= mergeMs &&
+    history.past.length > 0 &&
+    history.future.length === 0
   const last = key === undefined ? undefined : { key, at: now }
   if (merge) {
     return { ...history, present: state, last }
@@ -62,7 +73,11 @@ export function undo<T>(history: PlutoHistory<T>): PlutoHistory<T> {
     return history
   }
   const past = history.past.slice(0, -1)
-  return { past, present: history.past.at(-1)!, future: [history.present, ...history.future] }
+  return {
+    past,
+    present: history.past.at(-1)!,
+    future: [history.present, ...history.future],
+  }
 }
 
 export function redo<T>(history: PlutoHistory<T>): PlutoHistory<T> {

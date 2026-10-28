@@ -51,7 +51,7 @@ export interface PlutoComponentBlock extends PlutoBlockBase {
    * The source of each prop, for a prop that has not changed. The key is a
    * prop name. The value is the text of the token, or of the YAML entry.
    */
-  propSource: Record<string, { value: PlutoPropValue, text: string }>
+  propSource: Record<string, { value: PlutoPropValue; text: string }>
   /** The colons of the opening line. */
   colons: number
   /** The slots in the order of the source. `default` is the content before the first `#name`. */
@@ -69,7 +69,8 @@ export interface PlutoComponentBlock extends PlutoBlockBase {
   yamlIndent?: string
 }
 
-export type PlutoRawReason = 'table' | 'html' | 'inline-mdc' | 'footnote' | 'task-list' | 'unknown'
+export type PlutoRawReason =
+  'table' | 'html' | 'inline-mdc' | 'footnote' | 'task-list' | 'unknown'
 
 export interface PlutoRawBlock extends PlutoBlockBase {
   kind: 'raw'
@@ -77,7 +78,8 @@ export interface PlutoRawBlock extends PlutoBlockBase {
   reason: PlutoRawReason
 }
 
-export type PlutoBlock = PlutoTextBlock | PlutoCodeBlock | PlutoComponentBlock | PlutoRawBlock
+export type PlutoBlock =
+  PlutoTextBlock | PlutoCodeBlock | PlutoComponentBlock | PlutoRawBlock
 
 export interface PlutoBlockDoc {
   blocks: PlutoBlock[]
@@ -96,7 +98,15 @@ export interface PlutoBlockLocation {
 
 // Block definitions: what the editor shows for a component.
 
-export type PlutoBlockPropType = 'string' | 'text' | 'boolean' | 'number' | 'select' | 'icon' | 'color' | 'link'
+export type PlutoBlockPropType =
+  | 'string'
+  | 'text'
+  | 'boolean'
+  | 'number'
+  | 'select'
+  | 'icon'
+  | 'color'
+  | 'link'
 
 export interface PlutoBlockPropOption {
   value: string
@@ -149,6 +159,7 @@ export interface PlutoBlockDefinition {
 }
 
 /** A site override: a partial definition, or `false` to hide the block from the palette. */
-export type PlutoBlockOverride = Partial<Omit<PlutoBlockDefinition, 'name'>> | false
+export type PlutoBlockOverride =
+  Partial<Omit<PlutoBlockDefinition, 'name'>> | false
 
 export type PlutoBlocksConfig = Record<string, PlutoBlockOverride>

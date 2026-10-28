@@ -32,7 +32,9 @@ describe('block model corpus', () => {
     for (const { body } of corpusBodies()) {
       walkBlocks(parseBlocks(body).blocks, (block) => {
         expect(block.original, block.id).toBeDefined()
-        expect(body.slice(block.original!.start, block.original!.end)).toBe(block.original!.text)
+        expect(body.slice(block.original!.start, block.original!.end)).toBe(
+          block.original!.text
+        )
       })
     }
   })

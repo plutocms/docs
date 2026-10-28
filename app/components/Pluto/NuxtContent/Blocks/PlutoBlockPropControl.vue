@@ -23,7 +23,8 @@ const emit = defineEmits<{
 const { t, tx } = usePlutoI18n()
 
 const DEFAULT = '__default__'
-type ChipColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
+type ChipColor =
+  'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 const COLOR_CHIPS: Record<string, ChipColor> = {
   primary: 'primary',
   secondary: 'secondary',
@@ -34,26 +35,49 @@ const COLOR_CHIPS: Record<string, ChipColor> = {
   neutral: 'neutral',
 }
 
-const label = computed(() => (props.definition.label ? tx(props.definition.label) : humanizeName(props.name)))
-const description = computed(() => (props.definition.description ? tx(props.definition.description) : undefined))
+const label = computed(() =>
+  props.definition.label ? tx(props.definition.label) : humanizeName(props.name)
+)
+const description = computed(() =>
+  props.definition.description ? tx(props.definition.description) : undefined
+)
 
-const isStructured = computed(() => typeof props.modelValue === 'object' && props.modelValue !== null)
-const type = computed(() => (isStructured.value ? 'yaml' : props.definition.type))
+const isStructured = computed(
+  () => typeof props.modelValue === 'object' && props.modelValue !== null
+)
+const type = computed(() =>
+  isStructured.value ? 'yaml' : props.definition.type
+)
 
-const text = computed(() => (props.modelValue === undefined || props.modelValue === null ? '' : String(props.modelValue)))
+const text = computed(() =>
+  props.modelValue === undefined || props.modelValue === null
+    ? ''
+    : String(props.modelValue)
+)
 
 function setText(value: string | undefined) {
-  emit('update:modelValue', value === undefined || value === '' ? undefined : value)
+  emit(
+    'update:modelValue',
+    value === undefined || value === '' ? undefined : value
+  )
 }
 
 function setBoolean(value: boolean) {
   // Off removes the prop. An explicit `false` in the source stays false.
-  emit('update:modelValue', value ? true : (props.modelValue === false ? false : undefined))
+  emit(
+    'update:modelValue',
+    value ? true : props.modelValue === false ? false : undefined
+  )
 }
 
 const numberValue = computed(() => {
-  const value = typeof props.modelValue === 'number' ? props.modelValue : Number(props.modelValue)
-  return props.modelValue === undefined || Number.isNaN(value) ? undefined : value
+  const value =
+    typeof props.modelValue === 'number'
+      ? props.modelValue
+      : Number(props.modelValue)
+  return props.modelValue === undefined || Number.isNaN(value)
+    ? undefined
+    : value
 })
 
 const selectItems = computed(() => {
@@ -69,40 +93,57 @@ const selectItems = computed(() => {
   return [{ value: DEFAULT, label: t('nuxt-content.editor.default') }, ...items]
 })
 
-const colorItems = computed(() => selectItems.value.map((item) => (COLOR_CHIPS[item.value] ? { ...item, chip: { color: COLOR_CHIPS[item.value] } } : item)))
+const colorItems = computed(() =>
+  selectItems.value.map((item) =>
+    COLOR_CHIPS[item.value]
+      ? { ...item, chip: { color: COLOR_CHIPS[item.value] } }
+      : item
+  )
+)
 
 function setSelect(value: string) {
   emit('update:modelValue', value === DEFAULT ? undefined : value)
 }
 
 // YAML for an object or a list. The text applies when the box loses the focus and the YAML is valid.
-const yamlDraft = ref(isStructured.value ? stringify(props.modelValue).trimEnd() : '')
+const yamlDraft = ref(
+  isStructured.value ? stringify(props.modelValue).trimEnd() : ''
+)
 const yamlError = ref<string | null>(null)
 
-watch(() => props.modelValue, (value) => {
-  if (typeof value === 'object' && value !== null) {
-    try {
-      if (JSON.stringify(parse(yamlDraft.value)) === JSON.stringify(value)) {
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (typeof value === 'object' && value !== null) {
+      try {
+        if (JSON.stringify(parse(yamlDraft.value)) === JSON.stringify(value)) {
+          return
+        }
+      } catch {
         return
       }
-    } catch {
-      return
+      yamlDraft.value = stringify(value).trimEnd()
     }
-    yamlDraft.value = stringify(value).trimEnd()
   }
-})
+)
 
 function applyYaml() {
   try {
-    const value = yamlDraft.value.trim() === '' ? undefined : parse(yamlDraft.value)
+    const value =
+      yamlDraft.value.trim() === '' ? undefined : parse(yamlDraft.value)
     yamlError.value = null
     emit('update:modelValue', value)
   } catch (error) {
-    yamlError.value = error instanceof Error ? error.message.split('\n')[0]! : String(error)
+    yamlError.value =
+      error instanceof Error ? error.message.split('\n')[0]! : String(error)
   }
 }
 
-const iconPreview = computed(() => (text.value.startsWith('i-') || text.value.includes(':') ? text.value : undefined))
+const iconPreview = computed(() =>
+  text.value.startsWith('i-') || text.value.includes(':')
+    ? text.value
+    : undefined
+)
 </script>
 
 <template>

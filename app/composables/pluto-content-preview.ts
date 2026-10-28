@@ -8,7 +8,9 @@ export interface PlutoPreviewRenderOptions {
   components?: Record<string, string>
 }
 
-export const plutoPreviewRenderKey: InjectionKey<MaybeRefOrGetter<PlutoPreviewRenderOptions>> = Symbol('pluto-preview-render')
+export const plutoPreviewRenderKey: InjectionKey<
+  MaybeRefOrGetter<PlutoPreviewRenderOptions>
+> = Symbol('pluto-preview-render')
 
 /**
  * Sets how the blocks render in the preview of the visual editor. Call it in
@@ -20,6 +22,8 @@ export const plutoPreviewRenderKey: InjectionKey<MaybeRefOrGetter<PlutoPreviewRe
  * usePlutoPreviewRender(() => (props.frontmatter.id === 'index' ? { prose: false } : {}))
  * ```
  */
-export function usePlutoPreviewRender(options: MaybeRefOrGetter<PlutoPreviewRenderOptions>) {
+export function usePlutoPreviewRender(
+  options: MaybeRefOrGetter<PlutoPreviewRenderOptions>
+) {
   provide(plutoPreviewRenderKey, options)
 }

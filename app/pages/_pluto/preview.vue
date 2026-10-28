@@ -12,8 +12,16 @@ import type { MDCElement, MDCNode, MDCRoot } from '@nuxtjs/mdc'
 import type { CSSProperties } from 'vue'
 import type { PlutoPreviewBlock as PreviewBlockData } from '../../../shared/utils/blocks/preview-protocol'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
-import { markPreviewChildren, PREVIEW_BLOCK_ATTRIBUTE, previewParents } from '../../../shared/utils/blocks/preview-marks'
-import { isTrustedPreviewOrigin, parsePreviewMessage, previewMessage } from '../../../shared/utils/blocks/preview-protocol'
+import {
+  markPreviewChildren,
+  PREVIEW_BLOCK_ATTRIBUTE,
+  previewParents,
+} from '../../../shared/utils/blocks/preview-marks'
+import {
+  isTrustedPreviewOrigin,
+  parsePreviewMessage,
+  previewMessage,
+} from '../../../shared/utils/blocks/preview-protocol'
 import PlutoPreviewBlock from '../../components/Pluto/NuxtContent/Blocks/PlutoPreviewBlock.vue'
 
 definePageMeta({ layout: false, plutoAdminBar: false })
@@ -25,9 +33,22 @@ useHead({
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
   // The preview is for choosing blocks, not for reading: no text selection, no link or image
   // drag, and the default cursor everywhere (not the hand of a link or a button).
-  style: [{
-    textContent: '*, *::before, *::after { cursor: default !important; user-select: none !important; -webkit-user-select: none !important; -webkit-user-drag: none !important; }',
-  }],
+  style: [
+    {
+      textContent:
+        '*, *::before, *::after { cursor: default !important; user-select: none !important; -webkit-user-select: none !important; -webkit-user-drag: none !important; }',
+    },
+    {
+      // A thin scrollbar that fits the editor, in both color modes: a gray thumb on no track.
+      textContent: [
+        'html { scrollbar-width: thin; scrollbar-color: rgb(128 128 128 / 0.45) transparent; }',
+        'html::-webkit-scrollbar { width: 10px; }',
+        'html::-webkit-scrollbar-track { background: transparent; }',
+        'html::-webkit-scrollbar-thumb { background: rgb(128 128 128 / 0.45); border: 3px solid transparent; border-radius: 9999px; background-clip: content-box; }',
+        'html::-webkit-scrollbar-thumb:hover { background-color: rgb(128 128 128 / 0.7); }',
+      ].join('\n'),
+    },
+  ],
 })
 
 // Each block renders with `tag` false, so no wrapper element sits between the blocks (the prose
@@ -84,17 +105,24 @@ function mark(root: MDCRoot, block: PreviewBlockData): MDCRoot {
     if (block.children) {
       markPreviewChildren(element, block.children)
     }
-    return { ...element, props: { ...element.props, [PREVIEW_BLOCK_ATTRIBUTE]: block.id } }
+    return {
+      ...element,
+      props: { ...element.props, [PREVIEW_BLOCK_ATTRIBUTE]: block.id },
+    }
   })
   return { ...root, children }
 }
 
 /** The ids of the inner components, for the cache key: the same text with other ids marks other elements. */
 function childIds(children: PreviewBlockData['children']): string {
-  return (children ?? []).map((child) => `${child.id}(${childIds(child.children)})`).join(',')
+  return (children ?? [])
+    .map((child) => `${child.id}(${childIds(child.children)})`)
+    .join(',')
 }
 
-async function bodyOf(block: PreviewBlockData): Promise<{ body?: MDCRoot, error?: string }> {
+async function bodyOf(
+  block: PreviewBlockData
+): Promise<{ body?: MDCRoot; error?: string }> {
   const key = `${block.id}\u0000${block.markdown}\u0000${childIds(block.children)}`
   const cached = cache.get(key)
   if (cached) {
@@ -113,15 +141,26 @@ async function bodyOf(block: PreviewBlockData): Promise<{ body?: MDCRoot, error?
   }
 }
 
-async function render(message: { frontmatter: Record<string, unknown>, blocks: PreviewBlockData[], selectedId?: string | null }) {
+async function render(message: {
+  frontmatter: Record<string, unknown>
+  blocks: PreviewBlockData[]
+  selectedId?: string | null
+}) {
   const current = ++run
-  const next = await Promise.all(message.blocks.map(async (block): Promise<RenderedBlock> => {
-    const label = block.label ?? ''
-    if (block.preview === false) {
-      return { id: block.id, label }
-    }
-    return { id: block.id, label, children: block.children, ...(await bodyOf(block)) }
-  }))
+  const next = await Promise.all(
+    message.blocks.map(async (block): Promise<RenderedBlock> => {
+      const label = block.label ?? ''
+      if (block.preview === false) {
+        return { id: block.id, label }
+      }
+      return {
+        id: block.id,
+        label,
+        children: block.children,
+        ...(await bodyOf(block)),
+      }
+    })
+  )
   // A newer message came while the parser worked.
   if (current !== run) {
     return
@@ -146,7 +185,10 @@ function post(message: ReturnType<typeof previewMessage>) {
 }
 
 function onMessage(event: MessageEvent) {
-  if (event.source !== window.parent || !isTrustedPreviewOrigin(event.origin, window.location.origin)) {
+  if (
+    event.source !== window.parent ||
+    !isTrustedPreviewOrigin(event.origin, window.location.origin)
+  ) {
     return
   }
   const message = parsePreviewMessage(event.data, 'to-frame')
@@ -170,12 +212,20 @@ function onMessage(event: MessageEvent) {
 // --- Outlines -------------------------------------------------------------------
 
 const hoverId = ref<string | null>(null)
-const overlay = ref<{ selected: DOMRect | null, hover: DOMRect | null }>({ selected: null, hover: null })
+const overlay = ref<{ selected: DOMRect | null; hover: DOMRect | null }>({
+  selected: null,
+  hover: null,
+})
 
 /** The elements of a block. A style or a script has no box. */
 function elementsOf(id: string): HTMLElement[] {
-  return [...document.querySelectorAll<HTMLElement>(`[${PREVIEW_BLOCK_ATTRIBUTE}="${CSS.escape(id)}"]`)]
-    .filter((element) => element.tagName !== 'STYLE' && element.tagName !== 'SCRIPT')
+  return [
+    ...document.querySelectorAll<HTMLElement>(
+      `[${PREVIEW_BLOCK_ATTRIBUTE}="${CSS.escape(id)}"]`
+    ),
+  ].filter(
+    (element) => element.tagName !== 'STYLE' && element.tagName !== 'SCRIPT'
+  )
 }
 
 /** The parent of each inner component: an inner component or a top-level block. */
@@ -207,7 +257,12 @@ function union(a: DOMRect | null, b: DOMRect | null): DOMRect | null {
   }
   const left = Math.min(a.left, b.left)
   const top = Math.min(a.top, b.top)
-  return new DOMRect(left, top, Math.max(a.right, b.right) - left, Math.max(a.bottom, b.bottom) - top)
+  return new DOMRect(
+    left,
+    top,
+    Math.max(a.right, b.right) - left,
+    Math.max(a.bottom, b.bottom) - top
+  )
 }
 
 /**
@@ -241,14 +296,24 @@ function boxOf(id: string | null): DOMRect | null {
   for (const element of elementsOf(shown)) {
     box = union(box, elementBox(element))
   }
-  return box ? new DOMRect(box.left + window.scrollX, box.top + window.scrollY, box.width, box.height) : null
+  return box
+    ? new DOMRect(
+        box.left + window.scrollX,
+        box.top + window.scrollY,
+        box.width,
+        box.height
+      )
+    : null
 }
 
 let frame = 0
 function refreshOverlay() {
   cancelAnimationFrame(frame)
   frame = requestAnimationFrame(() => {
-    overlay.value = { selected: boxOf(selectedId.value), hover: hoverId.value === selectedId.value ? null : boxOf(hoverId.value) }
+    overlay.value = {
+      selected: boxOf(selectedId.value),
+      hover: hoverId.value === selectedId.value ? null : boxOf(hoverId.value),
+    }
   })
 }
 
@@ -285,7 +350,9 @@ const labels = computed(() => {
 /** The innermost block under an element: an inner component, else its top-level block. */
 function blockIdAt(target: EventTarget | null): string | null {
   return target instanceof Element
-    ? (target.closest<HTMLElement>(`[${PREVIEW_BLOCK_ATTRIBUTE}]`)?.getAttribute(PREVIEW_BLOCK_ATTRIBUTE) ?? null)
+    ? (target
+        .closest<HTMLElement>(`[${PREVIEW_BLOCK_ATTRIBUTE}]`)
+        ?.getAttribute(PREVIEW_BLOCK_ATTRIBUTE) ?? null)
     : null
 }
 
@@ -369,7 +436,12 @@ onMounted(() => {
   observer.observe(document.body)
   // Images, fonts and lazy components change the layout after the render.
   mutations = new MutationObserver(refreshOverlay)
-  mutations.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'open'] })
+  mutations.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'style', 'open'],
+  })
   post(previewMessage('ready', {}))
 })
 
@@ -389,9 +461,14 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(frame)
 })
 
-const hoverLabel = computed(() => (hoverId.value ? labels.value.get(hoverId.value) : '') ?? '')
+const hoverLabel = computed(
+  () => (hoverId.value ? labels.value.get(hoverId.value) : '') ?? ''
+)
 
-function boxStyle(rect: DOMRect | null, kind: 'selected' | 'hover'): CSSProperties {
+function boxStyle(
+  rect: DOMRect | null,
+  kind: 'selected' | 'hover'
+): CSSProperties {
   if (!rect) {
     return { display: 'none' }
   }
@@ -408,10 +485,14 @@ function boxStyle(rect: DOMRect | null, kind: 'selected' | 'hover'): CSSProperti
     pointerEvents: 'none',
     zIndex: '2147483000',
     borderRadius: '4px',
-    boxShadow: kind === 'selected'
-      ? `inset 0 0 0 2px ${color}`
-      : `inset 0 0 0 1px color-mix(in oklab, ${color} 70%, transparent)`,
-    background: kind === 'selected' ? `color-mix(in oklab, ${color} 8%, transparent)` : 'transparent',
+    boxShadow:
+      kind === 'selected'
+        ? `inset 0 0 0 2px ${color}`
+        : `inset 0 0 0 1px color-mix(in oklab, ${color} 70%, transparent)`,
+    background:
+      kind === 'selected'
+        ? `color-mix(in oklab, ${color} 8%, transparent)`
+        : 'transparent',
   }
 }
 
@@ -445,12 +526,29 @@ const chipStyle: CSSProperties = {
     </PlutoContentPreview>
 
     <!-- The outlines use inline styles only, so they do not depend on the site CSS. -->
-    <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; overflow: visible; height: 0">
+    <div
+      aria-hidden="true"
+      style="
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: visible;
+        height: 0;
+      "
+    >
       <div :style="boxStyle(overlay.hover, 'hover')">
-        <span v-if="overlay.hover && hoverLabel" :style="{ ...chipStyle, opacity: '0.85' }">{{ hoverLabel }}</span>
+        <span
+          v-if="overlay.hover && hoverLabel"
+          :style="{ ...chipStyle, opacity: '0.85' }"
+          >{{ hoverLabel }}</span
+        >
       </div>
       <div :style="boxStyle(overlay.selected, 'selected')">
-        <span v-if="overlay.selected && selectedId && labels.get(selectedId)" :style="chipStyle">{{ labels.get(selectedId) }}</span>
+        <span
+          v-if="overlay.selected && selectedId && labels.get(selectedId)"
+          :style="chipStyle"
+          >{{ labels.get(selectedId) }}</span
+        >
       </div>
     </div>
   </div>

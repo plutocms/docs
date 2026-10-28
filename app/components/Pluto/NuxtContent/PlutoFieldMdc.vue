@@ -29,7 +29,11 @@ const emit = defineEmits<{
 }>()
 
 // The block editor and the Markdown split load on demand. The skeleton shows while they load.
-const loadingComponent = () => h('div', { class: 'flex h-full flex-col gap-3 p-6' }, [h(resolveComponent('USkeleton'), { class: 'h-8 w-1/3' }), h(resolveComponent('USkeleton'), { class: 'h-64 w-full' })])
+const loadingComponent = () =>
+  h('div', { class: 'flex h-full flex-col gap-3 p-6' }, [
+    h(resolveComponent('USkeleton'), { class: 'h-8 w-1/3' }),
+    h(resolveComponent('USkeleton'), { class: 'h-64 w-full' }),
+  ])
 const PlutoBlockEditor = defineAsyncComponent({
   loader: () => import('./Blocks/PlutoBlockEditor.vue'),
   loadingComponent,
@@ -50,14 +54,24 @@ const PlutoBlockMarkdownSplit = defineAsyncComponent({
 const { t } = usePlutoI18n()
 const form = usePlutoContentForm()
 
-const value = computed(() => (typeof props.modelValue === 'string' ? props.modelValue : ''))
+const value = computed(() =>
+  typeof props.modelValue === 'string' ? props.modelValue : ''
+)
 
 // Visual needs the canvas layout: the panels live in the form.
 const canVisual = computed(() => Boolean(form?.canvas.value))
 
 type Mode = 'visual' | 'markdown'
-const saved = useCookie<Mode | null>('pluto-mdc-editor-mode', { default: () => null, maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
-const mode = ref<Mode>(canVisual.value ? (saved.value ?? (props.field.editor === 'source' ? 'markdown' : 'visual')) : 'markdown')
+const saved = useCookie<Mode | null>('pluto-mdc-editor-mode', {
+  default: () => null,
+  maxAge: 60 * 60 * 24 * 365,
+  sameSite: 'lax',
+})
+const mode = ref<Mode>(
+  canVisual.value
+    ? (saved.value ?? (props.field.editor === 'source' ? 'markdown' : 'visual'))
+    : 'markdown'
+)
 
 function setMode(next: Mode) {
   mode.value = next
@@ -87,7 +101,12 @@ function setMode(next: Mode) {
   />
 
   <!-- A form without the canvas layout: the Markdown only, with no preview and no Visual mode. -->
-  <UFormField v-else :label="field.label" :description="field.description" :required="field.required">
+  <UFormField
+    v-else
+    :label="field.label"
+    :description="field.description"
+    :required="field.required"
+  >
     <PlutoMdcCodeEditor
       :model-value="value"
       :disabled="disabled"

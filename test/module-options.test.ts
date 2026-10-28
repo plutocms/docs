@@ -1,9 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { CMS_OFF_ERROR, isValidSource, normalizeRoutePrefix, resolvePlutoNuxtContentOptions } from '../modules/pluto-nuxt-content/options'
+import {
+  CMS_OFF_ERROR,
+  isValidSource,
+  normalizeRoutePrefix,
+  resolvePlutoNuxtContentOptions,
+} from '../modules/pluto-nuxt-content/options'
 
 describe('resolvePlutoNuxtContentOptions', () => {
   it('has no type by default', () => {
-    expect(resolvePlutoNuxtContentOptions({}, { cmsEnabled: true })).toEqual({ enabled: true, render: 'hybrid', runtimeMaxAge: 10, types: [], errors: [] })
+    expect(resolvePlutoNuxtContentOptions({}, { cmsEnabled: true })).toEqual({
+      enabled: true,
+      render: 'hybrid',
+      runtimeMaxAge: 10,
+      types: [],
+      errors: [],
+    })
   })
 
   it('is off with an error when the CMS is off', () => {
@@ -11,26 +22,61 @@ describe('resolvePlutoNuxtContentOptions', () => {
       { types: [{ preset: 'docs', name: 'doc', source: '' }] },
       { cmsEnabled: false }
     )
-    expect(result).toEqual({ enabled: false, render: 'build', runtimeMaxAge: 10, types: [], errors: [CMS_OFF_ERROR] })
+    expect(result).toEqual({
+      enabled: false,
+      render: 'build',
+      runtimeMaxAge: 10,
+      types: [],
+      errors: [CMS_OFF_ERROR],
+    })
   })
 
   it('keeps a valid docs type', () => {
     const result = resolvePlutoNuxtContentOptions(
-      { types: [{ preset: 'docs', name: 'doc', source: '', label: 'Page', exclude: ['drafts/'] }] },
+      {
+        types: [
+          {
+            preset: 'docs',
+            name: 'doc',
+            source: '',
+            label: 'Page',
+            exclude: ['drafts/'],
+          },
+        ],
+      },
       { cmsEnabled: true }
     )
     expect(result.errors).toEqual([])
     expect(result.types).toEqual([
-      { preset: 'docs', name: 'doc', source: '', label: 'Page', exclude: ['drafts/'], routePrefix: '' },
+      {
+        preset: 'docs',
+        name: 'doc',
+        source: '',
+        label: 'Page',
+        exclude: ['drafts/'],
+        routePrefix: '',
+      },
     ])
   })
 
   it('accepts a nested source and normalizes the route prefix', () => {
     const result = resolvePlutoNuxtContentOptions(
-      { types: [{ preset: 'docs', name: 'guide', source: '1.docs/api', routePrefix: 'docs/' }] },
+      {
+        types: [
+          {
+            preset: 'docs',
+            name: 'guide',
+            source: '1.docs/api',
+            routePrefix: 'docs/',
+          },
+        ],
+      },
       { cmsEnabled: true }
     )
-    expect(result.types[0]).toMatchObject({ source: '1.docs/api', routePrefix: '/docs' })
+    expect(result.types[0]).toMatchObject({
+      source: '1.docs/api',
+      routePrefix: '/docs',
+    })
   })
 
   it('drops a type with an unknown preset', () => {
@@ -73,7 +119,16 @@ describe('resolvePlutoNuxtContentOptions', () => {
 
   it('drops a type whose exclude is not a list of strings', () => {
     const result = resolvePlutoNuxtContentOptions(
-      { types: [{ preset: 'docs', name: 'doc', source: '', exclude: 'index' as never }] },
+      {
+        types: [
+          {
+            preset: 'docs',
+            name: 'doc',
+            source: '',
+            exclude: 'index' as never,
+          },
+        ],
+      },
       { cmsEnabled: true }
     )
     expect(result.types).toEqual([])
@@ -107,39 +162,68 @@ describe('normalizeRoutePrefix', () => {
 
 describe('render option', () => {
   it('is hybrid by default', () => {
-    expect(resolvePlutoNuxtContentOptions({}, { cmsEnabled: true }).render).toBe('hybrid')
+    expect(
+      resolvePlutoNuxtContentOptions({}, { cmsEnabled: true }).render
+    ).toBe('hybrid')
   })
 
   it.each(['hybrid', 'build', 'runtime'] as const)('accepts %s', (render) => {
-    const result = resolvePlutoNuxtContentOptions({ render }, { cmsEnabled: true })
+    const result = resolvePlutoNuxtContentOptions(
+      { render },
+      { cmsEnabled: true }
+    )
     expect(result.render).toBe(render)
     expect(result.errors).toEqual([])
   })
 
   it('falls back to hybrid with one error for a bad value', () => {
-    const result = resolvePlutoNuxtContentOptions({ render: 'live' as never }, { cmsEnabled: true })
+    const result = resolvePlutoNuxtContentOptions(
+      { render: 'live' as never },
+      { cmsEnabled: true }
+    )
     expect(result.render).toBe('hybrid')
     expect(result.errors).toHaveLength(1)
   })
 
   it('is build when the CMS is off', () => {
-    expect(resolvePlutoNuxtContentOptions({ render: 'runtime' }, { cmsEnabled: false }).render).toBe('build')
+    expect(
+      resolvePlutoNuxtContentOptions(
+        { render: 'runtime' },
+        { cmsEnabled: false }
+      ).render
+    ).toBe('build')
   })
 })
 
 describe('runtimeMaxAge option', () => {
   it('is 10 seconds by default', () => {
-    expect(resolvePlutoNuxtContentOptions({}, { cmsEnabled: true }).runtimeMaxAge).toBe(10)
+    expect(
+      resolvePlutoNuxtContentOptions({}, { cmsEnabled: true }).runtimeMaxAge
+    ).toBe(10)
   })
 
   it('accepts 0 and a whole number', () => {
-    expect(resolvePlutoNuxtContentOptions({ runtimeMaxAge: 0 }, { cmsEnabled: true }).runtimeMaxAge).toBe(0)
-    expect(resolvePlutoNuxtContentOptions({ runtimeMaxAge: 30 }, { cmsEnabled: true }).runtimeMaxAge).toBe(30)
+    expect(
+      resolvePlutoNuxtContentOptions({ runtimeMaxAge: 0 }, { cmsEnabled: true })
+        .runtimeMaxAge
+    ).toBe(0)
+    expect(
+      resolvePlutoNuxtContentOptions(
+        { runtimeMaxAge: 30 },
+        { cmsEnabled: true }
+      ).runtimeMaxAge
+    ).toBe(30)
   })
 
-  it.each([-1, 1.5, '10', Number.NaN])('uses the default with one error for %s', (value) => {
-    const result = resolvePlutoNuxtContentOptions({ runtimeMaxAge: value as never }, { cmsEnabled: true })
-    expect(result.runtimeMaxAge).toBe(10)
-    expect(result.errors).toHaveLength(1)
-  })
+  it.each([-1, 1.5, '10', Number.NaN])(
+    'uses the default with one error for %s',
+    (value) => {
+      const result = resolvePlutoNuxtContentOptions(
+        { runtimeMaxAge: value as never },
+        { cmsEnabled: true }
+      )
+      expect(result.runtimeMaxAge).toBe(10)
+      expect(result.errors).toHaveLength(1)
+    }
+  )
 })

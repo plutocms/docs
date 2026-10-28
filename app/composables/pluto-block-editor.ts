@@ -2,10 +2,26 @@ import type { ComputedRef, InjectionKey, Ref } from 'vue'
 import type { PlutoPaletteEntry } from '../../shared/utils/blocks/editor'
 import type { PlutoHistory } from '../../shared/utils/blocks/history'
 import type { PlutoBlockTarget } from '../../shared/utils/blocks/operations'
-import type { PlutoBlock, PlutoBlockDefinition, PlutoBlockDoc, PlutoBlockLocation, PlutoBlocksConfig, PlutoCodeBlock, PlutoPropValue } from '../../shared/utils/blocks/types'
+import type {
+  PlutoBlock,
+  PlutoBlockDefinition,
+  PlutoBlockDoc,
+  PlutoBlockLocation,
+  PlutoBlocksConfig,
+  PlutoCodeBlock,
+  PlutoPropValue,
+} from '../../shared/utils/blocks/types'
 import { computed, inject, ref, shallowRef, watch } from 'vue'
 import { acceptedNames, describeBlock } from '../../shared/utils/blocks/editor'
-import { canRedo, canUndo, createHistory, pushHistory, redo, resetHistory, undo } from '../../shared/utils/blocks/history'
+import {
+  canRedo,
+  canUndo,
+  createHistory,
+  pushHistory,
+  redo,
+  resetHistory,
+  undo,
+} from '../../shared/utils/blocks/history'
 import {
   blocksFromMarkdown,
   duplicateBlock,
@@ -16,10 +32,13 @@ import {
   setProp,
   setSlot,
   updateCode,
-  updateText
+  updateText,
 } from '../../shared/utils/blocks/operations'
 import { parseBlocks } from '../../shared/utils/blocks/parse'
-import { humanizeName, resolveBlockDefinition } from '../../shared/utils/blocks/registry'
+import {
+  humanizeName,
+  resolveBlockDefinition,
+} from '../../shared/utils/blocks/registry'
 import { serializeBlocks } from '../../shared/utils/blocks/serialize'
 import { findBlock, flatChildren, pathOf } from '../../shared/utils/blocks/tree'
 
@@ -53,7 +72,7 @@ export interface PlutoBlockEditor {
   edited: ComputedRef<boolean>
   /** The ids of the blocks that changed since the editor opened. A dot marks them in the outline. */
   editedIds: ComputedRef<Set<string>>
-  palette: Ref<{ open: boolean, target: PlutoBlockTarget | null }>
+  palette: Ref<{ open: boolean; target: PlutoBlockTarget | null }>
   /** The components whose children the outline hides. A selection inside one opens it. */
   collapsedIds: Ref<Set<string>>
   toggleCollapsed: (id: string) => void
@@ -61,7 +80,10 @@ export interface PlutoBlockEditor {
   openPalette: (target?: PlutoBlockTarget | null) => void
   undo: () => void
   redo: () => void
-  insert: (entry: PlutoPaletteEntry, target?: PlutoBlockTarget | null) => string[]
+  insert: (
+    entry: PlutoPaletteEntry,
+    target?: PlutoBlockTarget | null
+  ) => string[]
   remove: (id: string) => void
   duplicate: (id: string) => void
   /** Moves a block by `delta` places in its own list. */
@@ -70,7 +92,10 @@ export interface PlutoBlockEditor {
   setProp: (id: string, key: string, value: PlutoPropValue) => void
   setSlot: (id: string, slot: string, markdown: string) => void
   updateText: (id: string, markdown: string) => void
-  updateCode: (id: string, patch: Partial<Pick<PlutoCodeBlock, 'lang' | 'filename' | 'meta' | 'code'>>) => void
+  updateCode: (
+    id: string,
+    patch: Partial<Pick<PlutoCodeBlock, 'lang' | 'filename' | 'meta' | 'code'>>
+  ) => void
   /** Replaces a block with the blocks parsed from Markdown, and selects the first one. */
   replaceMarkdown: (id: string, markdown: string) => void
   definitionOf: (block: PlutoBlock) => PlutoBlockDefinition | undefined
@@ -79,7 +104,8 @@ export interface PlutoBlockEditor {
   siblings: (id: string) => PlutoBlock[]
 }
 
-export const plutoBlockEditorKey: InjectionKey<PlutoBlockEditor> = Symbol('plutoBlockEditor')
+export const plutoBlockEditorKey: InjectionKey<PlutoBlockEditor> =
+  Symbol('plutoBlockEditor')
 
 /** The block editor that the calling component sits in. Throws outside a `PlutoBlockEditor`. */
 export function usePlutoBlockEditor(): PlutoBlockEditor {
@@ -90,16 +116,25 @@ export function usePlutoBlockEditor(): PlutoBlockEditor {
   return editor
 }
 
-function tryParse(source: string): { doc: PlutoBlockDoc, error: string | null } {
+function tryParse(source: string): {
+  doc: PlutoBlockDoc
+  error: string | null
+} {
   try {
     return { doc: parseBlocks(source), error: null }
   } catch (error) {
-    return { doc: { blocks: [], gaps: [source] }, error: error instanceof Error ? error.message : String(error) }
+    return {
+      doc: { blocks: [], gaps: [source] },
+      error: error instanceof Error ? error.message : String(error),
+    }
   }
 }
 
 /** Ids of the blocks whose `original` is gone, over the whole tree. */
-function editedBlockIds(blocks: PlutoBlock[], out = new Set<string>()): Set<string> {
+function editedBlockIds(
+  blocks: PlutoBlock[],
+  out = new Set<string>()
+): Set<string> {
   for (const block of blocks) {
     if (!block.original) {
       out.add(block.id)
@@ -117,21 +152,30 @@ function editedBlockIds(blocks: PlutoBlock[], out = new Set<string>()): Set<stri
  * `options.emit`. A block that no edit touched keeps its source bytes, so
  * opening a page and leaving it changes nothing.
  */
-export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoBlockEditor {
+export function createPlutoBlockEditor(
+  options: PlutoBlockEditorOptions
+): PlutoBlockEditor {
   const now = options.now ?? Date.now
   const overrides = () => options.overrides?.() ?? {}
 
   const initial = tryParse(options.source())
   const error = ref<string | null>(initial.error)
-  const history = shallowRef<PlutoHistory<PlutoBlockDoc>>(createHistory(initial.doc))
+  const history = shallowRef<PlutoHistory<PlutoBlockDoc>>(
+    createHistory(initial.doc)
+  )
   const doc = computed(() => history.value.present)
   const selection = ref<PlutoBlockSelection | null>(null)
   const hoverId = ref<string | null>(null)
-  const palette = ref<{ open: boolean, target: PlutoBlockTarget | null }>({ open: false, target: null })
+  const palette = ref<{ open: boolean; target: PlutoBlockTarget | null }>({
+    open: false,
+    target: null,
+  })
   const collapsedIds = ref(new Set<string>())
   let lastEmitted = options.source()
 
-  const selected = computed(() => (selection.value ? findBlock(doc.value, selection.value.id) : undefined))
+  const selected = computed(() =>
+    selection.value ? findBlock(doc.value, selection.value.id) : undefined
+  )
   const selectedId = computed(() => selected.value?.block.id ?? null)
 
   // The text changed outside the editor (a reload, a switch from the Markdown mode).
@@ -163,7 +207,9 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
     }
     const parents = pathOf(doc.value, current.id).slice(0, -1)
     if (parents.some((id) => collapsedIds.value.has(id))) {
-      collapsedIds.value = new Set([...collapsedIds.value].filter((id) => !parents.includes(id)))
+      collapsedIds.value = new Set(
+        [...collapsedIds.value].filter((id) => !parents.includes(id))
+      )
     }
   })
 
@@ -191,11 +237,15 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
     if (!found) {
       return []
     }
-    return found.parent ? (found.parent.slots[found.slot ?? 'default'] ?? []) : doc.value.blocks
+    return found.parent
+      ? (found.parent.slots[found.slot ?? 'default'] ?? [])
+      : doc.value.blocks
   }
 
   function definitionOf(block: PlutoBlock): PlutoBlockDefinition | undefined {
-    return block.kind === 'component' ? resolveBlockDefinition(block.name, { overrides: overrides(), block }) : undefined
+    return block.kind === 'component'
+      ? resolveBlockDefinition(block.name, { overrides: overrides(), block })
+      : undefined
   }
 
   /** After the selected block, or into a slot of the selected block that accepts the new component. */
@@ -209,16 +259,32 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
       for (const slot of Object.keys(definition?.slots ?? {})) {
         const accepts = definition ? acceptedNames(definition, slot) : undefined
         if (accepts?.includes(entry.name)) {
-          return { parentId: current.block.id, slot, index: (current.block.slots[slot] ?? []).length }
+          return {
+            parentId: current.block.id,
+            slot,
+            index: (current.block.slots[slot] ?? []).length,
+          }
         }
       }
     }
-    return { parentId: current.parent?.id, slot: current.slot, index: current.index + 1 }
+    return {
+      parentId: current.parent?.id,
+      slot: current.slot,
+      index: current.index + 1,
+    }
   }
 
-  function insert(entry: PlutoPaletteEntry, target?: PlutoBlockTarget | null): string[] {
+  function insert(
+    entry: PlutoPaletteEntry,
+    target?: PlutoBlockTarget | null
+  ): string[] {
     const parsed = blocksFromMarkdown(entry.markdown)
-    const result = insertBlocks(doc.value, parsed.blocks, target ?? defaultTarget(entry), parsed.gaps)
+    const result = insertBlocks(
+      doc.value,
+      parsed.blocks,
+      target ?? defaultTarget(entry),
+      parsed.gaps
+    )
     if (!result) {
       return []
     }
@@ -235,7 +301,8 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
       return
     }
     const list = siblings(id)
-    const neighbour = list[found.index + 1] ?? list[found.index - 1] ?? found.parent
+    const neighbour =
+      list[found.index + 1] ?? list[found.index - 1] ?? found.parent
     commit(removeBlock(doc.value, id))
     select(neighbour?.id ?? null)
   }
@@ -295,10 +362,14 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
     duplicate,
     move,
     moveTo,
-    setProp: (id, key, value) => void commit(setProp(doc.value, id, key, value), `prop:${id}:${key}`),
-    setSlot: (id, slot, markdown) => void commit(setSlot(doc.value, id, slot, markdown), `slot:${id}:${slot}`),
-    updateText: (id, markdown) => void commit(updateText(doc.value, id, markdown), `text:${id}`),
-    updateCode: (id, patch) => void commit(updateCode(doc.value, id, patch), `code:${id}`),
+    setProp: (id, key, value) =>
+      void commit(setProp(doc.value, id, key, value), `prop:${id}:${key}`),
+    setSlot: (id, slot, markdown) =>
+      void commit(setSlot(doc.value, id, slot, markdown), `slot:${id}:${slot}`),
+    updateText: (id, markdown) =>
+      void commit(updateText(doc.value, id, markdown), `text:${id}`),
+    updateCode: (id, patch) =>
+      void commit(updateCode(doc.value, id, patch), `code:${id}`),
     replaceMarkdown(id, markdown) {
       const result = replaceWithMarkdown(doc.value, id, markdown)
       if (result) {
@@ -313,7 +384,10 @@ export function createPlutoBlockEditor(options: PlutoBlockEditorOptions): PlutoB
 }
 
 /** The id of the top-level block that holds a block. The preview selects at this level. */
-export function topLevelId(doc: PlutoBlockDoc, id: string | null): string | null {
+export function topLevelId(
+  doc: PlutoBlockDoc,
+  id: string | null
+): string | null {
   return id ? (pathOf(doc, id)[0] ?? null) : null
 }
 
@@ -332,19 +406,32 @@ export function usePlutoBlockLabels() {
   const { t, tx } = usePlutoI18n()
   const blocksConfig = usePlutoBlocksConfig()
 
-  function slotLabel(definition: PlutoBlockDefinition | undefined, slot: string): string {
+  function slotLabel(
+    definition: PlutoBlockDefinition | undefined,
+    slot: string
+  ): string {
     const label = definition?.slots?.[slot]?.label
     if (label) {
       return tx(label)
     }
-    return slot === 'default' ? t('nuxt-content.blocks.slots.default') : humanizeName(slot)
+    return slot === 'default'
+      ? t('nuxt-content.blocks.slots.default')
+      : humanizeName(slot)
   }
 
   /** "Add Card" when the slot takes one kind of block, "Add a block" for the main slot, else "Add to Buttons". */
-  function addLabel(definition: PlutoBlockDefinition | undefined, slot: string): string {
+  function addLabel(
+    definition: PlutoBlockDefinition | undefined,
+    slot: string
+  ): string {
     const accepts = definition?.slots?.[slot]?.accepts
     if (accepts?.length === 1) {
-      return t('nuxt-content.editor.addItem', { name: tx(resolveBlockDefinition(accepts[0]!, { overrides: blocksConfig() }).label) })
+      return t('nuxt-content.editor.addItem', {
+        name: tx(
+          resolveBlockDefinition(accepts[0]!, { overrides: blocksConfig() })
+            .label
+        ),
+      })
     }
     if (slot === 'default') {
       return t('nuxt-content.editor.addBlock')

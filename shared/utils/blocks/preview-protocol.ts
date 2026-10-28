@@ -55,7 +55,8 @@ export interface PlutoPreviewScrollTo extends Envelope<'scroll-to'> {
   id: string
 }
 
-export type PlutoPreviewToFrame = PlutoPreviewRender | PlutoPreviewSelect | PlutoPreviewScrollTo
+export type PlutoPreviewToFrame =
+  PlutoPreviewRender | PlutoPreviewSelect | PlutoPreviewScrollTo
 
 // The frame to the editor
 
@@ -71,14 +72,23 @@ export interface PlutoPreviewError extends Envelope<'error'> {
   message: string
 }
 
-export type PlutoPreviewFromFrame = PlutoPreviewReady | PlutoPreviewSelect | PlutoPreviewHover | PlutoPreviewError
+export type PlutoPreviewFromFrame =
+  PlutoPreviewReady | PlutoPreviewSelect | PlutoPreviewHover | PlutoPreviewError
 
 export type PlutoPreviewMessage = PlutoPreviewToFrame | PlutoPreviewFromFrame
 
 export type PlutoPreviewDirection = 'to-frame' | 'from-frame'
 
-export function previewMessage<T extends PlutoPreviewMessage['type']>(type: T, body: Omit<Extract<PlutoPreviewMessage, { type: T }>, keyof Envelope<T>>): Extract<PlutoPreviewMessage, { type: T }> {
-  return { source: PREVIEW_SOURCE, version: PREVIEW_PROTOCOL_VERSION, type, ...body } as Extract<PlutoPreviewMessage, { type: T }>
+export function previewMessage<T extends PlutoPreviewMessage['type']>(
+  type: T,
+  body: Omit<Extract<PlutoPreviewMessage, { type: T }>, keyof Envelope<T>>
+): Extract<PlutoPreviewMessage, { type: T }> {
+  return {
+    source: PREVIEW_SOURCE,
+    version: PREVIEW_PROTOCOL_VERSION,
+    type,
+    ...body,
+  } as Extract<PlutoPreviewMessage, { type: T }>
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -92,21 +102,33 @@ function isNullableString(value: unknown): value is string | null {
 // A real page nests a few levels. The limit stops a message that nests without end.
 const MAX_CHILD_DEPTH = 16
 
-function isChildList(value: unknown, depth: number): value is PlutoPreviewChild[] {
-  return Array.isArray(value) && depth <= MAX_CHILD_DEPTH && value.every((child) => isRecord(child)
-    && typeof child.id === 'string'
-    && typeof child.name === 'string'
-    && (child.label === undefined || typeof child.label === 'string')
-    && (child.children === undefined || isChildList(child.children, depth + 1)))
+function isChildList(
+  value: unknown,
+  depth: number
+): value is PlutoPreviewChild[] {
+  return (
+    Array.isArray(value) &&
+    depth <= MAX_CHILD_DEPTH &&
+    value.every(
+      (child) =>
+        isRecord(child) &&
+        typeof child.id === 'string' &&
+        typeof child.name === 'string' &&
+        (child.label === undefined || typeof child.label === 'string') &&
+        (child.children === undefined || isChildList(child.children, depth + 1))
+    )
+  )
 }
 
 function isBlock(value: unknown): value is PlutoPreviewBlock {
-  return isRecord(value)
-    && typeof value.id === 'string'
-    && typeof value.markdown === 'string'
-    && (value.preview === undefined || typeof value.preview === 'boolean')
-    && (value.label === undefined || typeof value.label === 'string')
-    && (value.children === undefined || isChildList(value.children, 1))
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.markdown === 'string' &&
+    (value.preview === undefined || typeof value.preview === 'boolean') &&
+    (value.label === undefined || typeof value.label === 'string') &&
+    (value.children === undefined || isChildList(value.children, 1))
+  )
 }
 
 const TO_FRAME = new Set(['render', 'select', 'scroll-to'])
@@ -117,8 +139,16 @@ const FROM_FRAME = new Set(['ready', 'select', 'hover', 'error'])
  * the typed message, or `undefined` for anything else: wrong source, wrong
  * version, wrong direction, or a wrong field.
  */
-export function parsePreviewMessage(data: unknown, direction: PlutoPreviewDirection): PlutoPreviewMessage | undefined {
-  if (!isRecord(data) || data.source !== PREVIEW_SOURCE || data.version !== PREVIEW_PROTOCOL_VERSION || typeof data.type !== 'string') {
+export function parsePreviewMessage(
+  data: unknown,
+  direction: PlutoPreviewDirection
+): PlutoPreviewMessage | undefined {
+  if (
+    !isRecord(data) ||
+    data.source !== PREVIEW_SOURCE ||
+    data.version !== PREVIEW_PROTOCOL_VERSION ||
+    typeof data.type !== 'string'
+  ) {
     return undefined
   }
   if (!(direction === 'to-frame' ? TO_FRAME : FROM_FRAME).has(data.type)) {
@@ -126,23 +156,29 @@ export function parsePreviewMessage(data: unknown, direction: PlutoPreviewDirect
   }
   switch (data.type) {
     case 'render':
-      return isRecord(data.frontmatter)
-        && Array.isArray(data.blocks)
-        && data.blocks.every(isBlock)
-        && (data.selectedId === undefined || isNullableString(data.selectedId))
+      return isRecord(data.frontmatter) &&
+        Array.isArray(data.blocks) &&
+        data.blocks.every(isBlock) &&
+        (data.selectedId === undefined || isNullableString(data.selectedId))
         ? (data as unknown as PlutoPreviewRender)
         : undefined
     case 'select':
     case 'hover':
-      return isNullableString(data.id) && (data.type === 'hover' || direction === 'to-frame' || typeof data.id === 'string')
+      return isNullableString(data.id) &&
+        (data.type === 'hover' ||
+          direction === 'to-frame' ||
+          typeof data.id === 'string')
         ? (data as unknown as PlutoPreviewSelect)
         : undefined
     case 'scroll-to':
-      return typeof data.id === 'string' ? (data as unknown as PlutoPreviewScrollTo) : undefined
+      return typeof data.id === 'string'
+        ? (data as unknown as PlutoPreviewScrollTo)
+        : undefined
     case 'ready':
       return data as unknown as PlutoPreviewReady
     case 'error':
-      return typeof data.message === 'string' && (data.id === undefined || typeof data.id === 'string')
+      return typeof data.message === 'string' &&
+        (data.id === undefined || typeof data.id === 'string')
         ? (data as unknown as PlutoPreviewError)
         : undefined
     default:
@@ -151,6 +187,9 @@ export function parsePreviewMessage(data: unknown, direction: PlutoPreviewDirect
 }
 
 /** True when the origin of a message is the expected one. The preview is same-origin, so `expected` is `location.origin`. */
-export function isTrustedPreviewOrigin(origin: string, expected: string): boolean {
+export function isTrustedPreviewOrigin(
+  origin: string,
+  expected: string
+): boolean {
   return origin !== '' && origin !== 'null' && origin === expected
 }

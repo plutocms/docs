@@ -67,7 +67,13 @@ export function readDocsFrontmatter(frontmatter: Frontmatter): Frontmatter {
  */
 export function writeDocsFrontmatter(frontmatter: Frontmatter): Frontmatter {
   const out: Frontmatter = { ...frontmatter }
-  const { navigationTitle, navigationIcon, navigationHidden, seoTitle, seoDescription } = frontmatter
+  const {
+    navigationTitle,
+    navigationIcon,
+    navigationHidden,
+    seoTitle,
+    seoDescription,
+  } = frontmatter
   delete out.navigationTitle
   delete out.navigationIcon
   delete out.navigationHidden
@@ -143,24 +149,86 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     titleField: 'title',
     slug: { field: 'slug' },
     fields: [
-      { name: 'title', type: 'text', label: 'Title', required: true, inList: true, order: 10, region: 'side' },
+      {
+        name: 'title',
+        type: 'text',
+        label: 'Title',
+        required: true,
+        inList: true,
+        order: 10,
+        region: 'side',
+      },
       {
         name: 'slug',
         type: 'slug',
         label: 'Path',
-        description: 'The file path without .md, for example 2.core/03.content-model. A new path moves the file.',
+        description:
+          'The file path without .md, for example 2.core/03.content-model. A new path moves the file.',
         required: true,
         inList: true,
         order: 20,
         region: 'side',
       },
-      { name: 'description', type: 'textarea', label: 'Description', rows: 2, order: 30, region: 'side' },
-      { name: 'body', type: 'richtext', label: 'Content', widget: 'mdc', editor: 'visual', inList: false, order: 40, region: 'main' },
-      { name: 'navigationTitle', type: 'text', label: 'Navigation title', order: 110, inList: false, region: 'side' },
-      { name: 'navigationIcon', type: 'text', label: 'Navigation icon', placeholder: 'i-lucide-rocket', order: 120, inList: false, region: 'side' },
-      { name: 'navigationHidden', type: 'boolean', label: 'Hide from the navigation', order: 130, inList: false, region: 'side' },
-      { name: 'seoTitle', type: 'text', label: 'SEO title', order: 140, inList: false, region: 'side' },
-      { name: 'seoDescription', type: 'textarea', label: 'SEO description', rows: 3, order: 150, inList: false, region: 'side' },
+      {
+        name: 'description',
+        type: 'textarea',
+        label: 'Description',
+        rows: 2,
+        order: 30,
+        region: 'side',
+      },
+      {
+        name: 'body',
+        type: 'richtext',
+        label: 'Content',
+        widget: 'mdc',
+        editor: 'visual',
+        inList: false,
+        order: 40,
+        region: 'main',
+      },
+      {
+        name: 'navigationTitle',
+        type: 'text',
+        label: 'Navigation title',
+        order: 110,
+        inList: false,
+        region: 'side',
+      },
+      {
+        name: 'navigationIcon',
+        type: 'text',
+        label: 'Navigation icon',
+        placeholder: 'i-lucide-rocket',
+        order: 120,
+        inList: false,
+        region: 'side',
+      },
+      {
+        name: 'navigationHidden',
+        type: 'boolean',
+        label: 'Hide from the navigation',
+        order: 130,
+        inList: false,
+        region: 'side',
+      },
+      {
+        name: 'seoTitle',
+        type: 'text',
+        label: 'SEO title',
+        order: 140,
+        inList: false,
+        region: 'side',
+      },
+      {
+        name: 'seoDescription',
+        type: 'textarea',
+        label: 'SEO description',
+        rows: 3,
+        order: 150,
+        inList: false,
+        region: 'side',
+      },
     ],
     // "New page" and "Edit page" in the admin bar (core). See the page-links skill.
     adminBar: true,
@@ -172,10 +240,24 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     timestamps: false,
     // Tree order: the numeric prefixes decide, not the title.
     defaultSort: { field: 'id', direction: 'asc' },
-    capabilities: { write: DOCS_CAPABILITIES.write, delete: DOCS_CAPABILITIES.delete },
+    capabilities: {
+      write: DOCS_CAPABILITIES.write,
+      delete: DOCS_CAPABILITIES.delete,
+    },
     // The canvas layout: the body fills the page (the block editor), and the other fields are in the Page tab.
-    form: { layout: 'canvas', canvasField: 'body' },
-    previewUrl: (item) => (item.id ? contentRoutePath(String(item.id), options.routePrefix ?? '') : undefined),
+    // `leftPanel`: the block list. Core shows its skeleton while the page or the editor code loads.
+    form: {
+      layout: 'canvas',
+      canvasField: 'body',
+      leftPanel: {
+        label: 'nuxt-content.editor.blocks',
+        class: 'bg-white dark:bg-[#0b0b0b]',
+      },
+    },
+    previewUrl: (item) =>
+      item.id
+        ? contentRoutePath(String(item.id), options.routePrefix ?? '')
+        : undefined,
     files: {
       nested: true,
       exclude: options.exclude ?? [],
@@ -185,6 +267,8 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
 }
 
 /** Builds a content type from a preset entry of the module options. */
-export function createPresetType(entry: DocsTypeOptions & { preset: 'docs' }): PlutoContentType {
+export function createPresetType(
+  entry: DocsTypeOptions & { preset: 'docs' }
+): PlutoContentType {
   return createDocsType(entry)
 }

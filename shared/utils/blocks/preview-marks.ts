@@ -36,7 +36,9 @@ function slotElements(node: PlutoMarkNode): PlutoMarkNode[] {
       continue
     }
     if (child.tag === 'template') {
-      elements.push(...(child.children ?? []).filter((inner) => inner.type === 'element'))
+      elements.push(
+        ...(child.children ?? []).filter((inner) => inner.type === 'element')
+      )
     } else {
       elements.push(child)
     }
@@ -52,7 +54,10 @@ function slotElements(node: PlutoMarkNode): PlutoMarkNode[] {
  * so call it on a body from a new parse. Returns the number of marked
  * elements, at all levels.
  */
-export function markPreviewChildren(node: PlutoMarkNode, children: PlutoPreviewChild[]): number {
+export function markPreviewChildren(
+  node: PlutoMarkNode,
+  children: PlutoPreviewChild[]
+): number {
   let marked = 0
   let next = 0
   for (const element of slotElements(node)) {
@@ -70,12 +75,21 @@ export function markPreviewChildren(node: PlutoMarkNode, children: PlutoPreviewC
 }
 
 /** The number of children in a tree, at all levels. */
-export function countPreviewChildren(children: PlutoPreviewChild[] | undefined): number {
-  return (children ?? []).reduce((total, child) => total + 1 + countPreviewChildren(child.children), 0)
+export function countPreviewChildren(
+  children: PlutoPreviewChild[] | undefined
+): number {
+  return (children ?? []).reduce(
+    (total, child) => total + 1 + countPreviewChildren(child.children),
+    0
+  )
 }
 
 /** The parent id of each child in a tree. A child of a top-level block has that block as parent. */
-export function previewParents(blockId: string, children: PlutoPreviewChild[] | undefined, parents = new Map<string, string>()): Map<string, string> {
+export function previewParents(
+  blockId: string,
+  children: PlutoPreviewChild[] | undefined,
+  parents = new Map<string, string>()
+): Map<string, string> {
   for (const child of children ?? []) {
     parents.set(child.id, blockId)
     previewParents(child.id, child.children, parents)

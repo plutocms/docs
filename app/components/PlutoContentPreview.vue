@@ -20,7 +20,11 @@ defineProps<{
       <UPageHeader
         v-if="typeof frontmatter.title === 'string' && frontmatter.title"
         :title="frontmatter.title"
-        :description="typeof frontmatter.description === 'string' ? frontmatter.description : undefined"
+        :description="
+          typeof frontmatter.description === 'string'
+            ? frontmatter.description
+            : undefined
+        "
       />
 
       <UPageBody>

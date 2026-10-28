@@ -30,9 +30,12 @@ const prose = computed(() => toValue(renderOptions).prose ?? true)
 const components = computed(() => toValue(renderOptions).components ?? {})
 
 // A new body gets a new chance to render.
-watch(() => props.body, () => {
-  failed.value = null
-})
+watch(
+  () => props.body,
+  () => {
+    failed.value = null
+  }
+)
 
 onErrorCaptured((error) => {
   failed.value = error instanceof Error ? error.message : String(error)
@@ -56,7 +59,7 @@ const note = computed(() => {
   <ContentRenderer
     v-if="value && !failed && !error"
     :value="value"
-    :tag="(false as unknown as string)"
+    :tag="false as unknown as string"
     :prose="prose"
     :components="components"
   />

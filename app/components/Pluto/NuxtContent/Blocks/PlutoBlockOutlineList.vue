@@ -38,6 +38,13 @@ interface PlutoBlockChildList {
 }
 
 /** The slots of a component that show their children in the outline. */
+// A row keeps a column for the chevron only when a block of this list has
+// children. A list of leaves (often the cards of a slot) has no empty column,
+// so its titles do not move to the right for nothing.
+const hasChevrons = computed(() =>
+  props.blocks.some((block) => childLists(block).length > 0)
+)
+
 function childLists(block: PlutoBlock): PlutoBlockChildList[] {
   if (block.kind !== 'component') {
     return []
@@ -127,7 +134,10 @@ function onKeydown(event: KeyboardEvent, block: PlutoBlock) {
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     focusRow(target, event.key === 'ArrowUp' ? -1 : 1)
-  } else if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && childLists(block).length) {
+  } else if (
+    (event.key === 'ArrowLeft' || event.key === 'ArrowRight') &&
+    childLists(block).length
+  ) {
     // Like a tree: Left closes the children, Right opens them.
     const collapsed = editor.collapsedIds.value.has(block.id)
     if (collapsed === (event.key === 'ArrowRight')) {
@@ -195,9 +205,13 @@ onBeforeUnmount(() => sortable?.destroy())
 
 <template>
   <!--
-    The drag handle and the dots menu of a row show on row hover, and the "Add" button of a
-    child list on hover of that list. They keep their place (opacity only), so the rows do not
-    move. A device without hover, the keyboard focus and an open menu keep them visible.
+    A row: the drag handle (16px), the chevron (16px, only in a list with children), the icon,
+    the title, the dots menu. The vertical line of a child list sits under the center of the
+    chevron: 2px row padding + 16px handle + 2px gap + 8px = 28px (`ms-7`).
+
+    The drag handle and the dots menu show on row hover. They keep their place (opacity only), so
+    the rows do not move. A device without hover, the keyboard focus and an open menu keep them
+    visible.
   -->
   <ul ref="list" :data-level="level" class="flex flex-col gap-0.5">
     <li v-for="(block, index) in blocks" :key="block.id">
@@ -212,7 +226,7 @@ onBeforeUnmount(() => sortable?.destroy())
         class="group flex items-center gap-0.5 rounded-md pe-0.5 ps-0.5 transition-colors"
       >
         <span
-          class="flex h-8 w-5 shrink-0 cursor-grab touch-none items-center justify-center rounded text-dimmed opacity-60 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 active:cursor-grabbing [@media(hover:hover)]:opacity-0"
+          class="flex h-8 w-4 shrink-0 cursor-grab touch-none items-center justify-center rounded text-dimmed opacity-60 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 active:cursor-grabbing [@media(hover:hover)]:opacity-0"
           aria-hidden="true"
           data-block-handle
         >
@@ -223,9 +237,16 @@ onBeforeUnmount(() => sortable?.destroy())
         <button
           v-if="childLists(block).length"
           :aria-expanded="!editor.collapsedIds.value.has(block.id)"
-          :aria-label="t(editor.collapsedIds.value.has(block.id) ? 'nuxt-content.editor.expand' : 'nuxt-content.editor.collapse', { name: info(block).label })"
+          :aria-label="
+            t(
+              editor.collapsedIds.value.has(block.id)
+                ? 'nuxt-content.editor.expand'
+                : 'nuxt-content.editor.collapse',
+              { name: info(block).label }
+            )
+          "
           type="button"
-          class="flex size-5 shrink-0 items-center justify-center rounded text-muted hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+          class="flex size-4 shrink-0 items-center justify-center rounded text-muted hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
           @click="editor.toggleCollapsed(block.id)"
         >
           <UIcon
@@ -234,7 +255,11 @@ onBeforeUnmount(() => sortable?.destroy())
             class="size-4 transition-transform"
           />
         </button>
-        <span v-else class="size-5 shrink-0" aria-hidden="true" />
+        <span
+          v-else-if="hasChevrons"
+          class="size-4 shrink-0"
+          aria-hidden="true"
+        />
 
         <button
           :data-block-row="block.id"
@@ -243,7 +268,7 @@ onBeforeUnmount(() => sortable?.destroy())
           "
           type="button"
           aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown ArrowLeft ArrowRight Delete"
-          class="flex min-h-8 min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 text-start text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          class="flex min-h-8 min-w-0 flex-1 items-center gap-2 rounded p-1 text-start text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           @click="editor.select(block.id)"
           @keydown="onKeydown($event, block)"
         >
@@ -278,13 +303,15 @@ onBeforeUnmount(() => sortable?.destroy())
       </div>
 
       <div
-        v-if="childLists(block).length && !editor.collapsedIds.value.has(block.id)"
-        class="ms-5 border-s border-default ps-1.5"
+        v-if="
+          childLists(block).length && !editor.collapsedIds.value.has(block.id)
+        "
+        class="ms-7 border-s border-default ps-1"
       >
         <div
           v-for="child in childLists(block)"
           :key="child.slot"
-          class="group/list pt-0.5"
+          class="pt-0.5"
         >
           <p
             v-if="childLists(block).length > 1"
@@ -304,7 +331,7 @@ onBeforeUnmount(() => sortable?.destroy())
             color="neutral"
             variant="link"
             size="xs"
-            class="ms-6 transition-opacity group-hover/list:opacity-100 focus-visible:opacity-100 [@media(hover:hover)]:opacity-0"
+            class="ms-5"
             @click="
               editor.openPalette({
                 parentId: block.id,

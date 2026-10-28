@@ -5,14 +5,21 @@ import type { PlutoNuxtContentTypeOptions } from '../../modules/pluto-nuxt-conte
 // so the order of the two plugins does not matter. When the layer is off (the
 // CMS is off), the module sets no config and this plugin does nothing.
 export default defineNitroPlugin(() => {
-  const config = useRuntimeConfig().public.plutoNuxtContent as {
-    types: PlutoNuxtContentTypeOptions[]
-    render?: string
-  } | undefined
+  const config = useRuntimeConfig().public.plutoNuxtContent as
+    | {
+        types: PlutoNuxtContentTypeOptions[]
+        render?: string
+      }
+    | undefined
   if (!config) {
     return
   }
   for (const entry of config.types) {
-    registerContentType(createDocsType({ ...entry, liveOnSave: config.render === 'hybrid' || config.render === 'runtime' }))
+    registerContentType(
+      createDocsType({
+        ...entry,
+        liveOnSave: config.render === 'hybrid' || config.render === 'runtime',
+      })
+    )
   }
 })

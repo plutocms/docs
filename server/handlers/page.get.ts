@@ -2,4 +2,6 @@ import { defineEventHandler } from 'h3'
 
 // Added by the module only when `plutoNuxtContent.render` is `'hybrid'` or `'runtime'`. A route of the
 // public API (`/api/pluto/v1/nuxt-content/:type/page`): the answer is `{ data }`, like core's routes.
-export default defineEventHandler(async (event) => ({ data: await plutoRuntimePage(event) }))
+export default defineEventHandler(async (event) => ({
+  data: await plutoRuntimePage(event),
+}))

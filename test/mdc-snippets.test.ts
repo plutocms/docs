@@ -22,14 +22,18 @@ describe('mdc snippets', () => {
   })
 
   it('has unique ids and i18n keys of this layer', () => {
-    expect(new Set(MDC_SNIPPETS.map((snippet) => snippet.id)).size).toBe(MDC_SNIPPETS.length)
+    expect(new Set(MDC_SNIPPETS.map((snippet) => snippet.id)).size).toBe(
+      MDC_SNIPPETS.length
+    )
     for (const snippet of MDC_SNIPPETS) {
       expect(snippet.label).toMatch(/^nuxt-content\.snippets\./)
     }
   })
 
   it('closes every block component', () => {
-    for (const snippet of MDC_SNIPPETS.filter((entry) => entry.text.startsWith('::'))) {
+    for (const snippet of MDC_SNIPPETS.filter((entry) =>
+      entry.text.startsWith('::')
+    )) {
       const lines = snippet.text.split('\n')
       const opens = lines.filter((line) => /^\s*:{2,}[a-z]/.test(line)).length
       const closes = lines.filter((line) => /^\s*:{2,}$/.test(line)).length
@@ -38,6 +42,10 @@ describe('mdc snippets', () => {
   })
 
   it('marks the inline snippets', () => {
-    expect(MDC_SNIPPETS.filter((snippet) => !snippet.block).map((snippet) => snippet.id)).toEqual(['kbd', 'icon'])
+    expect(
+      MDC_SNIPPETS.filter((snippet) => !snippet.block).map(
+        (snippet) => snippet.id
+      )
+    ).toEqual(['kbd', 'icon'])
   })
 })

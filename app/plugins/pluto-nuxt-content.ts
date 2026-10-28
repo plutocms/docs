@@ -11,22 +11,37 @@ const PlutoFieldMdc = defineAsyncComponent(
 // `adminBar`, so core shows "New page" and "Edit page" in the admin bar. The module
 // sets the config only when the CMS is on. Without it, the layer adds nothing to the admin.
 export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig().public.plutoNuxtContent as unknown as {
-    types: PlutoNuxtContentTypeOptions[]
-    render?: string
-  } | undefined
+  const config = useRuntimeConfig().public.plutoNuxtContent as unknown as
+    | {
+        types: PlutoNuxtContentTypeOptions[]
+        render?: string
+      }
+    | undefined
   if (!config) {
     return
   }
 
-  const types = config.types.map((entry) => createDocsType({ ...entry, liveOnSave: config.render === 'hybrid' || config.render === 'runtime' }))
+  const types = config.types.map((entry) =>
+    createDocsType({
+      ...entry,
+      liveOnSave: config.render === 'hybrid' || config.render === 'runtime',
+    })
+  )
 
   definePlutoExtension({
     id: 'nuxt-content',
     contentTypes: types.map((type) => ({ id: type.name, type })),
     capabilities: [
-      { id: 'docs-write', key: DOCS_CAPABILITIES.write, label: 'nuxt-content.capabilities.write' },
-      { id: 'docs-delete', key: DOCS_CAPABILITIES.delete, label: 'nuxt-content.capabilities.delete' },
+      {
+        id: 'docs-write',
+        key: DOCS_CAPABILITIES.write,
+        label: 'nuxt-content.capabilities.write',
+      },
+      {
+        id: 'docs-delete',
+        key: DOCS_CAPABILITIES.delete,
+        label: 'nuxt-content.capabilities.delete',
+      },
     ],
     contentFieldWidgets: [
       { id: 'mdc', widget: 'mdc', component: PlutoFieldMdc },

@@ -3,7 +3,16 @@
 // edit writes the same bytes. The parser is `remark-mdc` on `remark-parse`:
 // pin the versions to the ones of `@nuxtjs/mdc`.
 
-import type { PlutoBlock, PlutoBlockDoc, PlutoCodeBlock, PlutoComponentBlock, PlutoRawBlock, PlutoRawReason, PlutoSlice, PlutoTextBlock } from './types'
+import type {
+  PlutoBlock,
+  PlutoBlockDoc,
+  PlutoCodeBlock,
+  PlutoComponentBlock,
+  PlutoRawBlock,
+  PlutoRawReason,
+  PlutoSlice,
+  PlutoTextBlock,
+} from './types'
 import remarkGfm from 'remark-gfm'
 import remarkMdc from 'remark-mdc'
 import remarkParse from 'remark-parse'
@@ -19,7 +28,7 @@ interface MdNode {
   meta?: string | null
   checked?: boolean | null
   children?: MdNode[]
-  position?: { start: { offset?: number }, end: { offset?: number } }
+  position?: { start: { offset?: number }; end: { offset?: number } }
 }
 
 interface Context {
@@ -54,10 +63,20 @@ const SAFE_TYPES = new Set([
   'break',
 ])
 
-const PROSE_TYPES = new Set(['paragraph', 'heading', 'list', 'blockquote', 'thematicBreak', 'definition'])
+const PROSE_TYPES = new Set([
+  'paragraph',
+  'heading',
+  'list',
+  'blockquote',
+  'thematicBreak',
+  'definition',
+])
 
 /** The reason why the visual editor cannot keep a piece of prose, or `undefined` when it can. */
-function unsafeReason(node: MdNode, source: string): PlutoRawReason | undefined {
+function unsafeReason(
+  node: MdNode,
+  source: string
+): PlutoRawReason | undefined {
   switch (node.type) {
     case 'html':
       return 'html'
@@ -68,7 +87,9 @@ function unsafeReason(node: MdNode, source: string): PlutoRawReason | undefined 
       return 'footnote'
     case 'textComponent':
       // The parser reads a footnote reference as a text span.
-      return source.startsWith('[^', node.position!.start.offset!) ? 'footnote' : 'inline-mdc'
+      return source.startsWith('[^', node.position!.start.offset!)
+        ? 'footnote'
+        : 'inline-mdc'
     case 'containerComponent':
     case 'leafComponent':
       return 'inline-mdc'
@@ -79,7 +100,11 @@ function unsafeReason(node: MdNode, source: string): PlutoRawReason | undefined 
   if (!SAFE_TYPES.has(node.type)) {
     return 'unknown'
   }
-  if (node.type === 'listItem' && node.checked !== null && node.checked !== undefined) {
+  if (
+    node.type === 'listItem' &&
+    node.checked !== null &&
+    node.checked !== undefined
+  ) {
     return 'task-list'
   }
   for (const child of node.children ?? []) {
@@ -112,7 +137,9 @@ export function dedent(text: string, indent: string): string {
   }
   return text
     .split('\n')
-    .map((line, index) => (index > 0 && line.startsWith(indent) ? line.slice(indent.length) : line))
+    .map((line, index) =>
+      index > 0 && line.startsWith(indent) ? line.slice(indent.length) : line
+    )
     .join('\n')
 }
 
@@ -140,8 +167,12 @@ function parseCode(ctx: Context, node: MdNode): Entry {
   }
   const fence = fenceLength >= 3 ? first.slice(0, fenceLength) : '```'
   const info = first.slice(fenceLength).trim()
-  const closing = lines.length > 1 ? /^[ \t]*([`~]{3,})[ \t]*\r?$/.exec(lines.at(-1)!) : null
-  const closed = closing !== null && closing[1]![0] === fence[0] && closing[1]!.length >= fence.length
+  const closing =
+    lines.length > 1 ? /^[ \t]*([`~]{3,})[ \t]*\r?$/.exec(lines.at(-1)!) : null
+  const closed =
+    closing !== null &&
+    closing[1]![0] === fence[0] &&
+    closing[1]!.length >= fence.length
   const code = lines.slice(1, closed ? -1 : undefined).join('\n')
 
   // The language is the first word. A file name or a flag can follow.
@@ -152,7 +183,10 @@ function parseCode(ctx: Context, node: MdNode): Entry {
   const nameMatch = /\[([^\]]*)\]/.exec(rest)
   if (nameMatch) {
     filename = nameMatch[1]
-    rest = `${rest.slice(0, nameMatch.index)}${rest.slice(nameMatch.index + nameMatch[0].length)}`.replace(/\s+/g, ' ').trim()
+    rest =
+      `${rest.slice(0, nameMatch.index)}${rest.slice(nameMatch.index + nameMatch[0].length)}`
+        .replace(/\s+/g, ' ')
+        .trim()
   }
   const block: PlutoCodeBlock = {
     id: ctx.nextId(),
@@ -168,7 +202,12 @@ function parseCode(ctx: Context, node: MdNode): Entry {
   return { block, start, end }
 }
 
-function parseRaw(ctx: Context, start: number, end: number, reason: PlutoRawReason): Entry {
+function parseRaw(
+  ctx: Context,
+  start: number,
+  end: number,
+  reason: PlutoRawReason
+): Entry {
   const indent = indentOf(ctx.source, start)
   const original = sliceOf(ctx.source, start, end)
   const block: PlutoRawBlock = {
@@ -195,7 +234,8 @@ function parseText(ctx: Context, start: number, end: number): Entry {
   return { block, start, end }
 }
 
-const YAML_BLOCK = /^(\r?\n[ \t]*)---[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*---[ \t]*(?=\r?\n|$)/
+const YAML_BLOCK =
+  /^(\r?\n[ \t]*)---[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*---[ \t]*(?=\r?\n|$)/
 
 /** The common white space at the start of the non-blank lines. */
 function commonIndent(text: string): string {
@@ -224,7 +264,9 @@ function parseComponent(ctx: Context, node: MdNode): Entry {
   const rawFallback = () => parseRaw(ctx, start, end, 'unknown')
 
   const lineEnd = source.indexOf('\n', start)
-  const line = source.slice(start, lineEnd === -1 ? source.length : lineEnd).replace(/\r$/, '')
+  const line = source
+    .slice(start, lineEnd === -1 ? source.length : lineEnd)
+    .replace(/\r$/, '')
   const opener = parseOpener(line)
   if (!opener) {
     return rawFallback()
@@ -242,7 +284,10 @@ function parseComponent(ctx: Context, node: MdNode): Entry {
   const take = (name: string, nodes: MdNode[]) => {
     const parsed = parseNodes(ctx, nodes, false)
     entries.push(...parsed)
-    slots[name] = [...(slots[name] ?? []), ...parsed.map((entry) => entry.block)]
+    slots[name] = [
+      ...(slots[name] ?? []),
+      ...parsed.map((entry) => entry.block),
+    ]
   }
   // Content before the first `#name` is `default`. After a section, loose content
   // is a `#default` section: the parser keeps no node for that marker.
@@ -266,7 +311,9 @@ function parseComponent(ctx: Context, node: MdNode): Entry {
 
   // The children must be in source order, inside the component.
   const ordered = flatChildren({ slots } as PlutoComponentBlock)
-  const sorted = ordered.map((block) => entries.find((entry) => entry.block === block)!)
+  const sorted = ordered.map((block) =>
+    entries.find((entry) => entry.block === block)!
+  )
   let cursor = openerEnd
   for (const entry of sorted) {
     if (entry.start < cursor || entry.end > closerStart) {
@@ -282,7 +329,11 @@ function parseComponent(ctx: Context, node: MdNode): Entry {
   }
   gaps.push(source.slice(cursor, closerStart))
 
-  let props: ReturnType<typeof parseInlineProps> = { props: {}, order: [], source: {} }
+  let props: ReturnType<typeof parseInlineProps> = {
+    props: {},
+    order: [],
+    source: {},
+  }
   let propsStyle: PlutoComponentBlock['propsStyle'] = 'inline'
   let openerText = source.slice(start, openerEnd)
   let yamlHead: string | undefined
@@ -329,7 +380,7 @@ function parseComponent(ctx: Context, node: MdNode): Entry {
 /** Turns sibling nodes into blocks. `top` cuts a Text block at each H1 and H2. */
 function parseNodes(ctx: Context, nodes: MdNode[], top: boolean): Entry[] {
   const entries: Entry[] = []
-  let group: { start: number, end: number } | undefined
+  let group: { start: number; end: number } | undefined
 
   const flush = () => {
     if (group) {
@@ -362,7 +413,9 @@ function parseNodes(ctx: Context, nodes: MdNode[], top: boolean): Entry[] {
     } else if (node.type === 'containerComponent') {
       entries.push(parseComponent(ctx, node))
     } else {
-      entries.push(parseRaw(ctx, start, end, unsafeReason(node, ctx.source) ?? 'unknown'))
+      entries.push(
+        parseRaw(ctx, start, end, unsafeReason(node, ctx.source) ?? 'unknown')
+      )
     }
   }
   flush()
@@ -371,7 +424,11 @@ function parseNodes(ctx: Context, nodes: MdNode[], top: boolean): Entry[] {
 
 /** Cuts a Markdown (MDC) text into a block doc. `serializeBlocks` of the result gives the same text. */
 export function parseBlocks(source: string): PlutoBlockDoc {
-  const tree = unified().use(remarkParse).use(remarkGfm).use(remarkMdc).parse(source) as unknown as MdNode
+  const tree = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMdc)
+    .parse(source) as unknown as MdNode
   let counter = 0
   const ctx: Context = { source, nextId: () => `b${counter++}` }
   const entries = parseNodes(ctx, tree.children ?? [], true)

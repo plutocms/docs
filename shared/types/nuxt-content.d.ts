@@ -1,4 +1,8 @@
-import type { PlutoNuxtContentOptions, PlutoNuxtContentRender, PlutoNuxtContentTypeOptions } from '../../modules/pluto-nuxt-content/options'
+import type {
+  PlutoNuxtContentOptions,
+  PlutoNuxtContentRender,
+  PlutoNuxtContentTypeOptions,
+} from '../../modules/pluto-nuxt-content/options'
 import type { PlutoBlocksConfig } from '../utils/blocks/types'
 
 // The `pluto-nuxt-content` module fills the public key. See modules/pluto-nuxt-content/index.ts.
@@ -21,7 +25,7 @@ declare module '@nuxt/schema' {
   interface RuntimeConfig {
     plutoNuxtContent?: {
       /** The `toc` option of `content.build.markdown`, for the run-time parser. */
-      toc?: { depth?: number, searchDepth?: number }
+      toc?: { depth?: number; searchDepth?: number }
     }
   }
   // A site declares its blocks in app.config.ts. See shared/utils/blocks/registry.ts.

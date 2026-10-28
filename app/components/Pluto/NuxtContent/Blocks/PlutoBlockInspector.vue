@@ -7,11 +7,11 @@
 import type {
   PlutoBlock,
   PlutoComponentBlock,
-  PlutoPropValue
+  PlutoPropValue,
 } from '../../../../../shared/utils/blocks/types'
 import {
   resolveSlotMode,
-  slotMarkdown
+  slotMarkdown,
 } from '../../../../../shared/utils/blocks/editor'
 import { blockMarkdown } from '../../../../../shared/utils/blocks/operations'
 import PlutoBlockPropControl from './PlutoBlockPropControl.vue'
@@ -97,8 +97,9 @@ watch(
     const current = block.value
     slotBacked.value = new Set(
       current?.kind === 'component'
-        ? Object.entries(definition.value?.props ?? {}).flatMap(([name, prop]) =>
-            prop.slot && slotMarkdown(current, prop.slot).trim() ? [name] : []
+        ? Object.entries(definition.value?.props ?? {}).flatMap(
+            ([name, prop]) =>
+              prop.slot && slotMarkdown(current, prop.slot).trim() ? [name] : []
           )
         : []
     )
@@ -127,22 +128,24 @@ const slots = computed(() => {
   if (current?.kind !== 'component') {
     return []
   }
-  return Object.entries(definition.value?.slots ?? {}).filter(([name]) => !coveredSlots.value.has(name)).map(([name, slot]) => ({
-    name,
-    label: slotLabel(definition.value, name),
-    add: addLabel(definition.value, name),
-    mode: resolveSlotMode(
-      current,
+  return Object.entries(definition.value?.slots ?? {})
+    .filter(([name]) => !coveredSlots.value.has(name))
+    .map(([name, slot]) => ({
       name,
-      slot.content === 'rich' ||
-        slot.content === 'inline' ||
-        slot.content === 'blocks'
-        ? slot.content
-        : undefined
-    ),
-    children: current.slots[name] ?? [],
-    accepts: slot.accepts,
-  }))
+      label: slotLabel(definition.value, name),
+      add: addLabel(definition.value, name),
+      mode: resolveSlotMode(
+        current,
+        name,
+        slot.content === 'rich' ||
+          slot.content === 'inline' ||
+          slot.content === 'blocks'
+          ? slot.content
+          : undefined
+      ),
+      children: current.slots[name] ?? [],
+      accepts: slot.accepts,
+    }))
 })
 
 function component(): PlutoComponentBlock {
@@ -313,7 +316,7 @@ function applyRaw(markdown: string) {
             :disabled="disabled"
             :rows="10"
             :maxrows="28"
-            :ui="{ base: 'font-mono text-sm leading-6' }"
+            :ui="{ base: 'font-mono text-sm/6' }"
             spellcheck="false"
             autocomplete="off"
             autocapitalize="off"
@@ -406,7 +409,9 @@ function applyRaw(markdown: string) {
                       <span class="font-medium text-highlighted">{{
                         childInfo(child).label
                       }}</span>
-                      <span v-if="childInfo(child).excerpt" class="text-muted">: {{ childInfo(child).excerpt }}</span>
+                      <span v-if="childInfo(child).excerpt" class="text-muted"
+                        >: {{ childInfo(child).excerpt }}</span
+                      >
                     </span>
                     <UIcon
                       name="i-lucide-chevron-right"

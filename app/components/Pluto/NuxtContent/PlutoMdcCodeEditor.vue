@@ -10,28 +10,59 @@ import type { Extension, Range } from '@codemirror/state'
 // the author types. `insert`, `focus` and `reveal` are exposed, and `insert`
 // goes to the `toolbar` slot too, as in PlutoMarkdownSource.
 import type { PlutoMarkdownFormat } from '../../../../shared/utils/markdown-format'
-import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab,
+} from '@codemirror/commands'
 import { markdownKeymap, markdownLanguage } from '@codemirror/lang-markdown'
-import { HighlightStyle, LanguageSupport, syntaxHighlighting } from '@codemirror/language'
-import { highlightSelectionMatches, search, searchKeymap } from '@codemirror/search'
-import { Annotation, Compartment, EditorSelection, EditorState } from '@codemirror/state'
-import { Decoration, drawSelection, EditorView, keymap, placeholder as placeholderText, ViewPlugin } from '@codemirror/view'
+import {
+  HighlightStyle,
+  LanguageSupport,
+  syntaxHighlighting,
+} from '@codemirror/language'
+import {
+  highlightSelectionMatches,
+  search,
+  searchKeymap,
+} from '@codemirror/search'
+import {
+  Annotation,
+  Compartment,
+  EditorSelection,
+  EditorState,
+} from '@codemirror/state'
+import {
+  Decoration,
+  drawSelection,
+  EditorView,
+  keymap,
+  placeholder as placeholderText,
+  ViewPlugin,
+} from '@codemirror/view'
 import { tags } from '@lezer/highlight'
-import { formatMarkdown, minimalChange } from '../../../../shared/utils/markdown-format'
+import {
+  formatMarkdown,
+  minimalChange,
+} from '../../../../shared/utils/markdown-format'
 import { mdcLineKinds } from '../../../../shared/utils/mdc-lines'
 
-const props = withDefaults(defineProps<{
-  modelValue: string
-  disabled?: boolean
-  placeholder?: string
-  ariaLabel?: string
-  /** Fill the height of the parent and scroll inside. Default: grow with the text. */
-  fill?: boolean
-  /** The minimum height in lines when it grows with the text. Default 18. */
-  minLines?: number
-}>(), {
-  minLines: 18,
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue: string
+    disabled?: boolean
+    placeholder?: string
+    ariaLabel?: string
+    /** Fill the height of the parent and scroll inside. Default: grow with the text. */
+    fill?: boolean
+    /** The minimum height in lines when it grows with the text. Default 18. */
+    minLines?: number
+  }>(),
+  {
+    minLines: 18,
+  }
+)
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -39,7 +70,7 @@ const emit = defineEmits<{
 
 defineSlots<{
   /** Next to the quick formats, for example the Insert menu. */
-  'toolbar'?: (props: { insert: Insert, focus: () => void }) => unknown
+  toolbar?: (props: { insert: Insert; focus: () => void }) => unknown
   /** At the end of the toolbar, for example the Visual and Markdown switch. */
   'toolbar-end'?: () => unknown
 }>()
@@ -48,10 +79,25 @@ type Insert = (text: string, options?: { block?: boolean }) => void
 
 const { t } = usePlutoI18n()
 
-const FORMATS: Array<{ format: PlutoMarkdownFormat, icon: string, keys?: string[], key?: string }> = [
+const FORMATS: Array<{
+  format: PlutoMarkdownFormat
+  icon: string
+  keys?: string[]
+  key?: string
+}> = [
   { format: 'bold', icon: 'i-lucide-bold', keys: ['meta', 'B'], key: 'Mod-b' },
-  { format: 'italic', icon: 'i-lucide-italic', keys: ['meta', 'I'], key: 'Mod-i' },
-  { format: 'strike', icon: 'i-lucide-strikethrough', keys: ['meta', 'shift', 'X'], key: 'Mod-Shift-x' },
+  {
+    format: 'italic',
+    icon: 'i-lucide-italic',
+    keys: ['meta', 'I'],
+    key: 'Mod-i',
+  },
+  {
+    format: 'strike',
+    icon: 'i-lucide-strikethrough',
+    keys: ['meta', 'shift', 'X'],
+    key: 'Mod-Shift-x',
+  },
   { format: 'code', icon: 'i-lucide-code', keys: ['meta', 'E'], key: 'Mod-e' },
   { format: 'link', icon: 'i-lucide-link', keys: ['meta', 'K'], key: 'Mod-k' },
   { format: 'heading', icon: 'i-lucide-heading' },
@@ -77,16 +123,32 @@ function editableState(disabled: boolean): Extension {
 // The format shows on the text, and the marks stay visible but dimmed. Every line has the same
 // font size: a heading (`## Title`) is yellow, not larger, so it stays apart from a slot (`#title`).
 const hybridStyle = HighlightStyle.define([
-  { tag: [tags.heading1, tags.heading2, tags.heading3, tags.heading4, tags.heading5, tags.heading6], color: 'var(--ui-warning, #eab308)' },
+  {
+    tag: [
+      tags.heading1,
+      tags.heading2,
+      tags.heading3,
+      tags.heading4,
+      tags.heading5,
+      tags.heading6,
+    ],
+    color: 'var(--ui-warning, #eab308)',
+  },
   { tag: tags.strong, fontWeight: '700' },
   { tag: tags.emphasis, fontStyle: 'italic' },
   { tag: tags.strikethrough, textDecoration: 'line-through' },
   { tag: tags.link, color: 'var(--ui-primary)' },
   { tag: tags.url, color: 'var(--ui-text-muted)', textDecoration: 'underline' },
-  { tag: tags.monospace, fontFamily: 'var(--font-mono, ui-monospace, monospace)' },
+  {
+    tag: tags.monospace,
+    fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+  },
   { tag: tags.processingInstruction, color: 'var(--ui-text-dimmed)' },
   { tag: tags.quote, color: 'var(--ui-text-muted)', fontStyle: 'italic' },
-  { tag: [tags.labelName, tags.contentSeparator, tags.comment], color: 'var(--ui-text-dimmed)' },
+  {
+    tag: [tags.labelName, tags.contentSeparator, tags.comment],
+    color: 'var(--ui-text-dimmed)',
+  },
 ])
 
 const LINE_CLASSES = {
@@ -98,61 +160,94 @@ const LINE_CLASSES = {
 
 // The MDC lines and the code blocks get their own look. A docs page has a few hundred lines,
 // so the plugin reads the whole text again after each change.
-const mdcLines = ViewPlugin.fromClass(class {
-  decorations = Decoration.none
+const mdcLines = ViewPlugin.fromClass(
+  class {
+    decorations = Decoration.none
 
-  constructor(view: EditorView) {
-    this.decorations = this.build(view)
-  }
-
-  update(update: { docChanged: boolean, view: EditorView }) {
-    if (update.docChanged) {
-      this.decorations = this.build(update.view)
+    constructor(view: EditorView) {
+      this.decorations = this.build(view)
     }
-  }
 
-  build(view: EditorView) {
-    const kinds = mdcLineKinds(view.state.doc.toString())
-    const ranges: Range<Decoration>[] = []
-    kinds.forEach((kind, index) => {
-      if (kind) {
-        ranges.push(LINE_CLASSES[kind].range(view.state.doc.line(index + 1).from))
+    update(update: { docChanged: boolean; view: EditorView }) {
+      if (update.docChanged) {
+        this.decorations = this.build(update.view)
       }
-    })
-    return Decoration.set(ranges)
-  }
-}, { decorations: (plugin) => plugin.decorations })
+    }
+
+    build(view: EditorView) {
+      const kinds = mdcLineKinds(view.state.doc.toString())
+      const ranges: Range<Decoration>[] = []
+      kinds.forEach((kind, index) => {
+        if (kind) {
+          ranges.push(
+            LINE_CLASSES[kind].range(view.state.doc.line(index + 1).from)
+          )
+        }
+      })
+      return Decoration.set(ranges)
+    }
+  },
+  { decorations: (plugin) => plugin.decorations }
+)
 
 const theme = EditorView.theme({
-  '&': { color: 'var(--ui-text)', backgroundColor: 'transparent', fontSize: '15px' },
+  '&': {
+    color: 'var(--ui-text)',
+    backgroundColor: 'transparent',
+    fontSize: '15px',
+  },
   '&.cm-focused': { outline: 'none' },
   '.cm-scroller': { fontFamily: 'inherit', lineHeight: '1.7' },
   '.cm-content': { padding: '12px 16px', caretColor: 'var(--ui-primary)' },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--ui-primary)', borderLeftWidth: '2px' },
-  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground': {
-    backgroundColor: 'color-mix(in oklab, var(--ui-primary) 22%, transparent)',
+  '.cm-cursor, .cm-dropCursor': {
+    borderLeftColor: 'var(--ui-primary)',
+    borderLeftWidth: '2px',
   },
-  '.cm-selectionMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-primary) 12%, transparent)' },
+  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground':
+    {
+      backgroundColor:
+        'color-mix(in oklab, var(--ui-primary) 22%, transparent)',
+    },
+  '.cm-selectionMatch': {
+    backgroundColor: 'color-mix(in oklab, var(--ui-primary) 12%, transparent)',
+  },
   '.cm-placeholder': { color: 'var(--ui-text-dimmed)' },
-  '.cm-pluto-component': { color: 'var(--ui-primary)', fontFamily: 'var(--font-mono, ui-monospace, monospace)' },
-  '.cm-pluto-slot': { color: 'var(--ui-secondary, var(--ui-primary))', fontFamily: 'var(--font-mono, ui-monospace, monospace)', fontWeight: '600' },
-  '.cm-pluto-props': { color: 'var(--ui-text-muted)', fontFamily: 'var(--font-mono, ui-monospace, monospace)' },
+  '.cm-pluto-component': {
+    color: 'var(--ui-primary)',
+    fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+  },
+  '.cm-pluto-slot': {
+    color: 'var(--ui-secondary, var(--ui-primary))',
+    fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+    fontWeight: '600',
+  },
+  '.cm-pluto-props': {
+    color: 'var(--ui-text-muted)',
+    fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+  },
   '.cm-pluto-code': {
     fontFamily: 'var(--font-mono, ui-monospace, monospace)',
     backgroundColor: 'color-mix(in oklab, var(--ui-text) 5%, transparent)',
   },
   // A component, slot, props or code line keeps its own look: no Markdown format inside it. A YAML
   // line before a `---` line would read as a heading (a "setext" heading) and turn yellow.
-  '.cm-pluto-component *, .cm-pluto-slot *, .cm-pluto-props *, .cm-pluto-code *': {
-    color: 'inherit !important',
-    fontWeight: 'inherit !important',
-    fontStyle: 'inherit !important',
-    textDecoration: 'none !important',
+  '.cm-pluto-component *, .cm-pluto-slot *, .cm-pluto-props *, .cm-pluto-code *':
+    {
+      color: 'inherit !important',
+      fontWeight: 'inherit !important',
+      fontStyle: 'inherit !important',
+      textDecoration: 'none !important',
+    },
+  '.cm-panels': {
+    backgroundColor: 'var(--ui-bg-elevated)',
+    color: 'var(--ui-text)',
   },
-  '.cm-panels': { backgroundColor: 'var(--ui-bg-elevated)', color: 'var(--ui-text)' },
   '.cm-panels-top': { borderBottom: '1px solid var(--ui-border)' },
   '.cm-panel.cm-search input, .cm-panel.cm-search button': { fontSize: '13px' },
-  '.cm-searchMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-warning, orange) 30%, transparent)' },
+  '.cm-searchMatch': {
+    backgroundColor:
+      'color-mix(in oklab, var(--ui-warning, orange) 30%, transparent)',
+  },
 })
 
 // --- Actions -----------------------------------------------------------------------
@@ -165,7 +260,10 @@ function format(kind: PlutoMarkdownFormat): boolean {
   const edit = formatMarkdown(view.state.doc.toString(), from, to, kind)
   view.dispatch({
     changes: { from: edit.from, to: edit.to, insert: edit.insert },
-    selection: EditorSelection.single(edit.selection.anchor, edit.selection.head),
+    selection: EditorSelection.single(
+      edit.selection.anchor,
+      edit.selection.head
+    ),
     scrollIntoView: true,
     userEvent: 'input.format',
   })
@@ -187,7 +285,12 @@ function insert(text: string, options: { block?: boolean } = {}): void {
   }
   const before = view.state.doc.toString()
   const { from, to } = view.state.selection.main
-  const result = insertMarkdownText(before, { start: from, end: to }, text, options)
+  const result = insertMarkdownText(
+    before,
+    { start: from, end: to },
+    text,
+    options
+  )
   view.dispatch({
     changes: minimalChange(before, result.value),
     selection: EditorSelection.cursor(result.caret),
@@ -207,7 +310,10 @@ function reveal(start: number, end: number): void {
   const lineEnd = Math.min(view.state.doc.lineAt(from).to, end, length)
   view.dispatch({
     selection: EditorSelection.single(from, lineEnd),
-    effects: EditorView.scrollIntoView(from, { y: 'start', yMargin: Math.round(view.scrollDOM.clientHeight / 3) }),
+    effects: EditorView.scrollIntoView(from, {
+      y: 'start',
+      yMargin: Math.round(view.scrollDOM.clientHeight / 3),
+    }),
   })
   view.focus()
 }
@@ -233,7 +339,10 @@ onMounted(() => {
         search({ top: true }),
         highlightSelectionMatches(),
         keymap.of([
-          ...FORMATS.filter((item) => item.key).map((item) => ({ key: item.key!, run: () => format(item.format) })),
+          ...FORMATS.filter((item) => item.key).map((item) => ({
+            key: item.key!,
+            run: () => format(item.format),
+          })),
           ...markdownKeymap,
           ...searchKeymap,
           ...historyKeymap,
@@ -245,11 +354,16 @@ onMounted(() => {
         EditorView.contentAttributes.of({
           'aria-label': props.ariaLabel ?? '',
           'aria-multiline': 'true',
-          'spellcheck': 'false',
-          'autocapitalize': 'off',
+          spellcheck: 'false',
+          autocapitalize: 'off',
         }),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged && !update.transactions.some((transaction) => transaction.annotation(fromModel))) {
+          if (
+            update.docChanged &&
+            !update.transactions.some((transaction) =>
+              transaction.annotation(fromModel)
+            )
+          ) {
             emit('update:modelValue', update.state.doc.toString())
           }
         }),
@@ -260,21 +374,29 @@ onMounted(() => {
 })
 
 // The text changed outside the editor (a reload, the other mode): show it, and keep the caret.
-watch(() => props.modelValue, (value) => {
-  if (!view || value === view.state.doc.toString()) {
-    return
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (!view || value === view.state.doc.toString()) {
+      return
+    }
+    const caret = Math.min(view.state.selection.main.head, value.length)
+    view.dispatch({
+      changes: minimalChange(view.state.doc.toString(), value),
+      selection: EditorSelection.cursor(caret),
+      annotations: fromModel.of(true),
+    })
   }
-  const caret = Math.min(view.state.selection.main.head, value.length)
-  view.dispatch({
-    changes: minimalChange(view.state.doc.toString(), value),
-    selection: EditorSelection.cursor(caret),
-    annotations: fromModel.of(true),
-  })
-})
+)
 
-watch(() => props.disabled, (disabled) => {
-  view?.dispatch({ effects: editable.reconfigure(editableState(Boolean(disabled))) })
-})
+watch(
+  () => props.disabled,
+  (disabled) => {
+    view?.dispatch({
+      effects: editable.reconfigure(editableState(Boolean(disabled))),
+    })
+  }
+)
 
 onBeforeUnmount(() => {
   view?.destroy()

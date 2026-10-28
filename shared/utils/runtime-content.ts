@@ -62,7 +62,17 @@ export function isRootIndexId(id: string): boolean {
 export type RuntimeFolderConfig = Record<string, unknown>
 
 /** The keys that Nuxt Content keeps as page fields. They do not go to the folder item as they are. */
-const FOLDER_PAGE_KEYS = new Set(['title', 'description', 'seo', 'navigation', 'path', 'id', 'stem', 'extension', 'body'])
+const FOLDER_PAGE_KEYS = new Set([
+  'title',
+  'description',
+  'seo',
+  'navigation',
+  'path',
+  'id',
+  'stem',
+  'extension',
+  'body',
+])
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -72,12 +82,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * The keys that a folder config puts on its navigation item, like `pickConfigNavigationFields`
  * of Nuxt Content: the title, then the other keys, then the `navigation` object.
  */
-export function folderItemFields(config: RuntimeFolderConfig | undefined): Record<string, unknown> {
+export function folderItemFields(
+  config: RuntimeFolderConfig | undefined
+): Record<string, unknown> {
   if (!config) {
     return {}
   }
   const out: Record<string, unknown> = {}
-  if (typeof config.title === 'string' && config.title !== '' && config.title.toLowerCase() !== 'navigation') {
+  if (
+    typeof config.title === 'string' &&
+    config.title !== '' &&
+    config.title.toLowerCase() !== 'navigation'
+  ) {
     out.title = config.title
   }
   for (const [key, value] of Object.entries(config)) {
@@ -103,18 +119,30 @@ export interface RuntimeNavOptions {
 }
 
 /** Whether the folder config of this folder, or of a parent folder, hides it. */
-function isInHiddenFolder(id: string, folders: Record<string, RuntimeFolderConfig> | undefined): boolean {
+function isInHiddenFolder(
+  id: string,
+  folders: Record<string, RuntimeFolderConfig> | undefined
+): boolean {
   if (!folders) {
     return false
   }
   const parts = id.split('/').slice(0, -1)
-  return parts.some((_part, index) => folders[parts.slice(0, index + 1).join('/')]?.navigation === false)
+  return parts.some(
+    (_part, index) =>
+      folders[parts.slice(0, index + 1).join('/')]?.navigation === false
+  )
 }
 
-function visiblePages(pages: RuntimeNavPage[], options: RuntimeNavOptions): RuntimeNavPage[] {
-  return pages.filter((page) => page.navigationHidden !== true
-    && (options.includeRoot === true || !isRootIndexId(page.id))
-    && !isInHiddenFolder(page.id, options.folders))
+function visiblePages(
+  pages: RuntimeNavPage[],
+  options: RuntimeNavOptions
+): RuntimeNavPage[] {
+  return pages.filter(
+    (page) =>
+      page.navigationHidden !== true &&
+      (options.includeRoot === true || !isRootIndexId(page.id)) &&
+      !isInHiddenFolder(page.id, options.folders)
+  )
 }
 
 /**
@@ -123,7 +151,10 @@ function visiblePages(pages: RuntimeNavPage[], options: RuntimeNavOptions): Runt
  * `includeRoot` is set. A folder takes the title of its index page. A folder with no
  * index page gets a title from its name and `page: false`.
  */
-export function buildNavigationTree(pages: RuntimeNavPage[], options: RuntimeNavOptions = {}): RuntimeNavItem[] {
+export function buildNavigationTree(
+  pages: RuntimeNavPage[],
+  options: RuntimeNavOptions = {}
+): RuntimeNavItem[] {
   const prefix = options.routePrefix ?? ''
   const nav: RuntimeNavItem[] = []
 
@@ -140,20 +171,30 @@ export function buildNavigationTree(pages: RuntimeNavPage[], options: RuntimeNav
       stem: page.id,
       children: [],
       ...(page.navigationIcon ? { icon: page.navigationIcon } : {}),
-      ...(options.withDescription && page.description ? { description: page.description } : {}),
+      ...(options.withDescription && page.description
+        ? { description: page.description }
+        : {}),
     })
     const item = makeItem()
     if (isIndex && path !== (prefix || '/')) {
       item.children!.push(makeItem())
       // The config of the folder wins over the title and the icon of its index page.
-      Object.assign(item, folderItemFields(options.folders?.[idParts.slice(0, -1).join('/')]))
+      Object.assign(
+        item,
+        folderItemFields(options.folders?.[idParts.slice(0, -1).join('/')])
+      )
     }
 
     // A page at the top level of the source.
     if (parts.length <= 1) {
-      const placeholder = isIndex ? nav.find((node) => node.path === item.path && node.page === false) : undefined
+      const placeholder = isIndex
+        ? nav.find((node) => node.path === item.path && node.page === false)
+        : undefined
       if (placeholder) {
-        Object.assign(placeholder, { page: undefined, children: [...(item.children ?? []), ...(placeholder.children ?? [])] })
+        Object.assign(placeholder, {
+          page: undefined,
+          children: [...(item.children ?? []), ...(placeholder.children ?? [])],
+        })
       } else {
         nav.push(item)
       }
@@ -163,13 +204,21 @@ export function buildNavigationTree(pages: RuntimeNavPage[], options: RuntimeNav
     // Walk down the folders. A missing folder becomes a placeholder.
     let siblings = nav
     for (const [index, part] of parts.slice(0, -1).entries()) {
-      const folderPath = contentRoutePath(idParts.slice(0, index + 1).join('/'), prefix)
+      const folderPath = contentRoutePath(
+        idParts.slice(0, index + 1).join('/'),
+        prefix
+      )
       let parent = siblings.find((node) => node.path === folderPath)
       if (!parent) {
-        const fields = folderItemFields(options.folders?.[idParts.slice(0, index + 1).join('/')])
+        const fields = folderItemFields(
+          options.folders?.[idParts.slice(0, index + 1).join('/')]
+        )
         parent = {
           ...fields,
-          title: typeof fields.title === 'string' && fields.title ? fields.title : titleFromSegment(part),
+          title:
+            typeof fields.title === 'string' && fields.title
+              ? fields.title
+              : titleFromSegment(part),
           path: folderPath,
           stem: idParts.slice(0, index + 1).join('/'),
           children: [],
@@ -180,9 +229,15 @@ export function buildNavigationTree(pages: RuntimeNavPage[], options: RuntimeNav
       siblings = parent.children!
     }
 
-    const existing = siblings.find((node) => node.path === item.path && node.page === false)
+    const existing = siblings.find(
+      (node) => node.path === item.path && node.page === false
+    )
     if (existing) {
-      Object.assign(existing, { ...item, page: undefined, children: [...(item.children ?? []), ...(existing.children ?? [])] })
+      Object.assign(existing, {
+        ...item,
+        page: undefined,
+        children: [...(item.children ?? []), ...(existing.children ?? [])],
+      })
     } else {
       siblings.push(item)
     }
@@ -210,7 +265,10 @@ function clearTree(nav: RuntimeNavItem[]): RuntimeNavItem[] {
 export function flattenNavigation(nav: RuntimeNavItem[]): RuntimeNavItem[] {
   return nav.flatMap((item) => {
     const children = item.children ? flattenNavigation(item.children) : []
-    if (item.page === false || children.some((child) => child.path === item.path)) {
+    if (
+      item.page === false ||
+      children.some((child) => child.path === item.path)
+    ) {
       return children
     }
     return [{ ...item, children: undefined }, ...children]
@@ -218,11 +276,23 @@ export function flattenNavigation(nav: RuntimeNavItem[]): RuntimeNavItem[] {
 }
 
 /** The previous and the next page of `path`. A missing neighbor is `null`. An unknown path gives two `null`. */
-export function surroundOf(nav: RuntimeNavItem[], path: string): [RuntimeSurroundItem | null, RuntimeSurroundItem | null] {
+export function surroundOf(
+  nav: RuntimeNavItem[],
+  path: string
+): [RuntimeSurroundItem | null, RuntimeSurroundItem | null] {
   const flat = flattenNavigation(nav)
   const index = flat.findIndex((item) => item.path === path)
-  const pick = (item: RuntimeNavItem | undefined): RuntimeSurroundItem | null =>
-    item ? { title: item.title, path: item.path, stem: item.stem, ...(item.description ? { description: item.description } : {}) } : null
+  const pick = (
+    item: RuntimeNavItem | undefined
+  ): RuntimeSurroundItem | null =>
+    item
+      ? {
+          title: item.title,
+          path: item.path,
+          stem: item.stem,
+          ...(item.description ? { description: item.description } : {}),
+        }
+      : null
   if (index === -1) {
     return [null, null]
   }
@@ -230,7 +300,11 @@ export function surroundOf(nav: RuntimeNavItem[], path: string): [RuntimeSurroun
 }
 
 /** The content id of the page for a route path, or `undefined`. Ignores a trailing slash. */
-export function pageIdForRoute(ids: string[], path: string, routePrefix = ''): string | undefined {
+export function pageIdForRoute(
+  ids: string[],
+  path: string,
+  routePrefix = ''
+): string | undefined {
   const wanted = path.length > 1 ? path.replace(/\/+$/, '') : path
   return ids.find((id) => contentRoutePath(id, routePrefix) === wanted)
 }
@@ -257,7 +331,10 @@ export interface ManifestDiff {
  * Compares the build manifest (id → version) with the store listing. A store entry without a
  * version counts as changed, because the build data cannot be proven current.
  */
-export function diffManifest(manifest: Record<string, string> | undefined, current: ListedVersion[]): ManifestDiff {
+export function diffManifest(
+  manifest: Record<string, string> | undefined,
+  current: ListedVersion[]
+): ManifestDiff {
   const built = manifest ?? {}
   const seen = new Set<string>()
   const changed: string[] = []
@@ -271,14 +348,37 @@ export function diffManifest(manifest: Record<string, string> | undefined, curre
     }
   }
   const removed = Object.keys(built).filter((id) => !seen.has(id))
-  return { same: changed.length === 0 && added.length === 0 && removed.length === 0, changed, added, removed }
+  return {
+    same: changed.length === 0 && added.length === 0 && removed.length === 0,
+    changed,
+    added,
+    removed,
+  }
 }
 
 /** The page fields that Nuxt Content builds itself. Frontmatter with these keys does not go to `meta`. */
-const PAGE_FIELD_KEYS = new Set(['id', 'stem', 'extension', 'path', 'title', 'description', 'seo', 'navigation', 'body', 'rawbody', 'meta'])
+const PAGE_FIELD_KEYS = new Set([
+  'id',
+  'stem',
+  'extension',
+  'path',
+  'title',
+  'description',
+  'seo',
+  'navigation',
+  'body',
+  'rawbody',
+  'meta',
+])
 
 /** Flat keys that the docs type adds to the frontmatter for its form fields. They are not file keys. */
-const FORM_ONLY_KEYS = new Set(['navigationTitle', 'navigationIcon', 'navigationHidden', 'seoTitle', 'seoDescription'])
+const FORM_ONLY_KEYS = new Set([
+  'navigationTitle',
+  'navigationIcon',
+  'navigationHidden',
+  'seoTitle',
+  'seoDescription',
+])
 
 /**
  * The extra keys of a page from its whole frontmatter. Nuxt Content keeps the keys that the
@@ -286,10 +386,16 @@ const FORM_ONLY_KEYS = new Set(['navigationTitle', 'navigationIcon', 'navigation
  * server does not know the schema, so a key goes in both places: the page reads it the same way in
  * both modes. A key that is a page field (`title`, `seo`, ...) is left out: the page builds it.
  */
-export function frontmatterExtras(frontmatter: Record<string, unknown> | undefined): { top: Record<string, unknown>, meta: Record<string, unknown> } {
+export function frontmatterExtras(
+  frontmatter: Record<string, unknown> | undefined
+): { top: Record<string, unknown>; meta: Record<string, unknown> } {
   const top: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(frontmatter ?? {})) {
-    if (!PAGE_FIELD_KEYS.has(key) && !FORM_ONLY_KEYS.has(key) && key !== '__proto__') {
+    if (
+      !PAGE_FIELD_KEYS.has(key) &&
+      !FORM_ONLY_KEYS.has(key) &&
+      key !== '__proto__'
+    ) {
       top[key] = value
     }
   }

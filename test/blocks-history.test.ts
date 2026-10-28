@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { canRedo, canUndo, createHistory, HISTORY_LIMIT, pushHistory, redo, resetHistory, undo } from '../shared/utils/blocks/history'
+import {
+  canRedo,
+  canUndo,
+  createHistory,
+  HISTORY_LIMIT,
+  pushHistory,
+  redo,
+  resetHistory,
+  undo,
+} from '../shared/utils/blocks/history'
 
 describe('block history', () => {
   it('undoes and redoes', () => {
