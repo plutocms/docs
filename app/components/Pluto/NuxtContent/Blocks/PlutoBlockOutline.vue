@@ -84,6 +84,7 @@ watch(() => editor.selection.value, (selection) => {
             :description="t('nuxt-content.editor.emptyDescription')"
             :actions="[{ label: t('nuxt-content.editor.addBlock'), icon: 'i-lucide-plus', onClick: () => editor.openPalette() }]"
             icon="i-lucide-blocks"
+            variant="naked"
           />
         </div>
       </ScrollAreaViewport>
