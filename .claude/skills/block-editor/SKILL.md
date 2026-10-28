@@ -31,6 +31,11 @@ The docs type uses the core `canvas` form layout (see the `admin-view-chrome` sk
     hide and show the blocks inside a component. A chevron before the icon does the same
     (`editor.collapsedIds`, `editor.toggleCollapsed`; not kept after a reload). A selection opens
     its collapsed parents, and a block selected in the preview scrolls its row into view.
+    The drag handle and the dots menu of a row show on row hover (`group`), and the "Add <child>"
+    button of a child list on list hover (`group/list`). They change only `opacity`, so the rows
+    do not move. On a device without hover (`[@media(hover:hover)]:opacity-0` applies only with
+    hover), with the keyboard focus in the row (`group-focus-within`), and while the menu is open
+    (`data-[state=open]`), they stay visible.
   - `PlutoBlockPalette.vue`: "Add a block". A `UCommandPalette` in a modal.
   - `PlutoBlockInspector.vue`: Content (one control for each slot), Settings, Advanced, actions.
   - `PlutoBlockPropControl.vue`: one setting. The control follows the prop type.

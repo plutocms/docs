@@ -194,6 +194,11 @@ onBeforeUnmount(() => sortable?.destroy())
 </script>
 
 <template>
+  <!--
+    The drag handle and the dots menu of a row show on row hover, and the "Add" button of a
+    child list on hover of that list. They keep their place (opacity only), so the rows do not
+    move. A device without hover, the keyboard focus and an open menu keep them visible.
+  -->
   <ul ref="list" :data-level="level" class="flex flex-col gap-0.5">
     <li v-for="(block, index) in blocks" :key="block.id">
       <div
@@ -207,7 +212,7 @@ onBeforeUnmount(() => sortable?.destroy())
         class="group flex items-center gap-0.5 rounded-md pe-0.5 ps-0.5 transition-colors"
       >
         <span
-          class="flex h-8 w-5 shrink-0 cursor-grab touch-none items-center justify-center rounded text-dimmed opacity-60 group-hover:opacity-100 active:cursor-grabbing"
+          class="flex h-8 w-5 shrink-0 cursor-grab touch-none items-center justify-center rounded text-dimmed opacity-60 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 active:cursor-grabbing [@media(hover:hover)]:opacity-0"
           aria-hidden="true"
           data-block-handle
         >
@@ -267,7 +272,7 @@ onBeforeUnmount(() => sortable?.destroy())
             color="neutral"
             variant="ghost"
             size="xs"
-            class="shrink-0"
+            class="shrink-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)]:opacity-0"
           />
         </UDropdownMenu>
       </div>
@@ -279,7 +284,7 @@ onBeforeUnmount(() => sortable?.destroy())
         <div
           v-for="child in childLists(block)"
           :key="child.slot"
-          class="pt-0.5"
+          class="group/list pt-0.5"
         >
           <p
             v-if="childLists(block).length > 1"
@@ -299,7 +304,7 @@ onBeforeUnmount(() => sortable?.destroy())
             color="neutral"
             variant="link"
             size="xs"
-            class="ms-6"
+            class="ms-6 transition-opacity group-hover/list:opacity-100 focus-visible:opacity-100 [@media(hover:hover)]:opacity-0"
             @click="
               editor.openPalette({
                 parentId: block.id,
