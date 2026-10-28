@@ -92,7 +92,11 @@ watch(() => editor.selection.value, (selection) => {
     :orientation="isDesktop ? 'horizontal' : 'vertical'"
     :ui="{
       root: 'h-full min-h-0',
-      handle: 'bg-(--ui-border) transition-colors hover:bg-primary data-[resize-handle-state=drag]:bg-primary',
+      // A 1px line. A `::before` 2.5px wider on each side is the 6px grab area,
+      // and the 6px primary bar: it fades in after 300ms of hover, and shows at
+      // once while dragging. In both directions. The `!` keeps the duration and
+      // the delay against the no-transition rule of the admin (core pluto-layer.css).
+      handle: 'bg-(--ui-border) data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px before:absolute before:z-10 before:transition-colors before:duration-150! hover:before:bg-primary hover:before:delay-300! data-[resize-handle-state=drag]:before:bg-primary data-[resize-handle-state=drag]:before:delay-0! data-[orientation=horizontal]:before:inset-y-0 data-[orientation=horizontal]:before:-inset-x-[2.5px] data-[orientation=vertical]:before:inset-x-0 data-[orientation=vertical]:before:-inset-y-[2.5px]',
     }"
     data-block-canvas
     @layout="onLayout"
