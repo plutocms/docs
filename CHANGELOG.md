@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.3](https://github.com/plutocms/nuxt-content/compare/v0.12.2...v0.12.3) (2026-10-29)
+
+
+### Bug Fixes
+
+* **deps:** accept every 0.x version of the [@plutocms](https://github.com/plutocms) packages; shared CI and the update workflow ([#42](https://github.com/plutocms/nuxt-content/issues/42)) ([91b2f58](https://github.com/plutocms/nuxt-content/commit/91b2f58e1f9fa6a47866df6d84e89b59552d9af4))
+
 ## [0.12.2](https://github.com/plutocms/nuxt-content/compare/v0.12.1...v0.12.2) (2026-10-29)
 
 
