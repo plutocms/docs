@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/plutocms/nuxt-content/compare/v0.11.0...v0.12.0) (2026-10-29)
+
+
+### Features
+
+* **mdc:** use the Markdown code editor of core ([#36](https://github.com/plutocms/nuxt-content/issues/36)) ([b11c355](https://github.com/plutocms/nuxt-content/commit/b11c3550c165373a7080bf4583ceddd4b104d2ae))
+
 ## [0.11.0](https://github.com/plutocms/nuxt-content/compare/v0.10.0...v0.11.0) (2026-10-28)
 
 
