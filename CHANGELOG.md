@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.13.0](https://github.com/plutocms/nuxt-content/compare/v0.12.3...v0.13.0) (2026-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* the layer extends @plutocms/core >=0.38.0, not @plutocms/pluto. PLUTO_PLUTO_PATH is now PLUTO_CORE_PATH.
+
+### Features
+
+* extend @plutocms/core ([#59](https://github.com/plutocms/nuxt-content/issues/59)) ([a5ca2b9](https://github.com/plutocms/nuxt-content/commit/a5ca2b9a1b340d6ceb3d00487414d098c9fae683))
+
 ## [0.12.3](https://github.com/plutocms/nuxt-content/compare/v0.12.2...v0.12.3) (2026-10-29)
 
 
