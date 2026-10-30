@@ -24,7 +24,7 @@ export default defineNuxtConfig({
 })
 ```
 
-The layer brings `@plutocms/pluto`. It needs Node 22.5 or newer. The docs show the rest of the
+The layer brings `@plutocms/core`. It needs Node 22.5 or newer. The docs show the rest of the
 setup: the collections, the CSS entry, `PlutoRoot`, and the GitHub App.
 
 ## What you get

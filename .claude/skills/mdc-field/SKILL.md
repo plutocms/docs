@@ -23,12 +23,12 @@ see the [block editor](../block-editor/SKILL.md) skill) and **Markdown** (raw Ma
 
 ## The Markdown editor (`PlutoMarkdownCodeEditor` of core)
 
-The Markdown editor is `PlutoMarkdownCodeEditor` of `@plutocms/pluto` (CodeMirror 6). It came from
+The Markdown editor is `PlutoMarkdownCodeEditor` of `@plutocms/core` (CodeMirror 6). It came from
 this layer; the post editor of core uses it too. The github-cms skill of pluto ("Markdown code
 editor") describes it: the format shown as the author types, the MDC line colors
 (`mdcLineKinds`), the quick formats (`formatMarkdown`) and their shortcuts, search and history.
 
-- This layer uses the global component names, so a local pluto checkout (`PLUTO_PLUTO_PATH`) is
+- This layer uses the global component names, so a local pluto checkout (`PLUTO_CORE_PATH`) is
   the one that loads: `<LazyPlutoMarkdownCodeEditor>` in `PlutoFieldMdc` (on demand), and
   `<PlutoMarkdownCodeEditor>` in `PlutoBlockMarkdownSplit` (itself loaded on demand). The type of
   the template ref comes from `import type { PlutoMarkdownCodeEditor } from '#components'`.

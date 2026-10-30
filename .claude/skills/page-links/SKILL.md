@@ -47,7 +47,7 @@ const adminLink = usePlutoContentEditLink(page)
 ## The admin bar: "New Page" and "Edit Page"
 
 Core draws these buttons. The docs type sets `adminBar: true`, so core's content bar actions show
-(see "Content buttons" in the admin-shell skill of `@plutocms/pluto`):
+(see "Content buttons" in the admin-shell skill of `@plutocms/core`):
 
 - **New <label>** on every page where the bar shows, `/admin/**` too.
 - **Edit <label>** on a public page that calls `usePlutoContentEditLink` (it records the page in
