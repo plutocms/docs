@@ -116,6 +116,8 @@ export interface DocsTypeOptions {
   source: string
   label?: string
   labelPlural?: string
+  /** The Iconify name of the type in the admin. Default `lucide:book-open`. */
+  icon?: string
   /** Ids to hide from the list: an id (`index`), or a folder with a trailing slash. */
   exclude?: string[]
   /** The public path in front of the page paths, for example `/docs`. It builds the View link. */
@@ -157,7 +159,7 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
     name: options.name,
     label: options.label ?? 'Page',
     labelPlural: options.labelPlural ?? 'Pages',
-    icon: 'lucide:book-open',
+    icon: options.icon ?? 'lucide:book-open',
     ...(navGroup && { navGroup }),
     source: options.source,
     titleField: 'title',

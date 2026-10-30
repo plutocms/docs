@@ -114,6 +114,17 @@ describe('createDocsType', () => {
     expect('navGroup' in alone).toBe(false)
   })
 
+  it('has the book icon, or the icon of the options', () => {
+    expect(type.icon).toBe('lucide:book-open')
+    expect(
+      createDocsType({
+        name: 'layer',
+        source: 'layers',
+        icon: 'i-lucide-layers',
+      }).icon
+    ).toBe('i-lucide-layers')
+  })
+
   it('declares the docs capabilities', () => {
     expect(type.capabilities).toEqual({
       write: 'docs:write',

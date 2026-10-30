@@ -23,7 +23,7 @@ The layer edits the pages of a Nuxt Content site in the Pluto admin. The app tur
 
 ```ts
 plutoNuxtContent: {
-  types: [{ preset: 'docs', name: 'doc', source: '', label?, labelPlural?, exclude?, routePrefix?, navGroup? }],
+  types: [{ preset: 'docs', name: 'doc', source: '', label?, labelPlural?, exclude?, routePrefix?, navGroup?, icon? }],
   render: 'hybrid', // default; or 'build', or 'runtime'
   runtimeMaxAge: 10, // seconds of the public cache of the layer routes
 }
@@ -36,6 +36,7 @@ plutoNuxtContent: {
 - `routePrefix` is the route prefix of the pages on the public site, for the View link of the form.
 - `navGroup` is the nav group of the type in the admin menus. Default `'pages'` (core's group). A string is a group id.
   `false` gives the type its own item. See the docs-preset skill.
+- `icon` is the Iconify name of the type in the admin (the sidebar, the New menu, the dashboard). Default `lucide:book-open`.
 - A type with a problem is dropped, and the module logs one error for it.
 - `render` is `'hybrid'` (default), `'build'` or `'runtime'`. A bad value gives one error and uses `'hybrid'`. See
   "Render modes".
