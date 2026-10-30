@@ -79,6 +79,26 @@ describe('resolvePlutoNuxtContentOptions', () => {
     })
   })
 
+  it('keeps a navGroup string or false, and drops a type with a bad one', () => {
+    const result = resolvePlutoNuxtContentOptions(
+      {
+        types: [
+          { preset: 'docs', name: 'a', source: '', navGroup: 'shop:catalog' },
+          { preset: 'docs', name: 'b', source: '', navGroup: false },
+          { preset: 'docs', name: 'c', source: '' },
+          { preset: 'docs', name: 'd', source: '', navGroup: 5 as never },
+        ],
+      },
+      { cmsEnabled: true }
+    )
+    expect(result.types.map((type) => type.navGroup)).toEqual([
+      'shop:catalog',
+      false,
+      undefined,
+    ])
+    expect(result.errors).toHaveLength(1)
+  })
+
   it('drops a type with an unknown preset', () => {
     const result = resolvePlutoNuxtContentOptions(
       { types: [{ preset: 'blog', name: 'doc', source: '' } as never] },

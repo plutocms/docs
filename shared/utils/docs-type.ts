@@ -125,7 +125,16 @@ export interface DocsTypeOptions {
    * is `hybrid` or `runtime`). The build indicator of the edit form then shows "Live" after a save.
    */
   liveOnSave?: boolean
+  /**
+   * The nav group of the type in the admin sidebar and the admin bar. Default `'pages'`, the group
+   * of core: the docs types show as the children of one "Pages" item, and in one "New" menu. A group
+   * id puts the type in another group. `false` gives the type its own item.
+   */
+  navGroup?: string | false
 }
+
+/** The nav group of a docs type when the options set none. Core declares it. */
+export const DEFAULT_DOCS_NAV_GROUP = 'pages'
 
 /** The capabilities of the docs preset. The client plugin registers them. */
 export const DOCS_CAPABILITIES = {
@@ -140,11 +149,16 @@ export const DOCS_CAPABILITIES = {
  * because Nuxt Content reserves `path`.
  */
 export function createDocsType(options: DocsTypeOptions): PlutoContentType {
+  const navGroup =
+    options.navGroup === false
+      ? undefined
+      : (options.navGroup ?? DEFAULT_DOCS_NAV_GROUP)
   return {
     name: options.name,
     label: options.label ?? 'Page',
     labelPlural: options.labelPlural ?? 'Pages',
     icon: 'lucide:book-open',
+    ...(navGroup && { navGroup }),
     source: options.source,
     titleField: 'title',
     slug: { field: 'slug' },

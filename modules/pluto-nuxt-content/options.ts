@@ -15,6 +15,11 @@ export interface PlutoNuxtContentTypeOptions {
   exclude?: string[]
   /** The route prefix of the pages on the public site, for the View link of the form. Default: none. */
   routePrefix?: string
+  /**
+   * The nav group of the type in the admin sidebar and the admin bar. Default `'pages'` (core's
+   * group). A string is a group id. `false` gives the type its own sidebar item.
+   */
+  navGroup?: string | false
 }
 
 /** How the public pages get their content. See the nuxt-content-setup skill. */
@@ -186,6 +191,14 @@ export function resolvePlutoNuxtContentOptions(
       errors.push(`${where}.exclude must be a list of strings.`)
       continue
     }
+    if (
+      entry.navGroup !== undefined &&
+      entry.navGroup !== false &&
+      !(typeof entry.navGroup === 'string' && entry.navGroup !== '')
+    ) {
+      errors.push(`${where}.navGroup must be a group id, or false.`)
+      continue
+    }
     names.add(entry.name)
     types.push({
       preset: 'docs',
@@ -199,6 +212,9 @@ export function resolvePlutoNuxtContentOptions(
         exclude: entry.exclude as string[],
       }),
       routePrefix: normalizeRoutePrefix(entry.routePrefix),
+      ...((typeof entry.navGroup === 'string' || entry.navGroup === false) && {
+        navGroup: entry.navGroup,
+      }),
     })
   }
 

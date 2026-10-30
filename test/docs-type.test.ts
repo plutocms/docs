@@ -101,6 +101,19 @@ describe('createDocsType', () => {
     ).toBe('/docs/a/b')
   })
 
+  it('is in the pages group of core by default', () => {
+    expect(type.navGroup).toBe('pages')
+  })
+
+  it('takes a nav group from the options, and none with false', () => {
+    expect(
+      createDocsType({ name: 'doc', source: '', navGroup: 'shop:catalog' })
+        .navGroup
+    ).toBe('shop:catalog')
+    const alone = createDocsType({ name: 'doc', source: '', navGroup: false })
+    expect('navGroup' in alone).toBe(false)
+  })
+
   it('declares the docs capabilities', () => {
     expect(type.capabilities).toEqual({
       write: 'docs:write',
