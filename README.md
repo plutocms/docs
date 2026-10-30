@@ -4,8 +4,8 @@ Edit the Markdown pages of a [Nuxt Content](https://content.nuxt.com) site in th
 with a visual block editor and a live preview. The pages stay Markdown files in your GitHub
 repository, and each save is a commit.
 
-**Docs:** [Nuxt Content layer](https://pluto.vulmix.dev/layers/nuxt-content) ·
-[Edit pages visually](https://pluto.vulmix.dev/guides/edit-pages-visually)
+**Docs:** [Nuxt Content layer](https://pluto.vulmix.dev/docs/layers/nuxt-content) ·
+[Edit pages visually](https://pluto.vulmix.dev/docs/guides/edit-pages-visually)
 
 ## Install
 
