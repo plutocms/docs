@@ -5,7 +5,7 @@ The layer edits the pages of a Nuxt Content site in the Pluto admin. The app tur
 
 ## Files
 
-- `nuxt.config.ts` — extends `process.env.PLUTO_PLUTO_PATH || '@plutocms/pluto'`, adds the
+- `nuxt.config.ts` — extends `process.env.PLUTO_CORE_PATH || '@plutocms/core'`, adds the
   `@nuxt/content` module, sets `$meta.name: 'nuxt-content'`, the native SQLite connector, and the
   layer defaults `plutoGithub.postType: false` and `plutoGithub.commit.skipDeploy: false`. It has no `css`
   entry. The other `plutoGithub` options use the core defaults (`enabled: 'auto'`, `storage` by mode,
@@ -189,6 +189,6 @@ shared config.
 ## Local development
 
 The layer needs Pluto 0.20 or newer. To test unpublished Pluto changes, run the commands with
-`PLUTO_PLUTO_PATH=<path to pluto>`. An app that extends this layer from a local folder uses the
-`plutoLayer` helper (`@plutocms/pluto/layers`) with `PLUTO_LOCAL_ROOT`. See the `local-layers`
+`PLUTO_CORE_PATH=<path to pluto>`. An app that extends this layer from a local folder uses the
+`plutoLayer` helper (`@plutocms/core/layers`) with `PLUTO_LOCAL_ROOT`. See the `local-layers`
 skill in pluto.

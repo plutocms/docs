@@ -6,5 +6,5 @@
  */
 @import 'tailwindcss';
 @import '@nuxt/ui';
-@import '@plutocms/pluto/app/assets/css/pluto-layer.css';
+@import '@plutocms/core/app/assets/css/pluto-layer.css';
 @import './app/assets/css/pluto-layer.css';

@@ -1,9 +1,9 @@
-// Point PLUTO_PLUTO_PATH at a local checkout (e.g. `../pluto`) to test
+// Point PLUTO_CORE_PATH at a local checkout (e.g. `../pluto/packages/core`) to test
 // unpublished changes; unset, it resolves to the published npm package.
-const plutoLayer = process.env.PLUTO_PLUTO_PATH || '@plutocms/pluto'
+const coreLayer = process.env.PLUTO_CORE_PATH || '@plutocms/core'
 
 export default defineNuxtConfig({
-  extends: [plutoLayer],
+  extends: [coreLayer],
 
   modules: ['@nuxt/content'],
 
