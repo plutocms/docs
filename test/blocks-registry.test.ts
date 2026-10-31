@@ -88,11 +88,11 @@ describe('block presets', () => {
     )
   })
 
-  it('use i18n keys of the nuxt-content namespace for every label and description', () => {
+  it('use i18n keys of the docs namespace for every label and description', () => {
     for (const definition of Object.values(BLOCK_PRESETS)) {
       for (const key of keysOf(definition)) {
         expect(key, definition.name).toMatch(
-          /^nuxt-content\.blocks\.[\w-]+(?:\.[\w-]+)+$/
+          /^docs.blocks\.[\w-]+(?:\.[\w-]+)+$/
         )
       }
     }
@@ -100,7 +100,7 @@ describe('block presets', () => {
       ...Object.values(BLOCK_KIND_LABELS),
       ...BLOCK_GROUPS.map((group) => groupLabelKey(group)),
     ]) {
-      expect(key).toMatch(/^nuxt-content\.blocks\./)
+      expect(key).toMatch(/^docs.blocks\./)
     }
   })
 
@@ -125,7 +125,7 @@ describe('block presets', () => {
     const used = new Set<string>([
       ...Object.values(BLOCK_KIND_LABELS),
       ...BLOCK_GROUPS.map((group) => groupLabelKey(group)),
-      'nuxt-content.blocks.kinds.table',
+      'docs.blocks.kinds.table',
     ])
     // The palette entries of the built-in blocks (text, table, code) have their own texts.
     for (const { entries } of buildPalette()) {
@@ -151,10 +151,7 @@ describe('block presets', () => {
         }
       }
     }
-    walk(
-      (locales.en!['nuxt-content'] as Record<string, unknown>).blocks,
-      'nuxt-content.blocks'
-    )
+    walk((locales.en!.docs as Record<string, unknown>).blocks, 'docs.blocks')
     expect(flat.filter((key) => !used.has(key))).toEqual([])
   })
 
@@ -278,7 +275,7 @@ describe('resolveBlockDefinition', () => {
       overrides: { 'u-page-c-t-a': false },
     })
     expect(definition.hidden).toBe(true)
-    expect(definition.label).toBe('nuxt-content.blocks.u-page-c-t-a.label')
+    expect(definition.label).toBe('docs.blocks.u-page-c-t-a.label')
   })
 
   it('keeps `preview: false` from the override', () => {

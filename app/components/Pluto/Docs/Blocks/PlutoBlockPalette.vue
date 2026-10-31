@@ -62,21 +62,21 @@ const groups = computed<CommandPaletteGroup[]>(() =>
 <template>
   <UModal
     v-model:open="open"
-    :title="t('nuxt-content.editor.addBlock')"
-    :description="t('nuxt-content.editor.addBlockDescription')"
+    :title="t('docs.editor.addBlock')"
+    :description="t('docs.editor.addBlockDescription')"
     :ui="{ content: 'max-w-xl', header: 'sr-only' }"
   >
     <template #content>
       <UCommandPalette
         :groups="groups"
-        :placeholder="t('nuxt-content.editor.searchBlocks')"
+        :placeholder="t('docs.editor.searchBlocks')"
         :close="true"
         class="h-112 max-h-[80dvh]"
         @update:open="open = $event"
       >
         <template #empty>
           <p class="px-4 py-6 text-center text-sm text-muted">
-            {{ t('nuxt-content.editor.noBlocks') }}
+            {{ t('docs.editor.noBlocks') }}
           </p>
         </template>
       </UCommandPalette>

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@plutocms/nuxt-content",
+      "name": "@plutocms/docs",
       "dependencies": {
         "@nuxt/content": "^3.16.2",
         "@nuxtjs/mdc": "^0.23.2",

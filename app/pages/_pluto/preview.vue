@@ -22,14 +22,14 @@ import {
   parsePreviewMessage,
   previewMessage,
 } from '../../../shared/utils/blocks/preview-protocol'
-import PlutoPreviewBlock from '../../components/Pluto/NuxtContent/Blocks/PlutoPreviewBlock.vue'
+import PlutoPreviewBlock from '../../components/Pluto/Docs/Blocks/PlutoPreviewBlock.vue'
 
 definePageMeta({ layout: false, plutoAdminBar: false })
 
 const { t } = usePlutoI18n()
 
 useHead({
-  title: () => t('nuxt-content.preview.title'),
+  title: () => t('docs.preview.title'),
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
   // The preview is for choosing blocks, not for reading: no text selection, no link or image
   // drag, and the default cursor everywhere (not the hand of a link or a button).

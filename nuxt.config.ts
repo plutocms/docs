@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/content'],
 
   $meta: {
-    name: 'nuxt-content',
+    name: 'docs',
   },
 
   // Nuxt Content stores its data in SQLite. The native connector needs Node 22.5

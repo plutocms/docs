@@ -61,7 +61,7 @@ const items = computed(() => shared.value.slice(1))
       v-slot="{ editor }"
       :model-value="modelValue"
       :editable="!disabled"
-      :placeholder="placeholder ?? t('nuxt-content.editor.textPlaceholder')"
+      :placeholder="placeholder ?? t('docs.editor.textPlaceholder')"
       :starter-kit="{ undoRedo: false }"
       :image="false"
       :mention="false"

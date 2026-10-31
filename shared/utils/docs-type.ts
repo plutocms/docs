@@ -266,7 +266,7 @@ export function createDocsType(options: DocsTypeOptions): PlutoContentType {
       layout: 'canvas',
       canvasField: 'body',
       leftPanel: {
-        label: 'nuxt-content.editor.blocks',
+        label: 'docs.editor.blocks',
         class: 'bg-white dark:bg-[#0b0b0b]',
       },
     },

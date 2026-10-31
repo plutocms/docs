@@ -19,10 +19,10 @@ The docs type uses the core `canvas` form layout (see the `admin-view-chrome` sk
 
 ## Files
 
-- `app/components/Pluto/NuxtContent/PlutoFieldMdc.vue`: the widget. It picks Visual or Markdown.
+- `app/components/Pluto/Docs/PlutoFieldMdc.vue`: the widget. It picks Visual or Markdown.
   Visual loads on demand (`defineAsyncComponent`), so Tiptap and the remark parser stay out of the
   other admin pages.
-- `app/components/Pluto/NuxtContent/Blocks/`:
+- `app/components/Pluto/Docs/Blocks/`:
   - `PlutoBlockEditor.vue`: the root. It makes the state, provides it, and fills the canvas and
     the two panels with `PlutoContentCanvasPanel`. It also handles Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z.
   - `PlutoBlockOutline.vue`, `PlutoBlockOutlineList.vue`: the list. Each list is one SortableJS

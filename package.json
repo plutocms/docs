@@ -1,17 +1,17 @@
 {
-  "name": "@plutocms/nuxt-content",
+  "name": "@plutocms/docs",
   "type": "module",
   "version": "0.14.0",
-  "description": "Nuxt Content layer for Pluto: edit the Markdown pages of a Nuxt Content site in the Pluto admin",
+  "description": "Docs layer for Pluto: edit the Markdown pages of a Nuxt Content site in the Pluto admin",
   "author": "Victor Ribeiro",
   "license": "MIT",
-  "homepage": "https://github.com/plutocms/nuxt-content#readme",
+  "homepage": "https://github.com/plutocms/docs#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/plutocms/nuxt-content.git"
+    "url": "git+https://github.com/plutocms/docs.git"
   },
   "bugs": {
-    "url": "https://github.com/plutocms/nuxt-content/issues"
+    "url": "https://github.com/plutocms/docs/issues"
   },
   "main": "./nuxt.config.ts",
   "scripts": {

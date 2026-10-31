@@ -6,18 +6,18 @@ with full detail, so this file stays short.
 See the workspace-level `CLAUDE.md` (one directory up) for the delegation, writing, and git
 policies shared by every project here.
 
-- Nuxt Content setup: the `plutoNuxtContent` module, its options, and the plugins that register
-  the types. See @.claude/skills/nuxt-content-setup/SKILL.md.
+- Docs setup: the `plutoDocs` module, its options, and the plugins that register
+  the types. See @.claude/skills/docs-setup/SKILL.md.
 - Docs preset: the `docs` page type, the frontmatter hooks, and tree order. See
   @.claude/skills/docs-preset/SKILL.md.
 - MDC field: the `mdc` field widget. Visual mode (the block editor) and Markdown mode (with the
   Insert menu of snippets). See @.claude/skills/mdc-field/SKILL.md.
-- Render modes: `plutoNuxtContent.render` is `'hybrid'` (default: the build data, and the repository for the
+- Render modes: `plutoDocs.render` is `'hybrid'` (default: the build data, and the repository for the
   pages that changed after the build), `'build'` or `'runtime'`. A build manifest, server routes, `.navigation.yml`
   and frontmatter parity, and the composables `usePlutoContentPage`, `usePlutoContentNavigation` and
   `usePlutoContentSurround` that hide the mode. The layer routes are on the public API
-  (`/api/pluto/v1/nuxt-content/:type/{page,navigation,surround}`, `{ data }` answers), and the docs type is
-  public on core's `/api/pluto/v1/content/<type>`. See @.claude/skills/nuxt-content-setup/SKILL.md.
+  (`/api/pluto/v1/docs/:type/{page,navigation,surround}`, `{ data }` answers), and the docs type is
+  public on core's `/api/pluto/v1/content/<type>`. See @.claude/skills/docs-setup/SKILL.md.
 - Page links: the View link of the form (`previewUrl`), the "New Page" and "Edit Page" buttons of the admin bar (core draws them from `adminBar`),
   `contentRoutePath`, `contentEditPath`, and `usePlutoContentEditLink`. See
   @.claude/skills/page-links/SKILL.md.

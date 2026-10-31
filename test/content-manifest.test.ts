@@ -10,7 +10,7 @@ import {
   isListedId,
   manifestModuleSource,
   versionOf,
-} from '../modules/pluto-nuxt-content/manifest'
+} from '../modules/pluto-docs/manifest'
 import { parseNavigationConfig } from '../shared/utils/navigation-config'
 
 describe('gitBlobSha', () => {

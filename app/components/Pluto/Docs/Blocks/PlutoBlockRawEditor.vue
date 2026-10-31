@@ -50,7 +50,7 @@ const changed = computed(() => draft.value !== props.modelValue)
     />
     <div v-if="!live" class="flex justify-end gap-2">
       <UButton
-        :label="t('nuxt-content.editor.applyMarkdown')"
+        :label="t('docs.editor.applyMarkdown')"
         :disabled="disabled || !changed"
         size="xs"
         color="primary"

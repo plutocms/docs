@@ -1,28 +1,28 @@
-# Nuxt Content setup
+# Docs setup
 
 The layer edits the pages of a Nuxt Content site in the Pluto admin. The app turns it on with
-`extends` and one config key (`plutoNuxtContent.types`). This skill describes the module, the options, and the plugins.
+`extends` and one config key (`plutoDocs.types`). This skill describes the module, the options, and the plugins.
 
 ## Files
 
 - `nuxt.config.ts` — extends `process.env.PLUTO_CORE_PATH || '@plutocms/core'`, adds the
-  `@nuxt/content` module, sets `$meta.name: 'nuxt-content'`, the native SQLite connector, and the
+  `@nuxt/content` module, sets `$meta.name: 'docs'`, the native SQLite connector, and the
   layer defaults `plutoGithub.postType: false` and `plutoGithub.commit.skipDeploy: false`. It has no `css`
   entry. The other `plutoGithub` options use the core defaults (`enabled: 'auto'`, `storage` by mode,
   the repo from the env or the git remote). See the `github-cms` skill in pluto.
-- `modules/pluto-nuxt-content/index.ts` — the Nuxt module. Config key `plutoNuxtContent`.
-- `modules/pluto-nuxt-content/manifest.ts` — the build manifest of the hybrid mode (Node).
-- `modules/pluto-nuxt-content/options.ts` — pure helpers: `resolvePlutoNuxtContentOptions`,
+- `modules/pluto-docs/index.ts` — the Nuxt module. Config key `plutoDocs`.
+- `modules/pluto-docs/manifest.ts` — the build manifest of the hybrid mode (Node).
+- `modules/pluto-docs/options.ts` — pure helpers: `resolvePlutoDocsOptions`,
   `isValidSource`, `normalizeRoutePrefix`. No Nuxt import, so plain Vitest tests them.
-- `shared/types/nuxt-content.d.ts` — the `@nuxt/schema` types for the config key.
-- `app/plugins/pluto-nuxt-content.ts` — the client plugin.
-- `server/plugins/pluto-nuxt-content.ts` — the Nitro plugin.
+- `shared/types/docs.d.ts` — the `@nuxt/schema` types for the config key.
+- `app/plugins/pluto-docs.ts` — the client plugin.
+- `server/plugins/pluto-docs.ts` — the Nitro plugin.
 - `test/module-options.test.ts` — the unit tests.
 
 ## Options
 
 ```ts
-plutoNuxtContent: {
+plutoDocs: {
   types: [{ preset: 'docs', name: 'doc', source: '', label?, labelPlural?, exclude?, routePrefix?, navGroup?, icon? }],
   render: 'hybrid', // default; or 'build', or 'runtime'
   runtimeMaxAge: 10, // seconds of the public cache of the layer routes
@@ -44,7 +44,7 @@ plutoNuxtContent: {
 
 ## Render modes
 
-`plutoNuxtContent.render` is `'hybrid'` (default), `'build'` or `'runtime'`.
+`plutoDocs.render` is `'hybrid'` (default), `'build'` or `'runtime'`.
 
 **Breaking change:** the default was `'build'`. Pluto has no users yet, so there is no migration. A site that
 wants the old behavior sets `render: 'build'`. Hybrid and run-time mode need a server, and the app must not
@@ -58,18 +58,18 @@ prerender the content pages (no `crawlLinks`, no prerender route of a page).
 
 Files:
 
-- `modules/pluto-nuxt-content/manifest.ts` — Node, build time. `buildContentManifest`, `buildTypeManifest`,
+- `modules/pluto-docs/manifest.ts` — Node, build time. `buildContentManifest`, `buildTypeManifest`,
   `versionOf`, `gitBlobSha`, `isListedId`, `manifestModuleSource`.
 - `shared/utils/runtime-content.ts` — pure: `buildNavigationTree`, `flattenNavigation`, `surroundOf`,
   `pageIdForRoute`, `diffManifest`, `folderItemFields`, `frontmatterExtras`. The tree follows Nuxt Content's
   `generateNavigationTree` (same `ContentNavigationItem` shape, `page: false` folders, the index page merged into
   its folder, `.navigation.yml` applied).
 - `shared/utils/navigation-config.ts` — `parseNavigationConfig` (YAML of a `.navigation.yml`).
-- `server/utils/pluto-nuxt-content-runtime.ts` — `plutoRuntimePage`, `plutoRuntimeNavigation`,
+- `server/utils/pluto-docs-runtime.ts` — `plutoRuntimePage`, `plutoRuntimeNavigation`,
   `plutoRuntimeSurround`.
 - `server/handlers/{page,navigation,surround}.get.ts` — thin handlers. The module adds them with
   `addServerHandler` in `'hybrid'` and `'runtime'` mode, on the public API of Pluto:
-  `/api/pluto/v1/nuxt-content/:type/{page,navigation,surround}` (`RUNTIME_ROUTE_BASE`). The answer is `{ data }`,
+  `/api/pluto/v1/docs/:type/{page,navigation,surround}` (`RUNTIME_ROUTE_BASE`). The answer is `{ data }`,
   like core's public routes; the composables read `data`. Core's CORS rule (`plutoApi.cors`) covers them.
 - The docs type sets `api: { public: true }`, so the pages are on core's public API too:
   `/api/pluto/v1/content/<type>[/<id>]` (a list item has `excerpt`, one item has `html`, from the CMS adapter).
@@ -78,7 +78,7 @@ Files:
 
 ### The build manifest
 
-The module makes a Nitro virtual module `#pluto-nuxt-content/manifest` in the `nitro:config` hook. It is
+The module makes a Nitro virtual module `#pluto-docs/manifest` in the `nitro:config` hook. It is
 `{ [typeName]: { [contentId]: version } }`. It is made once, when the bundler first asks for it, from the `.md`
 files under `<rootDir>/<plutoGithub.dir>/<type.source>` (the same files that the CMS lists: dot files and dirs, and
 `node_modules`-like dirs are skipped, ids follow the CMS id rule and `exclude`). In `'build'` and `'runtime'`
@@ -106,7 +106,7 @@ build data (hybrid); it must be a plain name.
   Else the page from the store: `adapter.get`, parsed with `parseMarkdown` (`@nuxtjs/mdc/runtime`), cached in
   memory by blob id (at most 200). A path that is in the manifest but not in the store is a 404.
   The code highlighter is `#mdc-highlighter`. The `toc` rules come from `content.build.markdown.toc`, copied to
-  the private `runtimeConfig.plutoNuxtContent`.
+  the private `runtimeConfig.plutoDocs`.
 - `navigation?collection=docs&includeRoot=1` — hybrid and no difference: `queryCollectionNavigation`. Else the tree
   from the store.
 - `surround?path=&collection=docs` — hybrid and no difference: `queryCollectionItemSurroundings`. Else from the store tree.
@@ -158,10 +158,10 @@ The module reads `nuxt.options.plutoGithub.enabled`. Core defaults it to `'auto'
 sets nothing. When the app sets `plutoGithub.enabled: false`, the module logs this error and stays
 off:
 
-> The Nuxt Content layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the
+> The docs layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the
 > layer.
 
-When the module is on, it copies the valid types to `runtimeConfig.public.plutoNuxtContent`.
+When the module is on, it copies the valid types to `runtimeConfig.public.plutoDocs`.
 When it is off, that key does not exist. Both plugins return at once when the key is missing.
 
 ## The plugins
@@ -173,7 +173,7 @@ shared config.
 - The Nitro plugin calls `registerContentType` (core) for each type. The CMS Nitro plugin
   registers the adapter. The order of the two plugins does not matter, because the adapter looks
   up the type for each request.
-- The client plugin calls `definePlutoExtension` (extension id `nuxt-content`) with the
+- The client plugin calls `definePlutoExtension` (extension id `docs`) with the
   `contentTypes`, the `capabilities` (`docs:write`, `docs:delete`), the `mdc` field widget
   (`defineAsyncComponent`), and the admin bar actions. The module also adds the route rules of the
   preview page `/_pluto/preview` (see the block editor skill).

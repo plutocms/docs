@@ -185,7 +185,7 @@ defineExpose({ reload })
       ref="frame"
       :key="frameKey"
       :src="src"
-      :title="t('nuxt-content.editor.previewTitle')"
+      :title="t('docs.editor.previewTitle')"
       class="size-full border-0 bg-default"
       loading="eager"
     />
@@ -205,7 +205,7 @@ defineExpose({ reload })
           class="flex items-center gap-2 rounded-full bg-elevated px-3.5 py-1.5 text-xs font-medium text-muted shadow-sm ring ring-default"
         >
           <UIcon name="i-lucide-loader-circle" class="size-3.5 animate-spin" />
-          {{ t('nuxt-content.editor.previewLoading') }}
+          {{ t('docs.editor.previewLoading') }}
         </div>
       </div>
     </div>
@@ -215,11 +215,11 @@ defineExpose({ reload })
       class="absolute inset-0 flex items-center justify-center bg-default p-6"
     >
       <UEmpty
-        :title="t('nuxt-content.editor.previewFailedTitle')"
-        :description="t('nuxt-content.editor.previewFailed')"
+        :title="t('docs.editor.previewFailedTitle')"
+        :description="t('docs.editor.previewFailed')"
         :actions="[
           {
-            label: t('nuxt-content.editor.previewRetry'),
+            label: t('docs.editor.previewRetry'),
             icon: 'i-lucide-refresh-cw',
             color: 'neutral',
             variant: 'outline',

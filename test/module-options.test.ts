@@ -3,12 +3,12 @@ import {
   CMS_OFF_ERROR,
   isValidSource,
   normalizeRoutePrefix,
-  resolvePlutoNuxtContentOptions,
-} from '../modules/pluto-nuxt-content/options'
+  resolvePlutoDocsOptions,
+} from '../modules/pluto-docs/options'
 
-describe('resolvePlutoNuxtContentOptions', () => {
+describe('resolvePlutoDocsOptions', () => {
   it('has no type by default', () => {
-    expect(resolvePlutoNuxtContentOptions({}, { cmsEnabled: true })).toEqual({
+    expect(resolvePlutoDocsOptions({}, { cmsEnabled: true })).toEqual({
       enabled: true,
       render: 'hybrid',
       runtimeMaxAge: 10,
@@ -18,7 +18,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('is off with an error when the CMS is off', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       { types: [{ preset: 'docs', name: 'doc', source: '' }] },
       { cmsEnabled: false }
     )
@@ -32,7 +32,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('keeps a valid docs type', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       {
         types: [
           {
@@ -60,7 +60,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('accepts a nested source and normalizes the route prefix', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       {
         types: [
           {
@@ -80,7 +80,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('keeps a navGroup string or false, and drops a type with a bad one', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       {
         types: [
           { preset: 'docs', name: 'a', source: '', navGroup: 'shop:catalog' },
@@ -100,7 +100,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('drops a type with an unknown preset', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       { types: [{ preset: 'blog', name: 'doc', source: '' } as never] },
       { cmsEnabled: true }
     )
@@ -109,7 +109,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('drops a type with a bad name or source', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       {
         types: [
           { preset: 'docs', name: 'Bad Name', source: '' },
@@ -124,7 +124,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('drops a duplicate name', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       {
         types: [
           { preset: 'docs', name: 'doc', source: '' },
@@ -138,7 +138,7 @@ describe('resolvePlutoNuxtContentOptions', () => {
   })
 
   it('drops a type whose exclude is not a list of strings', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       {
         types: [
           {
@@ -182,22 +182,19 @@ describe('normalizeRoutePrefix', () => {
 
 describe('render option', () => {
   it('is hybrid by default', () => {
-    expect(
-      resolvePlutoNuxtContentOptions({}, { cmsEnabled: true }).render
-    ).toBe('hybrid')
+    expect(resolvePlutoDocsOptions({}, { cmsEnabled: true }).render).toBe(
+      'hybrid'
+    )
   })
 
   it.each(['hybrid', 'build', 'runtime'] as const)('accepts %s', (render) => {
-    const result = resolvePlutoNuxtContentOptions(
-      { render },
-      { cmsEnabled: true }
-    )
+    const result = resolvePlutoDocsOptions({ render }, { cmsEnabled: true })
     expect(result.render).toBe(render)
     expect(result.errors).toEqual([])
   })
 
   it('falls back to hybrid with one error for a bad value', () => {
-    const result = resolvePlutoNuxtContentOptions(
+    const result = resolvePlutoDocsOptions(
       { render: 'live' as never },
       { cmsEnabled: true }
     )
@@ -207,10 +204,8 @@ describe('render option', () => {
 
   it('is build when the CMS is off', () => {
     expect(
-      resolvePlutoNuxtContentOptions(
-        { render: 'runtime' },
-        { cmsEnabled: false }
-      ).render
+      resolvePlutoDocsOptions({ render: 'runtime' }, { cmsEnabled: false })
+        .render
     ).toBe('build')
   })
 })
@@ -218,27 +213,25 @@ describe('render option', () => {
 describe('runtimeMaxAge option', () => {
   it('is 10 seconds by default', () => {
     expect(
-      resolvePlutoNuxtContentOptions({}, { cmsEnabled: true }).runtimeMaxAge
+      resolvePlutoDocsOptions({}, { cmsEnabled: true }).runtimeMaxAge
     ).toBe(10)
   })
 
   it('accepts 0 and a whole number', () => {
     expect(
-      resolvePlutoNuxtContentOptions({ runtimeMaxAge: 0 }, { cmsEnabled: true })
+      resolvePlutoDocsOptions({ runtimeMaxAge: 0 }, { cmsEnabled: true })
         .runtimeMaxAge
     ).toBe(0)
     expect(
-      resolvePlutoNuxtContentOptions(
-        { runtimeMaxAge: 30 },
-        { cmsEnabled: true }
-      ).runtimeMaxAge
+      resolvePlutoDocsOptions({ runtimeMaxAge: 30 }, { cmsEnabled: true })
+        .runtimeMaxAge
     ).toBe(30)
   })
 
   it.each([-1, 1.5, '10', Number.NaN])(
     'uses the default with one error for %s',
     (value) => {
-      const result = resolvePlutoNuxtContentOptions(
+      const result = resolvePlutoDocsOptions(
         { runtimeMaxAge: value as never },
         { cmsEnabled: true }
       )
