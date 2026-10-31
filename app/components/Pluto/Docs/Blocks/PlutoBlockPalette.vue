@@ -65,7 +65,7 @@ const groups = computed<CommandPaletteGroup[]>(() =>
     v-model:open="open"
     :title="t('docs.editor.addBlock')"
     :description="t('docs.editor.addBlockDescription')"
-    :ui="{ content: 'max-w-xl', header: 'sr-only' }"
+    :ui="{ content: 'pluto-palette max-w-xl', header: 'sr-only' }"
   >
     <template #content>
       <UCommandPalette
