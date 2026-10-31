@@ -17,7 +17,11 @@ and in Nitro.
 - `previewUrl`: the public route of the page (`contentRoutePath(id, routePrefix)`). The form toolbar
   shows it as the **View** link.
 - `capabilities: { write: 'docs:write', delete: 'docs:delete' }`. There is no read capability.
-- `titleField: 'title'`, `slug: { field: 'slug' }`, icon `lucide:book-open`.
+- `titleField: 'title'`, `slug: { field: 'slug' }`, icon `lucide:book-open` (the type option `icon` changes it).
+- `navGroup: 'pages'` by default: the group of core. In the admin sidebar, the docs types of the site
+  show as the children of one "Pages" item (one link per type). The admin bar shows one "New" menu for
+  them. A type option `navGroup` sets another group id. `navGroup: false` gives the type its own sidebar
+  item and its own "New" button. A group with one type shows that type as a normal item.
 
 ## Fields
 
