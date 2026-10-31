@@ -37,7 +37,8 @@ export function groupLabelKey(group: string): string {
     : group
 }
 
-const COLORS = [
+/** The theme colors of Nuxt UI. */
+export const BLOCK_COLORS = [
   'primary',
   'secondary',
   'success',
@@ -125,7 +126,7 @@ const DEFINITIONS: PlutoBlockDefinition[] = [
   block('callout', 'callouts', 'i-lucide-message-square-quote', {
     props: {
       icon: prop('icon', 'icon'),
-      color: prop('select', 'color', { options: options(COLORS) }),
+      color: prop('select', 'color', { options: options(BLOCK_COLORS) }),
       to: prop('link', 'to', { advanced: true }),
       target: prop('select', 'target', {
         options: options(TARGETS),
@@ -139,7 +140,7 @@ const DEFINITIONS: PlutoBlockDefinition[] = [
     props: {
       title: prop('string', 'title'),
       icon: prop('icon', 'icon'),
-      color: prop('select', 'color', { options: options(COLORS) }),
+      color: prop('select', 'color', { options: options(BLOCK_COLORS) }),
       to: prop('link', 'to'),
       target: prop('select', 'target', {
         options: options(TARGETS),
@@ -234,7 +235,7 @@ const DEFINITIONS: PlutoBlockDefinition[] = [
     hidden: true,
     props: {
       label: prop('string', 'label'),
-      color: prop('select', 'color', { options: options(COLORS) }),
+      color: prop('select', 'color', { options: options(BLOCK_COLORS) }),
     },
   }),
   block('kbd', 'text', 'i-lucide-keyboard', {
@@ -348,7 +349,7 @@ const DEFINITIONS: PlutoBlockDefinition[] = [
       label: prop('string', 'label', { slot: 'default' }),
       to: prop('link', 'to'),
       icon: prop('icon', 'icon'),
-      color: prop('select', 'color', { options: options(COLORS) }),
+      color: prop('select', 'color', { options: options(BLOCK_COLORS) }),
       variant: prop('select', 'variant', {
         options: options([
           'solid',

@@ -8,6 +8,7 @@ import type {
   PlutoBlockDoc,
   PlutoBlockLocation,
   PlutoBlocksConfig,
+  PlutoBlockSources,
   PlutoCodeBlock,
   PlutoPropValue,
 } from '../../shared/utils/blocks/types'
@@ -53,12 +54,14 @@ export interface PlutoBlockEditorOptions {
   source: () => string
   /** Called with the new text after each edit, undo and redo. Never called at the start. */
   emit: (value: string) => void
-  /** The `plutoBlocks` value of the app config. */
-  overrides?: () => PlutoBlocksConfig | undefined
+  /** The layers of the block definitions: the component layer and the `plutoBlocks` of the app config. */
+  sources?: () => PlutoBlockSources | undefined
   now?: () => number
 }
 
 export interface PlutoBlockEditor {
+  /** The layers of the block definitions. The palette, the preview and the labels read them here. */
+  sources: ComputedRef<PlutoBlockSources>
   doc: ComputedRef<PlutoBlockDoc>
   /** The message of a parse error. The editor then offers the Markdown mode only. */
   error: Ref<string | null>
@@ -156,7 +159,7 @@ export function createPlutoBlockEditor(
   options: PlutoBlockEditorOptions
 ): PlutoBlockEditor {
   const now = options.now ?? Date.now
-  const overrides = () => options.overrides?.() ?? {}
+  const sources = computed(() => options.sources?.() ?? {})
 
   const initial = tryParse(options.source())
   const error = ref<string | null>(initial.error)
@@ -244,7 +247,7 @@ export function createPlutoBlockEditor(
 
   function definitionOf(block: PlutoBlock): PlutoBlockDefinition | undefined {
     return block.kind === 'component'
-      ? resolveBlockDefinition(block.name, { overrides: overrides(), block })
+      ? resolveBlockDefinition(block.name, { sources: sources.value, block })
       : undefined
   }
 
@@ -332,6 +335,7 @@ export function createPlutoBlockEditor(
   }
 
   return {
+    sources,
     doc,
     error,
     selection,
@@ -378,7 +382,7 @@ export function createPlutoBlockEditor(
       }
     },
     definitionOf,
-    describe: (block) => describeBlock(block, overrides()),
+    describe: (block) => describeBlock(block, sources.value),
     siblings,
   }
 }
@@ -401,10 +405,19 @@ export function usePlutoBlocksConfig(): () => PlutoBlocksConfig | undefined {
   return () => appConfig.plutoBlocks as unknown as PlutoBlocksConfig | undefined
 }
 
+/**
+ * The layers of the block definitions for a block editor: the component layer (empty until the
+ * build step fills it) and the `plutoBlocks` value of the app config.
+ */
+export function usePlutoBlockSources(): () => PlutoBlockSources {
+  const blocksConfig = usePlutoBlocksConfig()
+  return () => ({ components: {}, overrides: blocksConfig() })
+}
+
 /** The texts of the slots of a component: the title of a slot, and the label of its "Add" button. */
 export function usePlutoBlockLabels() {
   const { t, tx } = usePlutoI18n()
-  const blocksConfig = usePlutoBlocksConfig()
+  const editor = usePlutoBlockEditor()
 
   function slotLabel(
     definition: PlutoBlockDefinition | undefined,
@@ -428,7 +441,7 @@ export function usePlutoBlockLabels() {
     if (accepts?.length === 1) {
       return t('docs.editor.addItem', {
         name: tx(
-          resolveBlockDefinition(accepts[0]!, { overrides: blocksConfig() })
+          resolveBlockDefinition(accepts[0]!, { sources: editor.sources.value })
             .label
         ),
       })

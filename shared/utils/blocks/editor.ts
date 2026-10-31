@@ -7,7 +7,7 @@ import type {
   PlutoBlock,
   PlutoBlockDefinition,
   PlutoBlockDoc,
-  PlutoBlocksConfig,
+  PlutoBlockSources,
   PlutoComponentBlock,
 } from './types'
 import { blockMarkdown } from './operations'
@@ -63,7 +63,7 @@ function firstText(component: PlutoComponentBlock): string {
 /** The label, the icon and the excerpt of a block in the outline. */
 export function describeBlock(
   block: PlutoBlock,
-  overrides: PlutoBlocksConfig = {}
+  sources: PlutoBlockSources = {}
 ): PlutoBlockInfo {
   switch (block.kind) {
     case 'text': {
@@ -91,7 +91,7 @@ export function describeBlock(
         excerpt: block.reason === 'table' ? '' : textExcerpt(block.markdown),
       }
     case 'component': {
-      const definition = resolveBlockDefinition(block.name, { overrides })
+      const definition = resolveBlockDefinition(block.name, { sources })
       const title =
         typeof block.props.title === 'string'
           ? block.props.title
@@ -176,15 +176,15 @@ export function previewSelectionId(
 /** The top-level blocks as the preview frame wants them. */
 export function toPreviewBlocks(
   blocks: PlutoBlock[],
-  overrides: PlutoBlocksConfig = {}
+  sources: PlutoBlockSources = {}
 ): PlutoPreviewBlock[] {
   return blocks.map((block) => {
     const markdown = renderBlock(block)
     if (block.kind !== 'component') {
       return { id: block.id, markdown }
     }
-    const definition = resolveBlockDefinition(block.name, { overrides })
-    const children = previewChildren(block, overrides)
+    const definition = resolveBlockDefinition(block.name, { sources })
+    const children = previewChildren(block, sources)
     return {
       id: block.id,
       markdown,
@@ -202,16 +202,16 @@ export function toPreviewBlocks(
  */
 export function previewChildren(
   component: PlutoComponentBlock,
-  overrides: PlutoBlocksConfig = {}
+  sources: PlutoBlockSources = {}
 ): PlutoPreviewChild[] {
   return flatChildren(component)
     .filter((child): child is PlutoComponentBlock => child.kind === 'component')
     .map((child) => {
-      const children = previewChildren(child, overrides)
+      const children = previewChildren(child, sources)
       return {
         id: child.id,
         name: child.name,
-        label: resolveBlockDefinition(child.name, { overrides, block: child })
+        label: resolveBlockDefinition(child.name, { sources, block: child })
           .label,
         ...(children.length ? { children } : {}),
       }
@@ -279,7 +279,7 @@ const TABLE_MARKDOWN =
  * target inside a component that takes only some children.
  */
 export function buildPalette(
-  overrides: PlutoBlocksConfig = {},
+  sources: PlutoBlockSources = {},
   accepts?: string[]
 ): PlutoPaletteGroup[] {
   const groups: PlutoPaletteGroup[] = []
@@ -322,7 +322,7 @@ export function buildPalette(
       ],
     })
   }
-  for (const { group, items } of listPaletteBlocks(overrides)) {
+  for (const { group, items } of listPaletteBlocks(sources)) {
     const entries = items
       .filter((item) => !accepts || accepts.includes(item.name))
       .map((item): PlutoPaletteEntry => ({

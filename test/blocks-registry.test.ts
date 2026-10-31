@@ -14,6 +14,7 @@ import {
   groupLabelKey,
 } from '../shared/utils/blocks/presets'
 import {
+  blockKey,
   definePlutoBlock,
   humanizeName,
   insertTextFor,
@@ -254,14 +255,16 @@ describe('resolveBlockDefinition', () => {
         insert: '::pluto-hero\n#title\nYour title\n::',
       }),
     }
-    const note = resolveBlockDefinition('note', { overrides })
+    const note = resolveBlockDefinition('note', { sources: { overrides } })
     expect(note).toMatchObject({
       label: 'Remark',
       icon: 'i-lucide-info',
       name: 'note',
     })
     expect(Object.keys(note.props!)).toEqual(['icon', 'to', 'target', 'extra'])
-    const hero = resolveBlockDefinition('pluto-hero', { overrides })
+    const hero = resolveBlockDefinition('pluto-hero', {
+      sources: { overrides },
+    })
     expect(hero).toMatchObject({
       label: 'Hero',
       icon: 'i-lucide-sparkles',
@@ -272,7 +275,7 @@ describe('resolveBlockDefinition', () => {
 
   it('hides a block set to false, and keeps its label', () => {
     const definition = resolveBlockDefinition('u-page-c-t-a', {
-      overrides: { 'u-page-c-t-a': false },
+      sources: { overrides: { 'u-page-c-t-a': false } },
     })
     expect(definition.hidden).toBe(true)
     expect(definition.label).toBe('docs.blocks.u-page-c-t-a.label')
@@ -281,7 +284,7 @@ describe('resolveBlockDefinition', () => {
   it('keeps `preview: false` from the override', () => {
     expect(
       resolveBlockDefinition('pluto-palette', {
-        overrides: { 'pluto-palette': { preview: false } },
+        sources: { overrides: { 'pluto-palette': { preview: false } } },
       }).preview
     ).toBe(false)
   })
@@ -333,14 +336,16 @@ describe('listPaletteBlocks', () => {
 
   it('adds a site block, in its own group, and hides a block set to false', () => {
     const groups = listPaletteBlocks({
-      'pluto-hero': {
-        label: 'Hero',
-        group: 'Landing',
-        icon: 'i-lucide-sparkles',
-        insert: '::pluto-hero\n::',
+      overrides: {
+        'pluto-hero': {
+          label: 'Hero',
+          group: 'Landing',
+          icon: 'i-lucide-sparkles',
+          insert: '::pluto-hero\n::',
+        },
+        'pluto-chip': {},
+        note: false,
       },
-      'pluto-chip': {},
-      note: false,
     })
     expect(groups.at(-2)?.group).toBe('site')
     expect(groups.at(-1)?.group).toBe('Landing')
@@ -356,5 +361,170 @@ describe('listPaletteBlocks', () => {
     expect(insertTextFor(resolveBlockDefinition('pluto-chip'))).toBe(
       '::pluto-chip\n::'
     )
+  })
+})
+
+describe('block sources', () => {
+  const components: PlutoBlocksConfig = {
+    'pluto-hero': {
+      icon: 'i-lucide-sparkles',
+      group: 'landing',
+      props: {
+        starCount: { type: 'number', default: 300 },
+        speed: { type: 'select', options: [{ value: 'slow' }] },
+      },
+      slots: { title: { content: 'inline' }, notice: { content: 'inline' } },
+    },
+  }
+
+  it('joins the layers: preset, then components, then overrides', () => {
+    const overrides: PlutoBlocksConfig = {
+      note: { label: 'Remark' },
+      'pluto-hero': { label: 'Hero', icon: 'i-lucide-star' },
+    }
+    const note = resolveBlockDefinition('note', {
+      sources: { components: { note: { icon: 'i-lucide-flag' } }, overrides },
+    })
+    expect(note).toMatchObject({ icon: 'i-lucide-flag', label: 'Remark' })
+    const hero = resolveBlockDefinition('pluto-hero', {
+      sources: { components, overrides },
+    })
+    expect(hero).toMatchObject({
+      label: 'Hero',
+      icon: 'i-lucide-star',
+      group: 'landing',
+    })
+  })
+
+  it('merges a prop and a slot key by key', () => {
+    const hero = resolveBlockDefinition('pluto-hero', {
+      sources: {
+        components,
+        overrides: {
+          'pluto-hero': {
+            props: { starCount: { label: 'Stars' } },
+            slots: { title: { label: 'Headline' } },
+          },
+        },
+      },
+    })
+    expect(hero.props!.starCount).toEqual({
+      type: 'number',
+      default: 300,
+      label: 'Stars',
+    })
+    expect(hero.slots!.title).toEqual({ content: 'inline', label: 'Headline' })
+  })
+
+  it('types a prop as a string when no layer gives a type', () => {
+    const hero = resolveBlockDefinition('pluto-hero', {
+      sources: {
+        overrides: { 'pluto-hero': { props: { tag: { label: 'T' } } } },
+      },
+    })
+    expect(hero.props!.tag).toEqual({ type: 'string', label: 'T' })
+  })
+
+  it('removes a prop or a slot set to false', () => {
+    const hero = resolveBlockDefinition('pluto-hero', {
+      sources: {
+        components,
+        overrides: {
+          'pluto-hero': { props: { speed: false }, slots: { notice: false } },
+        },
+      },
+    })
+    expect(Object.keys(hero.props!)).toEqual(['starCount'])
+    expect(Object.keys(hero.slots!)).toEqual(['default', 'title'])
+    const note = resolveBlockDefinition('note', {
+      sources: { overrides: { note: { props: { to: false } } } },
+    })
+    expect(note.props).not.toHaveProperty('to')
+  })
+
+  it('hides a block set to false, and shows it again with hidden false', () => {
+    const sources = { components: { 'pluto-hero': false as const } }
+    expect(resolveBlockDefinition('pluto-hero', { sources }).hidden).toBe(true)
+    expect(
+      resolveBlockDefinition('pluto-hero', {
+        sources: { ...sources, overrides: { 'pluto-hero': { hidden: false } } },
+      }).hidden
+    ).toBe(false)
+  })
+
+  it('finds a block by its Pascal name, and a Pascal key in a config', () => {
+    expect(
+      resolveBlockDefinition('PlutoHero', { sources: { components } })
+    ).toMatchObject({ name: 'pluto-hero', group: 'landing' })
+    expect(resolveBlockDefinition('UPageCard').name).toBe('u-page-card')
+    expect(
+      resolveBlockDefinition('pluto-hero', {
+        sources: { overrides: { PlutoHero: { label: 'Hero' } } },
+      }).label
+    ).toBe('Hero')
+    expect(blockKey('UPageCTA')).toBe('u-page-c-t-a')
+    expect(blockKey('PlutoHero')).toBe('pluto-hero')
+    expect(blockKey('pluto-hero')).toBe('pluto-hero')
+  })
+
+  it('keeps the spelling of the prop that the page uses', () => {
+    const doc = parseBlocks('::pluto-hero{star-count="160"}\n::\n')
+    const definition = resolveBlockDefinition('pluto-hero', {
+      sources: { components },
+      block: doc.blocks[0] as PlutoComponentBlock,
+    })
+    expect(Object.keys(definition.props!)).toEqual(['star-count', 'speed'])
+    expect(definition.props!['star-count']).toMatchObject({ type: 'number' })
+    // The page does not use the prop: the key stays as the meta spells it.
+    const other = resolveBlockDefinition('pluto-hero', {
+      sources: { components },
+      block: parseBlocks('::pluto-hero\n::\n').blocks[0] as PlutoComponentBlock,
+    })
+    expect(Object.keys(other.props!)).toEqual(['starCount', 'speed'])
+  })
+
+  it('lists presets, then the component layer, then the config-only blocks', () => {
+    const groups = listPaletteBlocks({
+      components: {
+        'pluto-hero': { group: 'landing' },
+        'pluto-chip': { group: 'site' },
+      },
+      overrides: { 'site-thing': {}, 'pluto-chip': { label: 'Chip' } },
+    })
+    const names = groups.flatMap((entry) =>
+      entry.items.map((item) => item.name)
+    )
+    expect(names.slice(-3)).toEqual(['pluto-hero', 'pluto-chip', 'site-thing'])
+    expect(names.indexOf('note')).toBeLessThan(names.indexOf('pluto-hero'))
+    expect(names.filter((name) => name === 'pluto-chip')).toHaveLength(1)
+  })
+
+  it('does not list a component that has no entry (opt-in)', () => {
+    const names = listPaletteBlocks({ components: {} }).flatMap((entry) =>
+      entry.items.map((item) => item.name)
+    )
+    expect(names).not.toContain('pluto-hero')
+  })
+
+  it('makes the label of a camel case name readable', () => {
+    expect(humanizeName('starCount')).toBe('Star count')
+    expect(humanizeName('pluto-hero')).toBe('Pluto hero')
+  })
+})
+
+describe('definePlutoBlock', () => {
+  it('is an identity helper, and a generic checks the prop keys', () => {
+    interface Props {
+      starCount?: number
+    }
+    const definition = definePlutoBlock<Props>({
+      props: { starCount: { label: 'Stars' } },
+    })
+    expect(definition).toEqual({ props: { starCount: { label: 'Stars' } } })
+    definePlutoBlock<Props>({
+      // @ts-expect-error `speed` is not a prop of `Props`.
+      props: { speed: { label: 'Speed' } },
+    })
+    expect(definePlutoBlock({})).toEqual({})
   })
 })

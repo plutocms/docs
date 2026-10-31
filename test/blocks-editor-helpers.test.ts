@@ -65,7 +65,7 @@ describe('describeBlock', () => {
   it('uses a site override for the label', () => {
     expect(
       describeBlock(first('::pluto-chip\nText\n::'), {
-        'pluto-chip': { label: 'Chip', icon: 'i-lucide-tag' },
+        overrides: { 'pluto-chip': { label: 'Chip', icon: 'i-lucide-tag' } },
       })
     ).toMatchObject({ label: 'Chip', icon: 'i-lucide-tag' })
   })
@@ -134,7 +134,9 @@ describe('toPreviewBlocks', () => {
   it('marks a block that has preview false', () => {
     const doc = parseBlocks('::pluto-palette\n::\n')
     expect(
-      toPreviewBlocks(doc.blocks, { 'pluto-palette': { preview: false } })[0]
+      toPreviewBlocks(doc.blocks, {
+        overrides: { 'pluto-palette': { preview: false } },
+      })[0]
     ).toMatchObject({ preview: false })
   })
 
@@ -178,8 +180,10 @@ describe('buildPalette', () => {
 
   it('lists a site block and hides a block set to false', () => {
     const groups = buildPalette({
-      'site-thing': { label: 'Thing', icon: 'i-lucide-box', group: 'site' },
-      note: false,
+      overrides: {
+        'site-thing': { label: 'Thing', icon: 'i-lucide-box', group: 'site' },
+        note: false,
+      },
     })
     const ids = groups.flatMap((group) =>
       group.entries.map((entry) => entry.id)
