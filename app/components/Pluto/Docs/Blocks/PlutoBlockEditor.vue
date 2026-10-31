@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// The component layer. Only the two editor roots import it, so it stays out of the public pages.
+import componentBlocks from '#pluto-docs/blocks'
 // The visual block editor: the canvas of the 'canvas' form layout. The canvas
 // shows the live preview of the page. The block list goes in the left panel,
 // and the controls of the selected block go in the right panel (a tab of the
@@ -24,7 +26,7 @@ const emit = defineEmits<{
 
 const { t } = usePlutoI18n()
 const form = usePlutoContentForm()
-const blockSources = usePlutoBlockSources()
+const blockSources = usePlutoBlockSources(componentBlocks)
 
 const editor = createPlutoBlockEditor({
   source: () => props.modelValue,

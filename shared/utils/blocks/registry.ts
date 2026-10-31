@@ -16,16 +16,8 @@ import type {
 } from './types'
 import { BLOCK_GROUPS, BLOCK_PRESETS, HIDDEN_PROP_NAMES } from './presets'
 
-/**
- * The definition of a block, for `app.config.ts` or for `definePlutoBlock` in a component file.
- * It is an identity helper that gives type help. With a generic, `definePlutoBlock<Props>({...})`
- * checks that the keys of `props` are props of the component.
- */
-export function definePlutoBlock<
-  Props extends object = Record<string, unknown>,
->(definition: PlutoBlockPatch<Props>): PlutoBlockPatch<Props> {
-  return definition
-}
+// The typed identity helper is in its own file, so a component file that auto-imports it does not load the registry.
+export { definePlutoBlock } from './define'
 
 export interface ResolveOptions {
   /** The layers: the component layer and the `plutoBlocks` value of the app config. */

@@ -9,6 +9,8 @@
 // here: the block model only feeds the preview and never writes.
 import type { SplitterItem } from '@nuxt/ui'
 import type { PlutoMarkdownCodeEditor as CodeEditor } from '#components'
+// The component layer. Only the two editor roots import it, so it stays out of the public pages.
+import componentBlocks from '#pluto-docs/blocks'
 import { findBlock } from '../../../../../shared/utils/blocks/tree'
 import PlutoMdcInsertMenu from '../PlutoMdcInsertMenu.vue'
 import PlutoBlockModeSwitch from './PlutoBlockModeSwitch.vue'
@@ -28,7 +30,7 @@ const emit = defineEmits<{
 }>()
 
 const form = usePlutoContentForm()
-const blockSources = usePlutoBlockSources()
+const blockSources = usePlutoBlockSources(componentBlocks)
 
 const editor = createPlutoBlockEditor({
   source: () => props.modelValue,

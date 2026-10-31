@@ -71,8 +71,10 @@ The docs type uses the core `canvas` form layout (see the `admin-view-chrome` sk
 
 `createPlutoBlockEditor({ source, emit, sources })` keeps the doc in an undo history. It also owns the
 block sources (`editor.sources`, a `PlutoBlockSources`). The palette, the preview frame and the
-labels read them from the state, not from the app config. `usePlutoBlockSources()` gives the getter
-that the two root components pass in. Each action
+labels read them from the state, not from the app config. `usePlutoBlockSources(componentBlocks)` gives the getter
+that the two root components pass in. They import `componentBlocks` from the virtual module
+`#pluto-docs/blocks` (the blocks of the site components, see the block-model skill). Only these two files
+import it, so the data stays in the lazy editor chunk. Each action
 (insert, remove, duplicate, move, set prop, set slot, update text or code, replace with Markdown)
 builds a new doc, writes the text with `serializeBlocks`, and calls `emit`. It never calls `emit`
 on open. When the text changes from outside, it reads the doc again and clears the history.
