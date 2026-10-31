@@ -26,5 +26,9 @@ policies shared by every project here.
 - Block model: the pure model of the visual block editor (parse, serialize, edit, history,
   presets, registry, preview protocol). The text of an unedited block stays byte for byte. See
   @.claude/skills/block-model/SKILL.md.
+- Block discovery: a component in `components/content/` (the app or a layer) that calls
+  `definePlutoBlock({...})` becomes a block in the palette, with its props and slots read from its
+  TypeScript types. Opt-in. The option `plutoDocs.blocks.discover` turns it off. See
+  @.claude/skills/block-model/SKILL.md.
 - Block editor: the visual editor for the page body. A live preview, the block list, the palette, and
   the controls of the selected block, with no raw MDC. See @.claude/skills/block-editor/SKILL.md.

@@ -406,12 +406,15 @@ export function usePlutoBlocksConfig(): () => PlutoBlocksConfig | undefined {
 }
 
 /**
- * The layers of the block definitions for a block editor: the component layer (empty until the
- * build step fills it) and the `plutoBlocks` value of the app config.
+ * The layers of the block definitions for a block editor: the component layer and the
+ * `plutoBlocks` value of the app config. The caller passes the component layer in: the two editor
+ * roots import it from `#pluto-docs/blocks`, so the data stays in the lazy editor chunk.
  */
-export function usePlutoBlockSources(): () => PlutoBlockSources {
+export function usePlutoBlockSources(
+  components: PlutoBlocksConfig = {}
+): () => PlutoBlockSources {
   const blocksConfig = usePlutoBlocksConfig()
-  return () => ({ components: {}, overrides: blocksConfig() })
+  return () => ({ components, overrides: blocksConfig() })
 }
 
 /** The texts of the slots of a component: the title of a slot, and the label of its "Add" button. */
