@@ -1,7 +1,7 @@
 // The build manifest of the hybrid mode. Node code that runs at build time. It lists the
 // content files of each type with the version that the content store reports for the file
 // (`_version`). At run time the server compares the store with this list to see which pages
-// changed after the build. See the nuxt-content-setup skill.
+// changed after the build. See the docs-setup skill.
 
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'

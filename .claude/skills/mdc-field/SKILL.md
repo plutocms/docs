@@ -37,12 +37,12 @@ editor") describes it: the format shown as the author types, the MDC line colors
 
 ## Files
 
-- `app/components/Pluto/NuxtContent/PlutoFieldMdc.vue` — the widget.
-- `app/components/Pluto/NuxtContent/PlutoMdcInsertMenu.vue` — the Insert menu.
-- `app/components/Pluto/NuxtContent/Blocks/PlutoBlockMarkdownSplit.vue` — Markdown and preview side
+- `app/components/Pluto/Docs/PlutoFieldMdc.vue` — the widget.
+- `app/components/Pluto/Docs/PlutoMdcInsertMenu.vue` — the Insert menu.
+- `app/components/Pluto/Docs/Blocks/PlutoBlockMarkdownSplit.vue` — Markdown and preview side
   by side.
 - `shared/utils/mdc-snippets.ts` — `MDC_SNIPPETS`, the snippets as pure data.
-- `app/plugins/pluto-nuxt-content.ts` — registers the widget as `{ id: 'mdc', widget: 'mdc' }`
+- `app/plugins/pluto-docs.ts` — registers the widget as `{ id: 'mdc', widget: 'mdc' }`
   with `defineAsyncComponent`.
 - `test/mdc-snippets.test.ts` — checks that every block snippet closes.
 
@@ -69,8 +69,8 @@ block with a file name. A nested component uses more colons than its parent wher
 ## Add a snippet
 
 1. Add an entry to `MDC_SNIPPETS`: `id`, a full i18n key in `label`, an icon, `text`, `block`.
-2. Add the key to `i18n/locales/en.json` and `pt-BR.json` under `nuxt-content.snippets`.
+2. Add the key to `i18n/locales/en.json` and `pt-BR.json` under `docs.snippets`.
 3. Update the id list in `test/mdc-snippets.test.ts`.
 
-The `label` must be a full literal key (`nuxt-content.snippets.note`). The locale test scans
+The `label` must be a full literal key (`docs.snippets.note`). The locale test scans
 the code for literal keys.

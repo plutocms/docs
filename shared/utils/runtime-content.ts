@@ -2,7 +2,7 @@
 // It turns the flat list of pages of a type into what Nuxt Content gives at build time:
 // the navigation tree and the previous and next page. The tree follows the algorithm of
 // `generateNavigationTree` in Nuxt Content, so a site can use the same components.
-// See the nuxt-content-setup skill.
+// See the docs-setup skill.
 
 import { contentRoutePath } from './content-route'
 

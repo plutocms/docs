@@ -15,8 +15,8 @@ import {
 } from '@nuxt/content/server'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 import { getQuery, getRouterParam, setResponseHeader } from 'h3'
-// The build manifest. The module makes this virtual module at build time. See modules/pluto-nuxt-content/manifest.ts.
-import manifests from '#pluto-nuxt-content/manifest'
+// The build manifest. The module makes this virtual module at build time. See modules/pluto-docs/manifest.ts.
+import manifests from '#pluto-docs/manifest'
 import { parseNavigationConfig } from '../../shared/utils/navigation-config'
 import {
   diffManifest,
@@ -25,7 +25,7 @@ import {
 
 // The server side of the `hybrid` and `runtime` render modes. The module adds the routes
 // only in these modes. The logic is here, in plain functions, and the handlers in
-// `server/handlers/` only call it. See the nuxt-content-setup skill.
+// `server/handlers/` only call it. See the docs-setup skill.
 //
 // `runtime`: every answer comes from the content adapter that core registered (the GitHub
 // CMS store with its cache).
@@ -92,7 +92,7 @@ function queryText(event: H3Event, key: string): string {
  */
 function runtimeContext(event: H3Event): RuntimeContext {
   markPublicRead(event)
-  const config = useRuntimeConfig(event).public.plutoNuxtContent as unknown as
+  const config = useRuntimeConfig(event).public.plutoDocs as unknown as
     PublicConfig | undefined
   const name = getRouterParam(event, 'type') ?? ''
   const entry =
@@ -115,7 +115,7 @@ function runtimeContext(event: H3Event): RuntimeContext {
 function setCacheHeaders(event: H3Event): void {
   const configured = Number(
     (
-      useRuntimeConfig(event).public.plutoNuxtContent as unknown as
+      useRuntimeConfig(event).public.plutoDocs as unknown as
         PublicConfig | undefined
     )?.runtimeMaxAge
   )
@@ -197,7 +197,7 @@ async function snapshotOrFallback(
   } catch (error) {
     if (context.mode === 'hybrid') {
       console.warn(
-        '[pluto-nuxt-content] The store failed. The build data answers.',
+        '[pluto-docs] The store failed. The build data answers.',
         (error as Error).message
       )
       return undefined
@@ -242,7 +242,7 @@ function parseBody(
   body: string
 ): Promise<MDCParserResult> {
   const toc = (
-    useRuntimeConfig().plutoNuxtContent as
+    useRuntimeConfig().plutoDocs as
       { toc?: { depth?: number; searchDepth?: number } } | undefined
   )?.toc
   const parse = async () =>
@@ -402,14 +402,14 @@ async function buildPage(
       .first()
   } catch (error) {
     console.warn(
-      '[pluto-nuxt-content] The build data failed.',
+      '[pluto-docs] The build data failed.',
       (error as Error).message
     )
     return null
   }
 }
 
-/** `GET /api/pluto/v1/nuxt-content/:type/page?path=/a/b&collection=docs` */
+/** `GET /api/pluto/v1/docs/:type/page?path=/a/b&collection=docs` */
 export async function plutoRuntimePage(event: H3Event): Promise<unknown> {
   const context = runtimeContext(event)
   const path = queryText(event, 'path')
@@ -459,7 +459,7 @@ export async function plutoRuntimePage(event: H3Event): Promise<unknown> {
   return page
 }
 
-/** `GET /api/pluto/v1/nuxt-content/:type/navigation?collection=docs&includeRoot=1` */
+/** `GET /api/pluto/v1/docs/:type/navigation?collection=docs&includeRoot=1` */
 export async function plutoRuntimeNavigation(event: H3Event): Promise<unknown> {
   const context = runtimeContext(event)
   setCacheHeaders(event)
@@ -477,7 +477,7 @@ export async function plutoRuntimeNavigation(event: H3Event): Promise<unknown> {
   return await storeTree(event, context, snapshot.items, false)
 }
 
-/** `GET /api/pluto/v1/nuxt-content/:type/surround?path=/a/b&collection=docs&includeRoot=1` */
+/** `GET /api/pluto/v1/docs/:type/surround?path=/a/b&collection=docs&includeRoot=1` */
 export async function plutoRuntimeSurround(
   event: H3Event
 ): Promise<Array<RuntimeSurroundItem | null> | unknown> {

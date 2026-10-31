@@ -84,7 +84,7 @@ export function describeBlock(
       return {
         label:
           block.reason === 'table'
-            ? 'nuxt-content.blocks.kinds.table'
+            ? 'docs.blocks.kinds.table'
             : BLOCK_KIND_LABELS.raw,
         icon:
           block.reason === 'table' ? 'i-lucide-table' : 'i-lucide-file-text',
@@ -292,7 +292,7 @@ export function buildPalette(
           kind: 'text',
           group: 'text',
           label: BLOCK_KIND_LABELS.text,
-          description: 'nuxt-content.blocks.kinds.textDescription',
+          description: 'docs.blocks.kinds.textDescription',
           icon: 'i-lucide-pilcrow',
           markdown: '## Title\n\nWrite your text here.',
         },
@@ -300,8 +300,8 @@ export function buildPalette(
           id: 'builtin:table',
           kind: 'table',
           group: 'text',
-          label: 'nuxt-content.blocks.kinds.table',
-          description: 'nuxt-content.blocks.kinds.tableDescription',
+          label: 'docs.blocks.kinds.table',
+          description: 'docs.blocks.kinds.tableDescription',
           icon: 'i-lucide-table',
           markdown: TABLE_MARKDOWN,
         },
@@ -315,7 +315,7 @@ export function buildPalette(
           kind: 'code',
           group: 'code',
           label: BLOCK_KIND_LABELS.code,
-          description: 'nuxt-content.blocks.kinds.codeDescription',
+          description: 'docs.blocks.kinds.codeDescription',
           icon: 'i-lucide-code-xml',
           markdown: "```ts\nconst hello = 'world'\n```",
         },

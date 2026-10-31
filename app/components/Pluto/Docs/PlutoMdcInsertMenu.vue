@@ -24,7 +24,7 @@ const items = computed(() =>
     :disabled="disabled"
   >
     <UButton
-      :label="t('nuxt-content.mdc.insert')"
+      :label="t('docs.mdc.insert')"
       :disabled="disabled"
       color="neutral"
       variant="ghost"

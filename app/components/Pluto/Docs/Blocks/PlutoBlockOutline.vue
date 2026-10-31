@@ -45,7 +45,7 @@ watch(
 
 <template>
   <div
-    :aria-label="t('nuxt-content.editor.blocks')"
+    :aria-label="t('docs.editor.blocks')"
     class="flex min-h-0 flex-1 flex-col bg-white dark:bg-[#0b0b0b]"
     role="region"
     data-block-outline
@@ -57,13 +57,13 @@ watch(
       <h2
         class="min-w-0 truncate text-sm font-semibold text-highlighted max-lg:hidden"
       >
-        {{ t('nuxt-content.editor.blocks') }}
+        {{ t('docs.editor.blocks') }}
       </h2>
       <div class="ms-auto flex items-center gap-1">
-        <UTooltip :text="t('nuxt-content.editor.undo')" :kbds="['meta', 'Z']">
+        <UTooltip :text="t('docs.editor.undo')" :kbds="['meta', 'Z']">
           <UButton
             :disabled="disabled || !editor.canUndo.value"
-            :aria-label="t('nuxt-content.editor.undo')"
+            :aria-label="t('docs.editor.undo')"
             icon="i-lucide-undo-2"
             color="neutral"
             variant="ghost"
@@ -71,13 +71,10 @@ watch(
             @click="editor.undo()"
           />
         </UTooltip>
-        <UTooltip
-          :text="t('nuxt-content.editor.redo')"
-          :kbds="['meta', 'shift', 'Z']"
-        >
+        <UTooltip :text="t('docs.editor.redo')" :kbds="['meta', 'shift', 'Z']">
           <UButton
             :disabled="disabled || !editor.canRedo.value"
-            :aria-label="t('nuxt-content.editor.redo')"
+            :aria-label="t('docs.editor.redo')"
             icon="i-lucide-redo-2"
             color="neutral"
             variant="ghost"
@@ -86,9 +83,9 @@ watch(
           />
         </UTooltip>
         <UButton
-          :label="t('nuxt-content.editor.add')"
+          :label="t('docs.editor.add')"
           :disabled="disabled"
-          :aria-label="t('nuxt-content.editor.addBlock')"
+          :aria-label="t('docs.editor.addBlock')"
           icon="i-lucide-plus"
           color="primary"
           variant="soft"
@@ -112,11 +109,11 @@ watch(
           />
           <UEmpty
             v-else
-            :title="t('nuxt-content.editor.emptyTitle')"
-            :description="t('nuxt-content.editor.emptyDescription')"
+            :title="t('docs.editor.emptyTitle')"
+            :description="t('docs.editor.emptyDescription')"
             :actions="[
               {
-                label: t('nuxt-content.editor.addBlock'),
+                label: t('docs.editor.addBlock'),
                 icon: 'i-lucide-plus',
                 onClick: () => editor.openPalette(),
               },

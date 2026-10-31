@@ -184,18 +184,18 @@ function applyRaw(markdown: string) {
 
 <template>
   <div
-    :aria-label="t('nuxt-content.editor.blockPanel')"
+    :aria-label="t('docs.editor.blockPanel')"
     class="flex flex-col gap-5"
     role="region"
     data-pluto-block-ui
   >
     <UEmpty
       v-if="!block || !info"
-      :title="t('nuxt-content.editor.nothingSelectedTitle')"
-      :description="t('nuxt-content.editor.nothingSelected')"
+      :title="t('docs.editor.nothingSelectedTitle')"
+      :description="t('docs.editor.nothingSelected')"
       :actions="[
         {
-          label: t('nuxt-content.editor.addBlock'),
+          label: t('docs.editor.addBlock'),
           icon: 'i-lucide-plus',
           color: 'primary',
           variant: 'soft',
@@ -226,7 +226,7 @@ function applyRaw(markdown: string) {
       <UButton
         v-if="parent"
         :label="
-          t('nuxt-content.editor.selectParent', {
+          t('docs.editor.selectParent', {
             name: tx(editor.describe(parent).label),
           })
         "
@@ -241,12 +241,12 @@ function applyRaw(markdown: string) {
       <!-- Edit as Markdown -->
       <section v-if="rawOpen" class="flex flex-col gap-2">
         <p class="text-sm text-muted">
-          {{ t('nuxt-content.editor.rawNote') }}
+          {{ t('docs.editor.rawNote') }}
         </p>
         <PlutoBlockRawEditor
           :model-value="rawMarkdown()"
           :disabled="disabled"
-          :label="t('nuxt-content.editor.rawLabel')"
+          :label="t('docs.editor.rawLabel')"
           :live="block.kind === 'text' || block.kind === 'raw'"
           :rows="block.kind === 'component' ? 10 : 8"
           @update:model-value="applyRaw"
@@ -259,7 +259,7 @@ function applyRaw(markdown: string) {
           :key="block.id"
           :model-value="block.markdown"
           :disabled="disabled"
-          :label="t('nuxt-content.editor.textLabel')"
+          :label="t('docs.editor.textLabel')"
           @update:model-value="editor.updateText(block.id, $event)"
         />
       </template>
@@ -268,8 +268,8 @@ function applyRaw(markdown: string) {
       <template v-else-if="block.kind === 'code'">
         <div class="grid grid-cols-2 gap-3">
           <UFormField
-            :label="t('nuxt-content.editor.language')"
-            :help="t('nuxt-content.editor.languageHelp')"
+            :label="t('docs.editor.language')"
+            :help="t('docs.editor.languageHelp')"
           >
             <UInput
               :model-value="block.lang"
@@ -292,8 +292,8 @@ function applyRaw(markdown: string) {
             </datalist>
           </UFormField>
           <UFormField
-            :label="t('nuxt-content.editor.fileName')"
-            :help="t('nuxt-content.editor.fileNameHelp')"
+            :label="t('docs.editor.fileName')"
+            :help="t('docs.editor.fileNameHelp')"
           >
             <UInput
               :model-value="block.filename ?? ''"
@@ -310,7 +310,7 @@ function applyRaw(markdown: string) {
             />
           </UFormField>
         </div>
-        <UFormField :label="t('nuxt-content.editor.code')">
+        <UFormField :label="t('docs.editor.code')">
           <UTextarea
             :model-value="block.code"
             :disabled="disabled"
@@ -334,8 +334,8 @@ function applyRaw(markdown: string) {
         <UAlert
           :description="
             block.reason === 'table'
-              ? t('nuxt-content.editor.tableNote')
-              : t('nuxt-content.editor.rawBlockNote')
+              ? t('docs.editor.tableNote')
+              : t('docs.editor.rawBlockNote')
           "
           color="neutral"
           variant="subtle"
@@ -344,7 +344,7 @@ function applyRaw(markdown: string) {
         <PlutoBlockRawEditor
           :model-value="block.markdown"
           :disabled="disabled"
-          :label="t('nuxt-content.editor.rawLabel')"
+          :label="t('docs.editor.rawLabel')"
           :rows="12"
           live
           @update:model-value="editor.updateText(block.id, $event)"
@@ -355,7 +355,7 @@ function applyRaw(markdown: string) {
       <template v-else>
         <section v-if="slots.length" class="flex flex-col gap-4">
           <h4 class="text-xs font-semibold uppercase tracking-wide text-muted">
-            {{ t('nuxt-content.editor.content') }}
+            {{ t('docs.editor.content') }}
           </h4>
 
           <UFormField
@@ -421,7 +421,7 @@ function applyRaw(markdown: string) {
                 </li>
               </ul>
               <p v-else class="text-sm text-muted">
-                {{ t('nuxt-content.editor.slotEmpty') }}
+                {{ t('docs.editor.slotEmpty') }}
               </p>
               <UButton
                 :label="slot.add"
@@ -439,7 +439,7 @@ function applyRaw(markdown: string) {
 
         <section v-if="settings.length" class="flex flex-col gap-4">
           <h4 class="text-xs font-semibold uppercase tracking-wide text-muted">
-            {{ t('nuxt-content.editor.settings') }}
+            {{ t('docs.editor.settings') }}
           </h4>
           <PlutoBlockPropControl
             v-for="[name, prop] in settings"
@@ -463,7 +463,7 @@ function applyRaw(markdown: string) {
               name="i-lucide-chevron-right"
               class="size-4 text-muted transition-transform group-open:rotate-90"
             />
-            {{ t('nuxt-content.editor.advanced') }}
+            {{ t('docs.editor.advanced') }}
           </summary>
           <div class="flex flex-col gap-4 border-t border-default p-3">
             <PlutoBlockPropControl
@@ -482,7 +482,7 @@ function applyRaw(markdown: string) {
       <!-- Actions -->
       <div class="flex flex-wrap gap-2 border-t border-default pt-4">
         <UButton
-          :label="t('nuxt-content.editor.duplicate')"
+          :label="t('docs.editor.duplicate')"
           :disabled="disabled"
           icon="i-lucide-copy"
           color="neutral"
@@ -493,8 +493,8 @@ function applyRaw(markdown: string) {
         <UButton
           :label="
             rawOpen
-              ? t('nuxt-content.editor.backToControls')
-              : t('nuxt-content.editor.editAsMarkdown')
+              ? t('docs.editor.backToControls')
+              : t('docs.editor.editAsMarkdown')
           "
           :icon="rawOpen ? 'i-lucide-sliders-horizontal' : 'i-lucide-file-code'"
           :disabled="disabled || block.kind === 'raw'"
@@ -504,7 +504,7 @@ function applyRaw(markdown: string) {
           @click="rawOpen = !rawOpen"
         />
         <UButton
-          :label="t('nuxt-content.editor.delete')"
+          :label="t('docs.editor.delete')"
           :disabled="disabled"
           icon="i-lucide-trash-2"
           color="error"

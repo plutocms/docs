@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The `mdc` widget of the Nuxt Content layer. It edits the Markdown (MDC) body
+// The `mdc` widget of the docs layer. It edits the Markdown (MDC) body
 // of a page in one of two modes:
 //
 // - Visual: the block editor. A live preview in the middle, the block list at
@@ -88,7 +88,7 @@ function setMode(next: Mode) {
     :model-value="value"
     :disabled="disabled"
     :mode="mode"
-    :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
+    :placeholder="field.placeholder ?? t('docs.mdc.placeholder')"
     :label="field.label"
     @update:model-value="emit('update:modelValue', $event)"
     @update:mode="setMode"
@@ -105,7 +105,7 @@ function setMode(next: Mode) {
     <LazyPlutoMarkdownCodeEditor
       :model-value="value"
       :disabled="disabled"
-      :placeholder="field.placeholder ?? t('nuxt-content.mdc.placeholder')"
+      :placeholder="field.placeholder ?? t('docs.mdc.placeholder')"
       :aria-label="field.label"
       @update:model-value="emit('update:modelValue', $event)"
     >

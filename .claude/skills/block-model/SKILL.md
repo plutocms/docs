@@ -63,7 +63,7 @@ and the makers `createTextBlock`, `createCodeBlock`, `createComponentBlock`.
 (`plutoBlocks` in `app.config.ts`), and the props and slots found in the document (Advanced). An
 unknown component gets an automatic entry. `listPaletteBlocks(overrides)` gives the palette groups.
 `definePlutoBlock(def)` is a typed identity helper for `app.config.ts`. A label or a description is
-an i18n key (`nuxt-content.blocks.<name>.label`) or a plain text. `false` hides a block.
+an i18n key (`docs.blocks.<name>.label`) or a plain text. `false` hides a block.
 
 ## Add a preset
 

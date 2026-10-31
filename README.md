@@ -1,24 +1,24 @@
-# Nuxt Content layer for Pluto
+# Docs layer for Pluto
 
 Edit the Markdown pages of a [Nuxt Content](https://content.nuxt.com) site in the Pluto admin,
 with a visual block editor and a live preview. The pages stay Markdown files in your GitHub
 repository, and each save is a commit.
 
-**Docs:** [Nuxt Content layer](https://pluto.vulmix.dev/docs/layers/nuxt-content) ·
+**Docs:** [Docs layer](https://pluto.vulmix.dev/docs/layers/docs) ·
 [Edit pages visually](https://pluto.vulmix.dev/docs/guides/edit-pages-visually)
 
 ## Install
 
 ```bash
-npm install @plutocms/nuxt-content
+npm install @plutocms/docs
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: [['@plutocms/nuxt-content', { install: true }]],
+  extends: [['@plutocms/docs', { install: true }]],
 
-  plutoNuxtContent: {
+  plutoDocs: {
     types: [{ preset: 'docs', name: 'doc', source: '' }],
   },
 })

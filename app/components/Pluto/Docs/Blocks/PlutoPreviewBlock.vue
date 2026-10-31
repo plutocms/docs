@@ -46,12 +46,12 @@ onErrorCaptured((error) => {
 
 const note = computed(() => {
   if (props.error) {
-    return t('nuxt-content.preview.parseError')
+    return t('docs.preview.parseError')
   }
   if (failed.value) {
-    return t('nuxt-content.preview.blockError')
+    return t('docs.preview.blockError')
   }
-  return t('nuxt-content.preview.notShown')
+  return t('docs.preview.notShown')
 })
 </script>
 

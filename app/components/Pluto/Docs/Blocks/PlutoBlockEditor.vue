@@ -112,11 +112,11 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown, true))
   <div class="flex h-full min-h-0 flex-col" data-block-canvas>
     <div v-if="editor.error.value" class="p-4">
       <UAlert
-        :title="t('nuxt-content.editor.parseErrorTitle')"
-        :description="t('nuxt-content.editor.parseError')"
+        :title="t('docs.editor.parseErrorTitle')"
+        :description="t('docs.editor.parseError')"
         :actions="[
           {
-            label: t('nuxt-content.editor.switchToMarkdown'),
+            label: t('docs.editor.switchToMarkdown'),
             color: 'neutral',
             variant: 'outline',
             onClick: () => emit('update:mode', 'markdown'),
@@ -137,7 +137,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown, true))
     <template v-if="!editor.error.value">
       <PlutoContentCanvasPanel
         id="blocks"
-        :label="t('nuxt-content.editor.blocks')"
+        :label="t('docs.editor.blocks')"
         side="left"
         icon="i-lucide-blocks"
       >
@@ -150,7 +150,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown, true))
 
       <PlutoContentCanvasPanel
         id="block"
-        :label="t('nuxt-content.editor.blockTab')"
+        :label="t('docs.editor.blockTab')"
         side="right"
         icon="i-lucide-square-pen"
       >

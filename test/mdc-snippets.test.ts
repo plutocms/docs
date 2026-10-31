@@ -26,7 +26,7 @@ describe('mdc snippets', () => {
       MDC_SNIPPETS.length
     )
     for (const snippet of MDC_SNIPPETS) {
-      expect(snippet.label).toMatch(/^nuxt-content\.snippets\./)
+      expect(snippet.label).toMatch(/^docs.snippets\./)
     }
   })
 

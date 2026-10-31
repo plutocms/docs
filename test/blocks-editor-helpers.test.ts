@@ -30,7 +30,7 @@ describe('describeBlock', () => {
   it('names a text block by its heading', () => {
     const info = describeBlock(first('## Install the thing\n\nText.'))
     expect(info).toMatchObject({
-      label: 'nuxt-content.blocks.kinds.text',
+      label: 'docs.blocks.kinds.text',
       icon: 'i-lucide-heading',
       excerpt: 'Install the thing',
     })
@@ -45,7 +45,7 @@ describe('describeBlock', () => {
 
   it('names a table block', () => {
     expect(describeBlock(first('| a | b |\n| - | - |\n| 1 | 2 |')).label).toBe(
-      'nuxt-content.blocks.kinds.table'
+      'docs.blocks.kinds.table'
     )
   })
 
@@ -57,7 +57,7 @@ describe('describeBlock', () => {
       'A short note.'
     )
     expect(describeBlock(first('::note\nA short note.\n::'))).toMatchObject({
-      label: 'nuxt-content.blocks.note.label',
+      label: 'docs.blocks.note.label',
       name: 'note',
     })
   })
@@ -127,7 +127,7 @@ describe('toPreviewBlocks', () => {
     expect(blocks[0]).toEqual({ id: doc.blocks[0]!.id, markdown: '# T' })
     expect(blocks[1]).toMatchObject({
       markdown: '::note\nA note.\n::',
-      label: 'nuxt-content.blocks.note.label',
+      label: 'docs.blocks.note.label',
     })
   })
 

@@ -1,7 +1,7 @@
 // The blocks that work with no site config: the Nuxt UI prose components and
 // the Nuxt UI page components that a Markdown page can use. Pure data. Each
 // label and description is an i18n key of the layer, in the group
-// nuxt-content.blocks.<name>. A prop or a slot name shared by many blocks has
+// docs.blocks.<name>. A prop or a slot name shared by many blocks has
 // one key in the groups props and slots of the same namespace.
 
 import type {
@@ -26,14 +26,14 @@ export const BLOCK_GROUPS = [
 
 /** The labels of the three built-in kinds of block. */
 export const BLOCK_KIND_LABELS = {
-  text: 'nuxt-content.blocks.kinds.text',
-  code: 'nuxt-content.blocks.kinds.code',
-  raw: 'nuxt-content.blocks.kinds.raw',
+  text: 'docs.blocks.kinds.text',
+  code: 'docs.blocks.kinds.code',
+  raw: 'docs.blocks.kinds.raw',
 } as const
 
 export function groupLabelKey(group: string): string {
   return (BLOCK_GROUPS as readonly string[]).includes(group)
-    ? `nuxt-content.blocks.groups.${group}`
+    ? `docs.blocks.groups.${group}`
     : group
 }
 
@@ -53,7 +53,7 @@ function prop(
   name: string,
   extra: Partial<PlutoBlockPropDefinition> = {}
 ): PlutoBlockPropDefinition {
-  return { type, label: `nuxt-content.blocks.props.${name}`, ...extra }
+  return { type, label: `docs.blocks.props.${name}`, ...extra }
 }
 
 function options(values: string[]): PlutoBlockPropOption[] {
@@ -66,7 +66,7 @@ function slot(
   accepts?: string[]
 ): PlutoBlockSlotDefinition {
   return {
-    label: `nuxt-content.blocks.slots.${name}`,
+    label: `docs.blocks.slots.${name}`,
     content,
     ...(accepts ? { accepts } : {}),
   }
@@ -84,8 +84,8 @@ function block(
 ): PlutoBlockDefinition {
   return {
     name,
-    label: `nuxt-content.blocks.${name}.label`,
-    description: `nuxt-content.blocks.${name}.description`,
+    label: `docs.blocks.${name}.label`,
+    description: `docs.blocks.${name}.description`,
     icon,
     group,
     ...extra,

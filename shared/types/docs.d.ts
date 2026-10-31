@@ -1,29 +1,29 @@
 import type {
-  PlutoNuxtContentOptions,
-  PlutoNuxtContentRender,
-  PlutoNuxtContentTypeOptions,
-} from '../../modules/pluto-nuxt-content/options'
+  PlutoDocsOptions,
+  PlutoDocsRender,
+  PlutoDocsTypeOptions,
+} from '../../modules/pluto-docs/options'
 import type { PlutoBlocksConfig } from '../utils/blocks/types'
 
-// The `pluto-nuxt-content` module fills the public key. See modules/pluto-nuxt-content/index.ts.
+// The `pluto-docs` module fills the public key. See modules/pluto-docs/index.ts.
 declare module '@nuxt/schema' {
   interface NuxtConfig {
-    plutoNuxtContent?: PlutoNuxtContentOptions
+    plutoDocs?: PlutoDocsOptions
   }
   interface NuxtOptions {
-    plutoNuxtContent?: PlutoNuxtContentOptions
+    plutoDocs?: PlutoDocsOptions
   }
   interface PublicRuntimeConfig {
-    plutoNuxtContent?: {
-      types: PlutoNuxtContentTypeOptions[]
+    plutoDocs?: {
+      types: PlutoDocsTypeOptions[]
       /** `'hybrid'`, `'build'` or `'runtime'`. The composables read it. */
-      render: PlutoNuxtContentRender
+      render: PlutoDocsRender
       /** Seconds of the public cache of the layer routes. */
       runtimeMaxAge: number
     }
   }
   interface RuntimeConfig {
-    plutoNuxtContent?: {
+    plutoDocs?: {
       /** The `toc` option of `content.build.markdown`, for the run-time parser. */
       toc?: { depth?: number; searchDepth?: number }
     }

@@ -1,5 +1,5 @@
 /*
- * The nuxt-content layer's CSS. It is not a Tailwind entry.
+ * The docs layer's CSS. It is not a Tailwind entry.
  *
  * The app's CSS entry owns the one Tailwind build of the app. It imports this
  * file through `#build/pluto.css`. This file imports no Tailwind, adds no

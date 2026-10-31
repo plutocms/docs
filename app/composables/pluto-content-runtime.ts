@@ -1,9 +1,9 @@
 // The read side of the public pages. These composables hide the render mode
-// (`plutoNuxtContent.render`). In `'build'` mode they call Nuxt Content's
+// (`plutoDocs.render`). In `'build'` mode they call Nuxt Content's
 // `queryCollection`. In `'hybrid'` and `'runtime'` mode they call the layer's server routes:
 // `'runtime'` reads the Markdown from the content repository, and `'hybrid'` serves the build
 // data until a file differs from the build. A site calls only these, so a switch
-// of the mode needs no change in its pages. See the nuxt-content-setup skill.
+// of the mode needs no change in its pages. See the docs-setup skill.
 
 import type { MaybeRefOrGetter } from 'vue'
 
@@ -70,17 +70,17 @@ export interface PlutoContentNavigationOptions extends PlutoContentReadOptions {
 
 /** `'hybrid'`, `'build'` or `'runtime'`: the render mode of the site. */
 export function usePlutoContentRender(): 'hybrid' | 'build' | 'runtime' {
-  const render = useRuntimeConfig().public.plutoNuxtContent?.render
+  const render = useRuntimeConfig().public.plutoDocs?.render
   return render === 'runtime' || render === 'hybrid' ? render : 'build'
 }
 
 function runtimeTypeName(options: PlutoContentReadOptions): string {
-  const config = useRuntimeConfig().public.plutoNuxtContent as unknown as
+  const config = useRuntimeConfig().public.plutoDocs as unknown as
     { types?: Array<{ name: string }> } | undefined
   const name = options.type ?? config?.types?.[0]?.name
   if (!name) {
     throw new Error(
-      '[pluto-nuxt-content] No content type is registered. Add one to plutoNuxtContent.types.'
+      '[pluto-docs] No content type is registered. Add one to plutoDocs.types.'
     )
   }
   return name
@@ -92,7 +92,7 @@ function buildCollection(
 ): string {
   if (!options.collection) {
     throw new Error(
-      `[pluto-nuxt-content] ${caller} needs the "collection" option in build mode.`
+      `[pluto-docs] ${caller} needs the "collection" option in build mode.`
     )
   }
   return options.collection
@@ -107,7 +107,7 @@ function routeUrl(
   type: string,
   name: 'page' | 'navigation' | 'surround'
 ): string {
-  return `/api/pluto/v1/nuxt-content/${encodeURIComponent(type)}/${name}`
+  return `/api/pluto/v1/docs/${encodeURIComponent(type)}/${name}`
 }
 
 /** Runs a server route and returns its `data`. A 404 gives `null`. Any other error is thrown. */

@@ -21,16 +21,12 @@ function pick(mode: 'visual' | 'markdown') {
 </script>
 
 <template>
-  <div
-    :aria-label="t('nuxt-content.editor.mode')"
-    role="group"
-    class="flex gap-1"
-  >
+  <div :aria-label="t('docs.editor.mode')" role="group" class="flex gap-1">
     <UButton
       :variant="mode === 'visual' ? 'solid' : 'outline'"
       :aria-pressed="mode === 'visual'"
       :disabled="disabled || visualDisabled"
-      :label="t('nuxt-content.editor.visual')"
+      :label="t('docs.editor.visual')"
       size="xs"
       color="neutral"
       icon="i-lucide-layout-panel-left"
@@ -40,7 +36,7 @@ function pick(mode: 'visual' | 'markdown') {
       :variant="mode === 'markdown' ? 'solid' : 'outline'"
       :aria-pressed="mode === 'markdown'"
       :disabled="disabled"
-      :label="t('nuxt-content.editor.markdown')"
+      :label="t('docs.editor.markdown')"
       size="xs"
       color="neutral"
       icon="i-lucide-file-code"

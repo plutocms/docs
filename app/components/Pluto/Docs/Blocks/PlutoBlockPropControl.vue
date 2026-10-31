@@ -90,7 +90,7 @@ const selectItems = computed(() => {
   if (current && !items.some((item) => item.value === current)) {
     items.push({ value: current, label: current })
   }
-  return [{ value: DEFAULT, label: t('nuxt-content.editor.default') }, ...items]
+  return [{ value: DEFAULT, label: t('docs.editor.default') }, ...items]
 })
 
 const colorItems = computed(() =>
@@ -151,7 +151,7 @@ const iconPreview = computed(() =>
     :label="label"
     :description="description"
     :error="yamlError ?? undefined"
-    :help="type === 'icon' ? t('nuxt-content.editor.iconHelp') : undefined"
+    :help="type === 'icon' ? t('docs.editor.iconHelp') : undefined"
     class="w-full"
   >
     <USwitch
@@ -228,7 +228,7 @@ const iconPreview = computed(() =>
       v-else-if="type === 'link'"
       :model-value="text"
       :disabled="disabled"
-      :placeholder="t('nuxt-content.editor.linkPlaceholder')"
+      :placeholder="t('docs.editor.linkPlaceholder')"
       icon="i-lucide-link"
       autocomplete="off"
       class="w-full"

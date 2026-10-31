@@ -1,5 +1,5 @@
 /** One content type that the layer builds from a preset. */
-export interface PlutoNuxtContentTypeOptions {
+export interface PlutoDocsTypeOptions {
   /** The preset that makes the type. Only `docs` exists. */
   preset: 'docs'
   /** The content type name. It is a URL segment: `/admin/content/<name>`. */
@@ -24,18 +24,18 @@ export interface PlutoNuxtContentTypeOptions {
   navGroup?: string | false
 }
 
-/** How the public pages get their content. See the nuxt-content-setup skill. */
-export type PlutoNuxtContentRender = 'hybrid' | 'build' | 'runtime'
+/** How the public pages get their content. See the docs-setup skill. */
+export type PlutoDocsRender = 'hybrid' | 'build' | 'runtime'
 
-export interface PlutoNuxtContentOptions {
+export interface PlutoDocsOptions {
   /** The content types to register. Default: none. */
-  types?: PlutoNuxtContentTypeOptions[]
+  types?: PlutoDocsTypeOptions[]
   /**
    * `'hybrid'` (default): the pages are built with the site, and the server reads from the content
    * repository the pages that changed after the build. `'build'`: Nuxt Content builds the pages
    * and nothing else. `'runtime'`: the server reads every page from the repository at request time.
    */
-  render?: PlutoNuxtContentRender
+  render?: PlutoDocsRender
   /**
    * Seconds that a CDN may cache the answers of the layer routes (`hybrid` and `runtime`). Default 10.
    * It is short, so a save shows soon. `0` turns the cache header into `no-store`.
@@ -43,29 +43,25 @@ export interface PlutoNuxtContentOptions {
   runtimeMaxAge?: number
 }
 
-export interface PlutoNuxtContentResolveContext {
+export interface PlutoDocsResolveContext {
   /** False when the app sets `plutoGithub.enabled` to false. */
   cmsEnabled: boolean
 }
 
-export interface PlutoNuxtContentResolveResult {
+export interface PlutoDocsResolveResult {
   enabled: boolean
-  render: PlutoNuxtContentRender
+  render: PlutoDocsRender
   runtimeMaxAge: number
-  types: PlutoNuxtContentTypeOptions[]
+  types: PlutoDocsTypeOptions[]
   errors: string[]
 }
 
-export const PLUTO_NUXT_CONTENT_PRESETS = ['docs'] as const
-export const PLUTO_NUXT_CONTENT_RENDER_MODES = [
-  'hybrid',
-  'build',
-  'runtime',
-] as const
+export const PLUTO_DOCS_PRESETS = ['docs'] as const
+export const PLUTO_DOCS_RENDER_MODES = ['hybrid', 'build', 'runtime'] as const
 export const DEFAULT_RUNTIME_MAX_AGE = 10
 
 export const CMS_OFF_ERROR =
-  'The Nuxt Content layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the layer.'
+  'The docs layer needs the standalone CMS. Remove plutoGithub.enabled: false, or remove the layer.'
 
 const NAME_PATTERN = /^[a-z][a-z0-9-]*$/
 const SOURCE_SEGMENT = /^(?:\d+\.)?[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -103,10 +99,10 @@ export function normalizeRoutePrefix(prefix: unknown): string {
  * error. When the CMS is off, the layer is off and gives one error. This file
  * has no Nuxt import, so plain Vitest tests it.
  */
-export function resolvePlutoNuxtContentOptions(
-  options: PlutoNuxtContentOptions,
-  ctx: PlutoNuxtContentResolveContext
-): PlutoNuxtContentResolveResult {
+export function resolvePlutoDocsOptions(
+  options: PlutoDocsOptions,
+  ctx: PlutoDocsResolveContext
+): PlutoDocsResolveResult {
   const errors: string[] = []
 
   if (!ctx.cmsEnabled) {
@@ -119,17 +115,15 @@ export function resolvePlutoNuxtContentOptions(
     }
   }
 
-  let render: PlutoNuxtContentRender = 'hybrid'
+  let render: PlutoDocsRender = 'hybrid'
   if (options.render !== undefined) {
     if (
-      (PLUTO_NUXT_CONTENT_RENDER_MODES as readonly unknown[]).includes(
-        options.render
-      )
+      (PLUTO_DOCS_RENDER_MODES as readonly unknown[]).includes(options.render)
     ) {
       render = options.render
     } else {
       errors.push(
-        `plutoNuxtContent.render must be one of: ${PLUTO_NUXT_CONTENT_RENDER_MODES.join(', ')}. Using "hybrid".`
+        `plutoDocs.render must be one of: ${PLUTO_DOCS_RENDER_MODES.join(', ')}. Using "hybrid".`
       )
     }
   }
@@ -144,26 +138,24 @@ export function resolvePlutoNuxtContentOptions(
       runtimeMaxAge = options.runtimeMaxAge
     } else {
       errors.push(
-        `plutoNuxtContent.runtimeMaxAge must be a whole number of seconds, 0 or more. Using ${DEFAULT_RUNTIME_MAX_AGE}.`
+        `plutoDocs.runtimeMaxAge must be a whole number of seconds, 0 or more. Using ${DEFAULT_RUNTIME_MAX_AGE}.`
       )
     }
   }
 
-  const types: PlutoNuxtContentTypeOptions[] = []
+  const types: PlutoDocsTypeOptions[] = []
   const names = new Set<string>()
   const entries: unknown[] = Array.isArray(options.types) ? options.types : []
 
   for (const [index, entry] of entries.entries()) {
-    const where = `plutoNuxtContent.types[${index}]`
+    const where = `plutoDocs.types[${index}]`
     if (!isRecord(entry)) {
       errors.push(`${where} must be an object.`)
       continue
     }
-    if (
-      !(PLUTO_NUXT_CONTENT_PRESETS as readonly unknown[]).includes(entry.preset)
-    ) {
+    if (!(PLUTO_DOCS_PRESETS as readonly unknown[]).includes(entry.preset)) {
       errors.push(
-        `${where}.preset must be one of: ${PLUTO_NUXT_CONTENT_PRESETS.join(', ')}.`
+        `${where}.preset must be one of: ${PLUTO_DOCS_PRESETS.join(', ')}.`
       )
       continue
     }

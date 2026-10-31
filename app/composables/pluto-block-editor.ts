@@ -415,7 +415,7 @@ export function usePlutoBlockLabels() {
       return tx(label)
     }
     return slot === 'default'
-      ? t('nuxt-content.blocks.slots.default')
+      ? t('docs.blocks.slots.default')
       : humanizeName(slot)
   }
 
@@ -426,7 +426,7 @@ export function usePlutoBlockLabels() {
   ): string {
     const accepts = definition?.slots?.[slot]?.accepts
     if (accepts?.length === 1) {
-      return t('nuxt-content.editor.addItem', {
+      return t('docs.editor.addItem', {
         name: tx(
           resolveBlockDefinition(accepts[0]!, { overrides: blocksConfig() })
             .label
@@ -434,9 +434,9 @@ export function usePlutoBlockLabels() {
       })
     }
     if (slot === 'default') {
-      return t('nuxt-content.editor.addBlock')
+      return t('docs.editor.addBlock')
     }
-    return t('nuxt-content.editor.addTo', { name: slotLabel(definition, slot) })
+    return t('docs.editor.addTo', { name: slotLabel(definition, slot) })
   }
 
   return { slotLabel, addLabel }

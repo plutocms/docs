@@ -70,19 +70,19 @@ function menu(block: PlutoBlock, index: number) {
   return [
     [
       {
-        label: t('nuxt-content.editor.moveUp'),
+        label: t('docs.editor.moveUp'),
         icon: 'i-lucide-arrow-up',
         disabled: index === 0,
         onSelect: () => editor.move(block.id, -1),
       },
       {
-        label: t('nuxt-content.editor.moveDown'),
+        label: t('docs.editor.moveDown'),
         icon: 'i-lucide-arrow-down',
         disabled: index >= siblings.length - 1,
         onSelect: () => editor.move(block.id, 1),
       },
       {
-        label: t('nuxt-content.editor.addBelow'),
+        label: t('docs.editor.addBelow'),
         icon: 'i-lucide-plus',
         onSelect: () =>
           editor.openPalette({
@@ -92,14 +92,14 @@ function menu(block: PlutoBlock, index: number) {
           }),
       },
       {
-        label: t('nuxt-content.editor.duplicate'),
+        label: t('docs.editor.duplicate'),
         icon: 'i-lucide-copy',
         onSelect: () => editor.duplicate(block.id),
       },
     ],
     [
       {
-        label: t('nuxt-content.editor.delete'),
+        label: t('docs.editor.delete'),
         icon: 'i-lucide-trash-2',
         color: 'error' as const,
         onSelect: () => editor.remove(block.id),
@@ -240,8 +240,8 @@ onBeforeUnmount(() => sortable?.destroy())
           :aria-label="
             t(
               editor.collapsedIds.value.has(block.id)
-                ? 'nuxt-content.editor.expand'
-                : 'nuxt-content.editor.collapse',
+                ? 'docs.editor.expand'
+                : 'docs.editor.collapse',
               { name: info(block).label }
             )
           "
@@ -281,8 +281,8 @@ onBeforeUnmount(() => sortable?.destroy())
           </span>
           <span
             v-if="editor.editedIds.value.has(block.id)"
-            :aria-label="t('nuxt-content.editor.edited')"
-            :title="t('nuxt-content.editor.edited')"
+            :aria-label="t('docs.editor.edited')"
+            :title="t('docs.editor.edited')"
             class="size-1.5 shrink-0 rounded-full bg-primary"
             role="img"
           />
@@ -291,7 +291,7 @@ onBeforeUnmount(() => sortable?.destroy())
         <UDropdownMenu :items="menu(block, index)" :content="{ align: 'end' }">
           <UButton
             :aria-label="
-              t('nuxt-content.editor.blockActions', { name: info(block).label })
+              t('docs.editor.blockActions', { name: info(block).label })
             "
             icon="i-lucide-ellipsis"
             color="neutral"
