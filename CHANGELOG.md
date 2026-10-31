@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/plutocms/nuxt-content/compare/v0.13.0...v0.14.0) (2026-10-31)
+
+
+### Features
+
+* the docs types go to the pages nav group, with a navGroup option ([#65](https://github.com/plutocms/nuxt-content/issues/65)) ([8d366e7](https://github.com/plutocms/nuxt-content/commit/8d366e76558d7a9b163aa6c9fca77a9eaa2a9358))
+
 ## [0.13.0](https://github.com/plutocms/nuxt-content/compare/v0.12.3...v0.13.0) (2026-10-30)
 
 
