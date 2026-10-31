@@ -24,7 +24,7 @@ function create(source = SOURCE) {
       emitted.push(value)
       text.value = value
     },
-    overrides: () => ({}),
+    sources: () => ({}),
     now: () => 0,
   })
   return { editor, text, emitted }

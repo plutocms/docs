@@ -20,7 +20,9 @@ that block. A test guards this with the 48 pages of the docs site.
 - `operations.ts`: pure, immutable edits. Each returns a new doc.
 - `history.ts`: undo and redo over doc snapshots. The clock is a parameter.
 - `presets.ts`: the Nuxt UI prose and page components, with i18n keys.
-- `registry.ts`: `resolveBlockDefinition`, `listPaletteBlocks`, `definePlutoBlock`.
+- `registry.ts`: `resolveBlockDefinition`, `listPaletteBlocks`, `definePlutoBlock`, `blockKey`.
+- `component-meta.ts`: `blockFromComponentMeta`, `componentBlockName`. It makes a block definition
+  from the meta of a Vue component (see "Component meta").
 - `preview-protocol.ts`: the `postMessage` types and validators for the preview frame.
 - `editor.ts`: helpers for the UI (labels, slot editors, preview blocks, palette).
 - `tree.ts`: `flatChildren`, `walkBlocks`, `findBlock`, `pathOf`, `newBlockId`.
@@ -59,11 +61,73 @@ and the makers `createTextBlock`, `createCodeBlock`, `createComponentBlock`.
 
 ## Block definitions
 
-`resolveBlockDefinition(name, { overrides, block })` joins the preset, the site override
-(`plutoBlocks` in `app.config.ts`), and the props and slots found in the document (Advanced). An
-unknown component gets an automatic entry. `listPaletteBlocks(overrides)` gives the palette groups.
-`definePlutoBlock(def)` is a typed identity helper for `app.config.ts`. A label or a description is
-an i18n key (`docs.blocks.<name>.label`) or a plain text. `false` hides a block.
+`resolveBlockDefinition(name, { sources, block })` joins the layers into one definition. The order,
+low to high:
+
+1. the preset (or an automatic entry for an unknown component),
+2. the component layer (`sources.components`), made from the component files,
+3. the site override (`sources.overrides`): `plutoBlocks` in `app.config.ts`,
+4. the props and slots found in the document (`block`). They fill only what is missing, in the
+   Advanced section.
+
+`PlutoBlockSources = { components?, overrides? }` is the one object that carries the layers. The
+palette, the preview, the labels and the editor state all take it. The component layer is empty
+until the build step fills it, so a site sees no change.
+
+Rules of the merge:
+
+- A layer is a partial definition. Props and slots join key by key (shallow). A site can change only
+  the `label` of a prop that the component layer typed.
+- `false` for a prop or a slot removes it. `false` for a whole block hides it (`hidden: true`).
+  `{ hidden: false }` in a higher layer shows it again.
+- A prop that no layer types is a `string`.
+- A prop can have a `default`. It is a hint for the control. It never goes into the Markdown.
+- Names: the key is the kebab name (`PlutoHero` is `pluto-hero`, `UPageCTA` is `u-page-c-t-a`).
+  `blockKey` makes it. The lookup also takes the Pascal form that a page can use (`::PlutoHero`),
+  and a config key in any form.
+- Prop keys: a prop of the definition takes the spelling of the block. If the page has
+  `star-count` and the meta has `starCount`, the definition key is `star-count`. So an edit changes
+  the prop of the page. It never adds a second one.
+- `listPaletteBlocks(sources)` lists the presets, then the names in `components`, then the names that
+  only `overrides` has. A component shows in the palette only when it is in one of the layers
+  (opt-in). Any other component keeps the automatic entry: it is not in the palette, and a page that
+  uses it edits in Advanced.
+
+`definePlutoBlock(def)` is a typed identity helper. `definePlutoBlock<Props>({...})` checks that the
+keys of `props` are keys of `Props`. A label or a description is an i18n key
+(`docs.blocks.<name>.label`) or a plain text.
+
+Definitions never feed `parseBlocks` or `serializeBlocks`. The corpus test does not change when a
+layer changes.
+
+## Component meta
+
+`component-meta.ts` is pure. The build step (a later change) reads the meta of a component with
+`nuxt-component-meta`, and the object of its `definePlutoBlock({...})` call. It then calls
+`blockFromComponentMeta(name, meta, macro?)`. The result is `{ name, definition }`: the block key
+and the partial definition for the component layer. The macro wins over the meta, key by key.
+
+The type of a prop gives the widget. `undefined` and `null` are removed first.
+
+| Type                                                   | Widget                             |
+| ------------------------------------------------------ | ---------------------------------- |
+| `string`, named `icon` or ending in `Icon`             | `icon`                             |
+| `string` or `RouteLocationRaw`, named `to` or `href`   | `link`                             |
+| any other `string`; `string` or `number`               | `string`                           |
+| `number`                                               | `number`                           |
+| `boolean`                                              | `boolean`                          |
+| a union of string literals                             | `select` (options in source order) |
+| a union of theme colors                                | `color`                            |
+| object, array, function, number literals, other unions | no widget                          |
+
+- A prop with no widget is not in the definition. A page that sets it shows it in Advanced.
+- A mapped prop goes in Settings. `advanced: true` in the macro moves it.
+- A simple default (`300`, `"normal"`, `false`) becomes `default`.
+- The JSDoc text of a prop is its `description`. The label is the shared key
+  `docs.blocks.props.<name>` when the presets have one. Else the control shows the name in words.
+- A slot with the `mdcUnwrap` binding (`<slot mdc-unwrap="p">`) gets `content: 'inline'`. Other
+  slots get no `content`, so `resolveSlotMode` picks it from the page.
+- The label of a block is the macro label, else the name in words. The meta has no description.
 
 ## Add a preset
 
@@ -79,8 +143,11 @@ an i18n key (`docs.blocks.<name>.label`) or a plain text. `false` hides a block.
   write back byte for byte. The fixtures have `-text` in `.gitattributes`, so git keeps the bytes.
 - `test/blocks-edit.test.ts`, `test/blocks-operations.test.ts`: one edit changes only that block,
   and every operation leaves a text that parses again and writes the same bytes.
-- `test/blocks-parse.test.ts`, `test/blocks-history.test.ts`, `test/blocks-registry.test.ts`,
-  `test/blocks-preview-protocol.test.ts`.
+- `test/blocks-parse.test.ts`, `test/blocks-history.test.ts`, `test/blocks-registry.test.ts` (the
+  layers, the merge, the names, the palette), `test/blocks-preview-protocol.test.ts`.
+- `test/blocks-component-meta.test.ts`: the type table and the macro. The fixtures are the real
+  parser output for three docs-site components, in `test/fixtures/component-meta/`
+  (`nuxt-component-meta` 0.18.0, the version that `@nuxt/content` pins).
 
 ## Pinned versions
 

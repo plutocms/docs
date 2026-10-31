@@ -62,12 +62,27 @@ function setText(value: string | undefined) {
   )
 }
 
+// The default of the component, as a text for a placeholder.
+const defaultText = computed(() =>
+  props.definition.default === undefined
+    ? undefined
+    : String(props.definition.default)
+)
+
+const switchOn = computed(() =>
+  props.modelValue === undefined
+    ? props.definition.default === true
+    : props.modelValue === true || props.modelValue === 'true'
+)
+
 function setBoolean(value: boolean) {
-  // Off removes the prop. An explicit `false` in the source stays false.
-  emit(
-    'update:modelValue',
-    value ? true : props.modelValue === false ? false : undefined
-  )
+  // The state of the default removes the prop. An explicit value in the source stays explicit.
+  const fallback = props.definition.default === true
+  if (value === fallback) {
+    emit('update:modelValue', props.modelValue === value ? value : undefined)
+  } else {
+    emit('update:modelValue', value)
+  }
 }
 
 const numberValue = computed(() => {
@@ -90,7 +105,12 @@ const selectItems = computed(() => {
   if (current && !items.some((item) => item.value === current)) {
     items.push({ value: current, label: current })
   }
-  return [{ value: DEFAULT, label: t('docs.editor.default') }, ...items]
+  // "Default (slow)": the item shows the value that the component uses.
+  const fallback = items.find((item) => item.value === defaultText.value)
+  const defaultLabel = defaultText.value
+    ? `${t('docs.editor.default')} (${fallback?.label ?? defaultText.value})`
+    : t('docs.editor.default')
+  return [{ value: DEFAULT, label: defaultLabel }, ...items]
 })
 
 const colorItems = computed(() =>
@@ -156,7 +176,7 @@ const iconPreview = computed(() =>
   >
     <USwitch
       v-if="type === 'boolean'"
-      :model-value="modelValue === true || modelValue === 'true'"
+      :model-value="switchOn"
       :disabled="disabled"
       :aria-label="label"
       @update:model-value="setBoolean($event)"
@@ -165,6 +185,7 @@ const iconPreview = computed(() =>
     <UInputNumber
       v-else-if="type === 'number'"
       :model-value="numberValue"
+      :placeholder="defaultText"
       :disabled="disabled"
       class="w-full"
       @update:model-value="emit('update:modelValue', $event ?? undefined)"
@@ -193,6 +214,7 @@ const iconPreview = computed(() =>
     <UTextarea
       v-else-if="type === 'text'"
       :model-value="text"
+      :placeholder="defaultText"
       :disabled="disabled"
       :rows="2"
       class="w-full"
@@ -217,7 +239,7 @@ const iconPreview = computed(() =>
       :model-value="text"
       :disabled="disabled"
       :icon="iconPreview"
-      placeholder="i-lucide-rocket"
+      :placeholder="defaultText ?? 'i-lucide-rocket'"
       spellcheck="false"
       autocomplete="off"
       class="w-full"
@@ -228,7 +250,7 @@ const iconPreview = computed(() =>
       v-else-if="type === 'link'"
       :model-value="text"
       :disabled="disabled"
-      :placeholder="t('docs.editor.linkPlaceholder')"
+      :placeholder="defaultText ?? t('docs.editor.linkPlaceholder')"
       icon="i-lucide-link"
       autocomplete="off"
       class="w-full"
@@ -238,6 +260,7 @@ const iconPreview = computed(() =>
     <UInput
       v-else
       :model-value="text"
+      :placeholder="defaultText"
       :disabled="disabled"
       class="w-full"
       @update:model-value="setText($event as string)"

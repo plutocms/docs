@@ -22,7 +22,6 @@ const props = defineProps<{
 const editor = usePlutoBlockEditor()
 const { t, tx } = usePlutoI18n()
 const router = useRouter()
-const blocksConfig = usePlutoBlocksConfig()
 
 const DEBOUNCE_MS = 150
 const LOAD_TIMEOUT_MS = 12000
@@ -40,7 +39,7 @@ const shownId = computed(() =>
   previewSelectionId(editor.doc.value, editor.selectedId.value)
 )
 const blocks = computed(() =>
-  toPreviewBlocks(editor.doc.value.blocks, blocksConfig())
+  toPreviewBlocks(editor.doc.value.blocks, editor.sources.value)
 )
 
 function send(message: ReturnType<typeof previewMessage>) {

@@ -52,7 +52,8 @@ The docs type uses the core `canvas` form layout (see the `admin-view-chrome` sk
     in the Visual mode. The split handle is the 6px handle of core (a 1px line, a 6px bar).
   - `PlutoBlockPalette.vue`: "Add a block". A `UCommandPalette` in a modal.
   - `PlutoBlockInspector.vue`: Content (one control for each slot), Settings, Advanced, actions.
-  - `PlutoBlockPropControl.vue`: one setting. The control follows the prop type.
+  - `PlutoBlockPropControl.vue`: one setting. The control follows the prop type. A prop `default`
+    shows as the placeholder, as "Default (value)" in a choice, and as the state of the switch.
   - `PlutoBlockTextEditor.vue`: core `UEditor` with the shared `usePlutoMarkdownToolbar`. The
     Tiptap history is off. It writes only after the author acts (see "Byte for byte").
   - `PlutoBlockRawEditor.vue`: a Markdown box (`PlutoMarkdownSource`).
@@ -62,13 +63,16 @@ The docs type uses the core `canvas` form layout (see the `admin-view-chrome` sk
 - `app/pages/_pluto/preview.vue`: the preview page.
 - `app/components/PlutoContentPreview.vue`: the frame around the blocks. A site can override it.
 - `app/composables/pluto-block-editor.ts`: `createPlutoBlockEditor` (the state),
-  `usePlutoBlockEditor`, `usePlutoBlockLabels`, `topLevelId`.
+  `usePlutoBlockEditor`, `usePlutoBlockSources`, `usePlutoBlockLabels`, `topLevelId`.
 - `shared/utils/blocks/editor.ts`: pure helpers (`describeBlock`, `resolveSlotMode`,
   `slotMarkdown`, `toPreviewBlocks`, `buildPalette`).
 
 ## The state
 
-`createPlutoBlockEditor({ source, emit, overrides })` keeps the doc in an undo history. Each action
+`createPlutoBlockEditor({ source, emit, sources })` keeps the doc in an undo history. It also owns the
+block sources (`editor.sources`, a `PlutoBlockSources`). The palette, the preview frame and the
+labels read them from the state, not from the app config. `usePlutoBlockSources()` gives the getter
+that the two root components pass in. Each action
 (insert, remove, duplicate, move, set prop, set slot, update text or code, replace with Markdown)
 builds a new doc, writes the text with `serializeBlocks`, and calls `emit`. It never calls `emit`
 on open. When the text changes from outside, it reads the doc again and clears the history.
@@ -131,7 +135,8 @@ does on the site. It fetches nothing.
 ## The site config
 
 A site names its own components in `app.config.ts`, key `plutoBlocks` (see the block model skill).
-The palette shows them, the list shows their label and icon, and the Block panel shows their
+This is the "overrides" layer of the block sources. It wins over the component layer, which the
+build step will fill from the component files (it is empty for now). The palette shows them, the list shows their label and icon, and the Block panel shows their
 settings and slots. Slot content kinds: `rich` (text editor), `inline` (one line), `blocks` (a
 list with "Add"). A `rich` or `inline` slot becomes a Markdown box when its content has syntax that
 the text editor would lose, and a block list when it holds a component or code.
@@ -146,8 +151,8 @@ selected, so clearing the field does not move the text to the other place.
 
 - Typing in the preview. A click selects, and the panels edit.
 - Selecting a nested block in the preview (a click selects the top-level container).
-- A table grid (a table is a Markdown block), automatic props from component meta, an image
-  control, a device width switch.
+- A table grid (a table is a Markdown block), the build step that fills the component layer from
+  the component files (the mapping is ready in `component-meta.ts`), an image control, a device width switch.
 - A phone layout with the block list as the main view (the panels are slideovers).
 - The overflow menu item for Visual and Markdown (the switch is at the bottom of the block list,
   and above the Markdown box).
@@ -157,6 +162,8 @@ selected, so clearing the field does not move the text to the other place.
 ## Tests
 
 - `test/block-editor-state.test.ts`: no emit on open for the 48 pages, each action, Undo and Redo.
+- `test/block-editor-sources.test.ts`: the state with a component layer (no emit on open for the 48
+  pages, and an edit of a kebab prop changes only that token).
 - `test/blocks-editor-helpers.test.ts`: labels, excerpts, slot editors, preview blocks, palette.
 - `test/docs-type.test.ts`: the canvas layout and the View link.
 - The locale test checks the keys of the UI.

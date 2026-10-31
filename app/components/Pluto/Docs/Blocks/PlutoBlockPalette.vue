@@ -13,7 +13,6 @@ import { findBlock } from '../../../../../shared/utils/blocks/tree'
 
 const editor = usePlutoBlockEditor()
 const { t, tx } = usePlutoI18n()
-const blocksConfig = usePlutoBlocksConfig()
 
 const open = computed({
   get: () => editor.palette.value.open,
@@ -43,19 +42,21 @@ function findBlockById(id: string) {
 }
 
 const groups = computed<CommandPaletteGroup[]>(() =>
-  buildPalette(blocksConfig(), accepts.value).map(({ group, entries }) => ({
-    id: group,
-    label: tx(groupLabelKey(group)),
-    items: entries.map((entry): CommandPaletteItem => ({
-      label: tx(entry.label),
-      suffix: entry.description ? tx(entry.description) : undefined,
-      icon: entry.icon,
-      onSelect: () => {
-        editor.insert(entry, editor.palette.value.target)
-        open.value = false
-      },
-    })),
-  }))
+  buildPalette(editor.sources.value, accepts.value).map(
+    ({ group, entries }) => ({
+      id: group,
+      label: tx(groupLabelKey(group)),
+      items: entries.map((entry): CommandPaletteItem => ({
+        label: tx(entry.label),
+        suffix: entry.description ? tx(entry.description) : undefined,
+        icon: entry.icon,
+        onSelect: () => {
+          editor.insert(entry, editor.palette.value.target)
+          open.value = false
+        },
+      })),
+    })
+  )
 )
 </script>
 

@@ -24,12 +24,12 @@ const emit = defineEmits<{
 
 const { t } = usePlutoI18n()
 const form = usePlutoContentForm()
-const blocksConfig = usePlutoBlocksConfig()
+const blockSources = usePlutoBlockSources()
 
 const editor = createPlutoBlockEditor({
   source: () => props.modelValue,
   emit: (value) => emit('update:modelValue', value),
-  overrides: blocksConfig,
+  sources: blockSources,
 })
 provide(plutoBlockEditorKey, editor)
 

@@ -128,6 +128,11 @@ export interface PlutoBlockPropDefinition {
    * on the site), else the prop. The slot does not show in the Content section.
    */
   slot?: string
+  /**
+   * The value the component uses when the prop is missing. The control shows it as the
+   * placeholder (or in the "Default" item of a choice). It never goes into the Markdown.
+   */
+  default?: string | number | boolean
 }
 
 /** The editor for the content of a slot. */
@@ -158,8 +163,33 @@ export interface PlutoBlockDefinition {
   hidden?: boolean
 }
 
-/** A site override: a partial definition, or `false` to hide the block from the palette. */
-export type PlutoBlockOverride =
-  Partial<Omit<PlutoBlockDefinition, 'name'>> | false
+/** A change to one prop: a partial prop definition. A prop with no `type` is a `string`. */
+export type PlutoBlockPropPatch = Partial<PlutoBlockPropDefinition>
 
+/**
+ * A partial block definition: one layer of the sources (the component layer, or the site
+ * override). `Props` is the prop interface of a component, so `definePlutoBlock<Props>()` can
+ * check the keys of `props`. A prop or a slot set to `false` is removed from the layers below.
+ */
+export interface PlutoBlockPatch<
+  Props extends object = Record<string, unknown>,
+> extends Partial<Omit<PlutoBlockDefinition, 'name' | 'props' | 'slots'>> {
+  props?: { [Key in keyof Props & string]?: PlutoBlockPropPatch | false }
+  slots?: Record<string, PlutoBlockSlotDefinition | false>
+}
+
+/** One layer for one block: a partial definition, or `false` to hide the block from the palette. */
+export type PlutoBlockOverride = PlutoBlockPatch | false
+
+/** The blocks of one layer, by component name (kebab case). */
 export type PlutoBlocksConfig = Record<string, PlutoBlockOverride>
+
+/**
+ * The layers that join the preset into a block definition. The component layer comes from the
+ * component files (it is empty until the build step fills it). The overrides are `plutoBlocks`
+ * in `app.config.ts`, and they win.
+ */
+export interface PlutoBlockSources {
+  components?: PlutoBlocksConfig
+  overrides?: PlutoBlocksConfig
+}
