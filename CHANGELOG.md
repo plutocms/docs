@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.0](https://github.com/plutocms/docs/compare/v0.15.0...v0.16.0) (2026-10-31)
+
+
+### Features
+
+* block sources and component meta mapping for the editor ([#75](https://github.com/plutocms/docs/issues/75)) ([cc04cf0](https://github.com/plutocms/docs/commit/cc04cf044112b6d4432817711c1e8ed34cce1b7e))
+* discover editor blocks from definePlutoBlock in components/content ([#78](https://github.com/plutocms/docs/issues/78)) ([0ce82b9](https://github.com/plutocms/docs/commit/0ce82b9672b276c6b50edf6f647fd42490595c84))
+
 ## [0.15.0](https://github.com/plutocms/nuxt-content/compare/v0.14.0...v0.15.0) (2026-10-31)
 
 
