@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.15.0](https://github.com/plutocms/nuxt-content/compare/v0.14.0...v0.15.0) (2026-10-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* the package is now @plutocms/docs. The config key plutoNuxtContent is now plutoDocs. The i18n namespace nuxt-content is now docs. The env var PLUTO_NUXT_CONTENT_PATH is not used in this repo.
+
+### Features
+
+* rename the package to @plutocms/docs ([#71](https://github.com/plutocms/nuxt-content/issues/71)) ([b480cfa](https://github.com/plutocms/nuxt-content/commit/b480cfacca3df143ce5844ec26f46679e5ea293b))
+
 ## [0.14.0](https://github.com/plutocms/nuxt-content/compare/v0.13.0...v0.14.0) (2026-10-31)
 
 
